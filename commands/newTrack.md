@@ -139,12 +139,20 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
           "description": "<track description>"
         }
         ```
+    *   **Create `decisions.md` for decision logging:**
+        *   Read the template from `$CLAUDE_PLUGIN_ROOT/templates/decisions.md`
+        *   Replace the header with a track-specific header:
+            ```markdown
+            # Decisions Log: <Track Description>
+            ```
+        *   Write to `conductor/tracks/<track_id>/decisions.md`
     *   Write `index.md` with the following content:
         ```markdown
         # Track <track_id> Context
 
         - [Specification](./spec.md)
         - [Implementation Plan](./plan.md)
+        - [Decisions Log](./decisions.md)
         - [Metadata](./metadata.json)
         ```
 
@@ -160,7 +168,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     *   Write the updated content back to `conductor/tracks.md`.
 
 4.  **Commit Changes:**
-    *   Stage all the new files: `conductor/tracks/<track_id>/spec.md`, `conductor/tracks/<track_id>/plan.md`, `conductor/tracks/<track_id>/metadata.json`, and `conductor/tracks.md`.
+    *   Stage all the new files: `conductor/tracks/<track_id>/spec.md`, `conductor/tracks/<track_id>/plan.md`, `conductor/tracks/<track_id>/decisions.md`, `conductor/tracks/<track_id>/metadata.json`, `conductor/tracks/<track_id>/index.md`, and `conductor/tracks.md`.
     *   Commit with the message: `conductor(track): Create track '<track description>'`
 
 5.  **Final Announcement:**
