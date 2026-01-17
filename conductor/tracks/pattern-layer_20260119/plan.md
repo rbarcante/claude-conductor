@@ -19,7 +19,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Pattern Infrastructure Setup' (Protocol in workflow.md) `9c191c6`
 
-## Phase 2: Core Pattern Library
+## Phase 2: Core Pattern Library [checkpoint: 17689e7]
 
 - [x] Task: Create error-handling pattern `f0750aa`
     - [x] Write validation tests for pattern content completeness
@@ -49,14 +49,14 @@
 - [x] Task: Update pattern registry index `0e0a23e`
     - [x] Update `/patterns/index.md` to include all 5 core patterns with descriptions
 
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md) `17689e7`
 
 ## Phase 3: Pattern Resolution Protocol
 
-- [ ] Task: Design pattern resolution algorithm
-    - [ ] Define keyword extraction logic from task descriptions
-    - [ ] Define pattern matching rules (exact match, partial match, relevance scoring)
-    - [ ] Document algorithm in design notes
+- [x] Task: Design pattern resolution algorithm
+    - [x] Define keyword extraction logic from task descriptions
+    - [x] Define pattern matching rules (exact match, partial match, relevance scoring)
+    - [x] Document algorithm in design notes
 
 - [ ] Task: Document Pattern Resolution Protocol in CLAUDE.md
     - [ ] Write tests to validate protocol documentation completeness
