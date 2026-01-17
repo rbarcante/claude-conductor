@@ -592,6 +592,192 @@ cat conductor/tracks/<track_id>/plan.md
 
 ---
 
+## Quality Intelligence Test Scenarios
+
+### Anti-Pattern Detection Tests
+
+**Scenario: Detect Mutable Defaults in Python**
+
+**Objective:** Verify anti-pattern detection catches mutable default arguments
+
+**Steps:**
+1. Create a Python file with mutable default:
+   ```python
+   def process_items(items=[]):
+       items.append("new")
+       return items
+   ```
+2. Run `/conductor:implement` on a task modifying this file
+3. Observe quality gate output
+
+**Expected Results:**
+- Quality gate should detect Mutable Defaults anti-pattern
+- Finding should show:
+  - Severity: High
+  - File and line number
+  - The problematic pattern
+- User should be prompted to fix or skip with reason
+
+---
+
+**Scenario: Detect God Object**
+
+**Objective:** Verify anti-pattern detection catches oversized classes
+
+**Steps:**
+1. Create a Python/JavaScript file with >500 lines and >20 methods
+2. Run `/conductor:implement` on a task modifying this file
+3. Observe quality gate output
+
+**Expected Results:**
+- Quality gate should detect God Object anti-pattern
+- Severity: High
+- Metrics shown: line count, method count
+- Refactoring guidance available via "View details"
+
+---
+
+**Scenario: Detect Magic Numbers**
+
+**Objective:** Verify anti-pattern detection catches unexplained numeric literals
+
+**Steps:**
+1. Create code with magic numbers:
+   ```javascript
+   if (retries > 3) { /* ... */ }
+   const timeout = 86400;
+   ```
+2. Run quality gate
+
+**Expected Results:**
+- Quality gate should detect Magic Numbers
+- Severity: Medium (informational)
+- Line references for each occurrence
+
+---
+
+**Scenario: No Anti-Patterns Found**
+
+**Objective:** Verify clean code passes quality gate
+
+**Steps:**
+1. Create well-structured code with no anti-patterns
+2. Run quality gate
+
+**Expected Results:**
+- Quality gate should pass with:
+  ```
+  ✅ **Quality Gate Passed**
+  No anti-patterns detected.
+  ```
+- Implementation should proceed without prompts
+
+---
+
+### Coverage Intelligence Tests
+
+**Scenario: Parse LCOV Coverage Report**
+
+**Objective:** Verify coverage parsing works with LCOV format
+
+**Steps:**
+1. Generate coverage report in LCOV format
+2. Run quality gate after tests
+
+**Expected Results:**
+- Coverage percentage displayed
+- Uncovered functions identified
+- Priority suggestions generated with estimated gain
+
+---
+
+**Scenario: No Coverage Report Available**
+
+**Objective:** Verify graceful handling when no coverage report exists
+
+**Steps:**
+1. Run quality gate without any coverage files present
+
+**Expected Results:**
+- Informational message displayed:
+  ```
+  ℹ️ No coverage report found. Skipping coverage analysis.
+  ```
+- Quality gate proceeds with anti-pattern detection only
+
+---
+
+**Scenario: Coverage Below Target**
+
+**Objective:** Verify handling when coverage is below 80% target
+
+**Steps:**
+1. Generate coverage report showing 75% coverage
+2. Run quality gate
+
+**Expected Results:**
+- Coverage gap highlighted:
+  ```
+  **Current Coverage:** 75% (Target: 80%)
+  ```
+- Top suggestions shown with estimated gain
+- User can proceed or add tests
+
+---
+
+### Quality Gate Flow Tests
+
+**Scenario: Skip High-Severity Issue with Reason**
+
+**Objective:** Test the skip workflow for high-severity findings
+
+**Steps:**
+1. Trigger a high-severity anti-pattern
+2. Choose option "2" (Skip with reason)
+3. Enter reason for each finding
+4. Verify documentation
+
+**Expected Results:**
+- Prompt appears for each high-severity item
+- Skip reasons recorded in task documentation
+- Implementation proceeds after all reasons provided
+
+---
+
+**Scenario: Critical Issue Blocks Completion**
+
+**Objective:** Verify critical issues cannot be skipped
+
+**Steps:**
+1. Trigger a critical-severity anti-pattern (if any defined)
+2. Attempt to proceed without fixing
+
+**Expected Results:**
+- Quality gate blocks with:
+  ```
+  🛑 **Quality Gate: BLOCKED**
+  Critical issues must be resolved.
+  ```
+- No skip option available
+- Must fix to proceed
+
+---
+
+**Scenario: View Anti-Pattern Details**
+
+**Objective:** Test viewing anti-pattern guidance
+
+**Steps:**
+1. Trigger an anti-pattern
+2. Choose option "3" (View guidance)
+
+**Expected Results:**
+- AI Quick Reference section displayed
+- Refactoring steps shown
+- Can return to main options after viewing
+
+---
+
 ## Edge Cases to Test
 
 ### Edge Case 1: Empty Tracks File
@@ -674,6 +860,17 @@ After testing, verify:
 - [ ] Maximum skill limit (5) enforced
 - [ ] Missing skill registry handled gracefully
 - [ ] Missing skill files handled gracefully
+- [ ] Anti-pattern detection identifies mutable defaults
+- [ ] Anti-pattern detection identifies god objects
+- [ ] Anti-pattern detection identifies magic numbers
+- [ ] Anti-pattern detection identifies spaghetti code
+- [ ] Anti-pattern detection identifies deep nesting
+- [ ] Quality gate blocks on critical issues
+- [ ] Quality gate warns on high-severity issues
+- [ ] Quality gate allows skip with documented reason
+- [ ] Coverage intelligence parses LCOV format
+- [ ] Coverage intelligence handles missing reports gracefully
+- [ ] Coverage suggestions prioritized by business impact
 
 ---
 

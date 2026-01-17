@@ -18,6 +18,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
+- **Quality Intelligence**: Automated anti-pattern detection and coverage analysis with actionable test suggestions during implementation.
 
 ## Installation
 
@@ -251,6 +252,91 @@ See `/docs/skill-manifest-schema.md` for creating custom skills. Each skill incl
 
 - **manifest.json**: Metadata and activation rules
 - **SKILL.md**: Guidance content for the AI agent
+
+## Quality Intelligence
+
+Conductor includes intelligent quality gates that automatically analyze code for common anti-patterns and provide actionable coverage suggestions during implementation.
+
+### Anti-Pattern Detection
+
+When you run `/conductor:implement`, Conductor automatically scans modified files for code quality issues. Anti-patterns are categorized by severity:
+
+| Severity | Behavior | Examples |
+|:---------|:---------|:---------|
+| **Critical** | Blocks task completion | Security vulnerabilities |
+| **High** | Warns, requires documented skip | God Object, Mutable Defaults, Spaghetti Code |
+| **Medium** | Informational | Magic Numbers, Deep Nesting |
+
+#### Example Quality Gate Output
+
+```
+⚠️ **Quality Gate: Issues Detected**
+
+| Severity | File | Line | Anti-Pattern | Issue |
+|----------|------|------|--------------|-------|
+| 🔴 High | src/service.py | 45 | Mutable Defaults | `def process(items=[])` |
+| 🟡 Medium | src/utils.py | 23 | Magic Numbers | Literal `86400` |
+
+Options: (1) Fix issues (2) Skip with reason (3) View guidance
+```
+
+#### Core Anti-Patterns
+
+The following anti-patterns are detected out of the box:
+
+| Anti-Pattern | Severity | Detection |
+|:-------------|:---------|:----------|
+| God Object | High | Classes >500 lines or >20 methods |
+| Mutable Defaults | High | `def f(x=[])` or `def f(x={})` patterns |
+| Spaghetti Code | High | Cyclomatic complexity >15 |
+| Magic Numbers | Medium | Unexplained numeric literals |
+| Deep Nesting | Medium | Nesting depth >4 levels |
+
+### Coverage Intelligence
+
+When a coverage report is available, Conductor analyzes it to suggest prioritized tests based on business impact:
+
+```
+### Coverage Intelligence
+
+**Current Coverage:** 75% (Target: 80%)
+
+**Top Suggestions:**
+1. `process_payment()` in services/payment.py (+2.5% gain)
+   - Core business logic, currently untested
+2. `validate_input()` in api/handlers.py (+1.8% gain)
+   - Input validation with multiple branches
+```
+
+#### Supported Coverage Formats
+
+- **LCOV**: `lcov.info`, `coverage.lcov`
+- **Cobertura XML**: `coverage.xml`, `cobertura.xml`
+- **Istanbul JSON**: `coverage-final.json`
+- **Coverage.py**: `.coverage`, `coverage.json`
+- **Go Cover**: `coverage.out`
+
+### Skip Documentation
+
+When skipping quality gate warnings, document your reasoning:
+
+```markdown
+### Quality Gate Decisions
+
+**Skipped Anti-Patterns:**
+- **Mutable Defaults** at src/service.py:45
+  - Reason: Intentional memoization cache, documented in function docstring
+  - Reviewed: 2026-01-20
+```
+
+### Adding Custom Anti-Patterns
+
+Create new anti-patterns in `patterns/anti-patterns/core/` using the template at `patterns/anti-patterns/TEMPLATE.md`. Each anti-pattern includes:
+
+- **YAML Frontmatter**: Severity, detection patterns, file extensions
+- **AI Quick Reference**: Concise detection and fix guidance
+- **Human Documentation**: Detailed explanations with examples
+- **Exceptions**: Valid use cases where the pattern is acceptable
 
 ## Universal File Resolution Protocol (UFRP)
 
