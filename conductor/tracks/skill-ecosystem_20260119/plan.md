@@ -166,7 +166,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 7: Skill Registry Integration' (Protocol in workflow.md)
 
-## Phase 8: Integration and Documentation
+## Phase 8: Integration and Documentation [checkpoint: 19e879c]
 
 - [x] Task: End-to-end integration testing
     - [x] Test skills command with all subcommands
