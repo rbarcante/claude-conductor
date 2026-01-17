@@ -29,7 +29,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Create extensible skill plugin architecture with Skill Interface Standard, management command, and 3 reference skills**
+- [~] **Track: Create extensible skill plugin architecture with Skill Interface Standard, management command, and 3 reference skills**
   *Link: [./conductor/tracks/skill-ecosystem_20260119/](./conductor/tracks/skill-ecosystem_20260119/)*
 
 ---

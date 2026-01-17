@@ -19,7 +19,7 @@
     - [x] Include all required and optional fields
     - [x] Add schema examples for different skill types
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Skill Interface Standard Documentation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Skill Interface Standard Documentation' (Protocol in workflow.md)
 
 ## Phase 2: Skills Management Command
 
