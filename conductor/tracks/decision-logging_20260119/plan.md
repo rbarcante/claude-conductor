@@ -71,19 +71,19 @@
 
 ## Phase 5: Git Notes Enhancement
 
-- [ ] Task: Design enhanced git note format
-    - [ ] Add "Decisions Made" section
-    - [ ] Add reference to decisions.md entries
-    - [ ] Add "Why" section for overall rationale
-    - [ ] Document enhanced format
+- [x] Task: Design enhanced git note format [79a68fa]
+    - [x] Add "Decisions Made" section
+    - [x] Add reference to decisions.md entries
+    - [x] Add "Why" section for overall rationale
+    - [x] Document enhanced format
 
-- [ ] Task: Update workflow.md with enhanced git notes
-    - [ ] Write tests for workflow.md structure changes
-    - [ ] Update Section 9 (Attach Task Summary) with new format
-    - [ ] Include example of enhanced git note
-    - [ ] Update git notes command template
+- [x] Task: Update workflow.md with enhanced git notes [79a68fa]
+    - [x] Write tests for workflow.md structure changes
+    - [x] Update Section 9 (Attach Task Summary) with new format
+    - [x] Include example of enhanced git note
+    - [x] Update git notes command template
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5: Git Notes Enhancement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5: Git Notes Enhancement' (Protocol in workflow.md)
 
 ## Phase 6: Integration and Documentation
 
