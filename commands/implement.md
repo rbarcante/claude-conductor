@@ -162,6 +162,128 @@ If skill registry is missing or no always-active skills exist, proceed silently 
     c. **For Each Task, You MUST:**
         i. **Defer to Workflow:** The **Workflow** file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the **Workflow** file you have in your context. Follow its steps for implementation, testing, and committing precisely.
 
+---
+
+## 3.5 QUALITY GATE VERIFICATION
+**PROTOCOL: Run quality analysis before task completion.**
+
+This section runs after task implementation but before the task is marked complete. Follow the **Quality Analysis Protocol** (`protocols/quality-analysis.md`) and **Coverage Intelligence Protocol** (`protocols/coverage-intelligence.md`).
+
+### Step 1: Run Anti-Pattern Detection
+
+1.  **Identify Modified Files:**
+    -   Execute `git diff --name-only HEAD~1` to get files modified in the current task
+    -   Filter to include only code files (exclude `.md`, `.json`, `.yaml`, etc.)
+
+2.  **Load Applicable Anti-Patterns:**
+    -   Read `patterns/anti-patterns/index.md` to get list of anti-patterns
+    -   For each modified file, load anti-patterns matching the file extension
+
+3.  **Execute Detection:**
+    -   For each anti-pattern, check modified files against:
+        - Regex patterns from `detection.patterns`
+        - Metric thresholds from `detection.thresholds`
+    -   Record findings with file path and line number
+
+4.  **Report Findings:**
+    -   Group findings by severity (critical, high, medium)
+    -   Display using the Quality Gate Output Format (see below)
+
+### Step 2: Run Coverage Intelligence (if coverage report exists)
+
+1.  **Locate Coverage Report:**
+    -   Search for coverage files: `lcov.info`, `coverage.xml`, `coverage-final.json`
+    -   If no report found, skip coverage analysis with informational message
+
+2.  **Parse and Analyze:**
+    -   Parse coverage data per Coverage Intelligence Protocol
+    -   Calculate priority scores for uncovered code
+    -   Generate test suggestions
+
+3.  **Report Suggestions:**
+    -   Display top 3-5 suggestions with estimated coverage gain
+    -   Show current vs target coverage percentage
+
+### Step 3: Handle User Decision
+
+Based on findings, present options to the user:
+
+**If Critical Issues Found:**
+```
+🛑 **Quality Gate: BLOCKED**
+
+Critical issues must be resolved before proceeding.
+
+[Table of critical findings]
+
+Action Required: Fix the issue(s) listed above, then the quality gate will re-run.
+```
+-   Do NOT allow skip for critical issues
+-   Wait for user to fix issues
+
+**If High/Medium Issues Found (no critical):**
+```
+⚠️ **Quality Gate: Issues Detected**
+
+[Table of findings by severity]
+
+Options:
+1. Fix issues and re-run quality gate
+2. Skip with documented reasons
+3. View anti-pattern details for guidance
+
+Enter choice (1/2/3):
+```
+
+**If User Chooses Skip:**
+-   Prompt for reason for each high-severity item
+-   Record skip decisions in the task completion documentation
+-   Proceed with task completion
+
+**If No Issues Found:**
+```
+✅ **Quality Gate Passed**
+
+No anti-patterns detected. Coverage meets target.
+Proceeding with task completion.
+```
+
+### Quality Gate Output Format
+
+**Anti-Pattern Findings:**
+```
+### Anti-Pattern Findings
+
+| Severity | File | Line | Anti-Pattern | Issue |
+|----------|------|------|--------------|-------|
+| 🔴 High | src/service.py | 45 | Mutable Defaults | `def process(items=[])` |
+| 🟡 Medium | src/utils.py | 23 | Magic Numbers | Literal `86400` |
+```
+
+**Coverage Intelligence:**
+```
+### Coverage Intelligence
+
+**Current Coverage:** 75% (Target: 80%)
+
+**Top Suggestions:**
+1. `process_payment()` in services/payment.py (+2.5% gain)
+2. `validate_input()` in api/handlers.py (+1.8% gain)
+```
+
+**Skip Documentation Format:**
+When issues are skipped, include in task documentation:
+```
+### Quality Gate Decisions
+
+**Skipped Anti-Patterns:**
+- **Mutable Defaults** at src/service.py:45
+  - Reason: Intentional caching mechanism
+  - Reviewed: YYYY-MM-DD
+```
+
+---
+
 6.  **Finalize Track:**
     -   After all tasks in the track's local **Implementation Plan** are completed, you MUST update the track's status in the **Tracks Registry**.
     -   This requires finding the specific line for the track (e.g., `- [~] **Track: <Description>**`) and replacing it with the completed status (e.g., `- [x] **Track: <Description>**`).
