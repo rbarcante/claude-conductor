@@ -21,7 +21,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Anti-Pattern Library Foundation' (Protocol in workflow.md)
 
-## Phase 2: Core Anti-Pattern Creation
+## Phase 2: Core Anti-Pattern Creation [checkpoint: e758670]
 
 - [x] Task: Create god-object anti-pattern `2a20080`
     - [x] Write validation tests for content completeness
@@ -57,7 +57,7 @@
     - [x] Add all 5 core anti-patterns to index
     - [x] Organize by severity
 
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Core Anti-Pattern Creation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Core Anti-Pattern Creation' (Protocol in workflow.md)
 
 ## Phase 3: Quality Analysis Protocol
 
