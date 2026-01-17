@@ -29,11 +29,11 @@
     - [x] Define detection: class/file with >500 lines or >20 methods
     - [x] Set severity: high
 
-- [ ] Task: Create magic-numbers anti-pattern
-    - [ ] Write validation tests for content completeness
-    - [ ] Create `/patterns/anti-patterns/core/magic-numbers.md`
-    - [ ] Define detection: numeric literals outside const/final declarations
-    - [ ] Set severity: medium
+- [x] Task: Create magic-numbers anti-pattern `8aa3e53`
+    - [x] Write validation tests for content completeness
+    - [x] Create `/patterns/anti-patterns/core/magic-numbers.md`
+    - [x] Define detection: numeric literals outside const/final declarations
+    - [x] Set severity: medium
 
 - [ ] Task: Create spaghetti-code anti-pattern
     - [ ] Write validation tests for content completeness
