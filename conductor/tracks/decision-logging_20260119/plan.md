@@ -69,7 +69,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md)
 
-## Phase 5: Git Notes Enhancement
+## Phase 5: Git Notes Enhancement [checkpoint: 12403f9]
 
 - [x] Task: Design enhanced git note format [79a68fa]
     - [x] Add "Decisions Made" section
