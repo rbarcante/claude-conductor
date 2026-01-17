@@ -1,0 +1,19 @@
+{
+  "$schema": "../manifest-schema.json",
+  "name": "TypeScript Best Practices",
+  "version": "1.0.0",
+  "description": "Type safety, async patterns, and null handling guidance for TypeScript development",
+  "author": "Conductor Team",
+  "activation": {
+    "keywords": ["typescript", "type", "interface", "generic", "async", "await", "promise", "nullable"],
+    "file_patterns": ["**/*.ts", "**/*.tsx", "**/tsconfig.json"],
+    "tech_stack": {
+      "languages": ["TypeScript"]
+    }
+  },
+  "provides": {
+    "guidance": ["type-safety", "async-patterns", "null-handling", "generics"],
+    "patterns": ["type-safety", "async-patterns", "null-handling"]
+  },
+  "dependencies": []
+}
