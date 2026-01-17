@@ -41,11 +41,11 @@
     - [x] Define detection: cyclomatic complexity >15, deep nesting >4 levels
     - [x] Set severity: high
 
-- [ ] Task: Create deep-nesting anti-pattern
-    - [ ] Write validation tests for content completeness
-    - [ ] Create `/patterns/anti-patterns/core/deep-nesting.md`
-    - [ ] Define detection: nesting depth >4 levels
-    - [ ] Set severity: medium
+- [x] Task: Create deep-nesting anti-pattern `155440c`
+    - [x] Write validation tests for content completeness
+    - [x] Create `/patterns/anti-patterns/core/deep-nesting.md`
+    - [x] Define detection: nesting depth >4 levels
+    - [x] Set severity: medium
 
 - [ ] Task: Create mutable-defaults anti-pattern
     - [ ] Write validation tests for content completeness
