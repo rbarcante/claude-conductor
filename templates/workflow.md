@@ -144,9 +144,76 @@ Before marking any task complete, verify:
 - [ ] All public functions/methods are documented (e.g., docstrings, JSDoc, GoDoc)
 - [ ] Type safety is enforced (e.g., type hints, TypeScript types, Go types)
 - [ ] No linting or static analysis errors (using the project's configured tools)
+- [ ] No anti-patterns detected (or documented exceptions)
 - [ ] Works correctly on mobile (if applicable)
 - [ ] Documentation updated if needed
 - [ ] No security vulnerabilities introduced
+
+### Quality Intelligence
+
+Quality Intelligence provides automated analysis of code quality beyond basic test coverage. It includes:
+
+1. **Anti-Pattern Detection**: Scans modified files for common code smells
+2. **Coverage Intelligence**: Analyzes coverage reports and suggests priority tests
+
+#### Anti-Pattern Detection
+
+Anti-patterns are defined in `patterns/anti-patterns/` and categorized by severity:
+
+| Severity | Behavior | Examples |
+|----------|----------|----------|
+| **Critical** | Blocks task completion | (Reserved for security issues) |
+| **High** | Warns, requires documented skip | God Object, Spaghetti Code, Mutable Defaults |
+| **Medium** | Informational | Magic Numbers, Deep Nesting |
+
+**Example Anti-Pattern Finding:**
+```
+⚠️ **Quality Gate: Issues Detected**
+
+| Severity | File | Line | Anti-Pattern | Issue |
+|----------|------|------|--------------|-------|
+| 🔴 High | src/service.py | 45 | Mutable Defaults | `def process(items=[])` |
+| 🟡 Medium | src/utils.py | 23 | Magic Numbers | Literal `86400` |
+
+Options: (1) Fix issues (2) Skip with reason (3) View guidance
+```
+
+#### Coverage Intelligence
+
+When a coverage report is available, Coverage Intelligence:
+- Parses coverage data (lcov, Cobertura, Istanbul, etc.)
+- Identifies uncovered functions and prioritizes by business impact
+- Estimates coverage gain for each suggested test
+
+**Example Coverage Suggestion:**
+```
+### Coverage Intelligence
+
+**Current Coverage:** 75% (Target: 80%)
+
+**Top Suggestions:**
+1. `process_payment()` in services/payment.py (+2.5% gain)
+   - Core business logic, currently untested
+2. `validate_input()` in api/handlers.py (+1.8% gain)
+   - Input validation with multiple branches
+```
+
+#### Skip Documentation
+
+When skipping quality gate warnings, document the reason:
+
+```markdown
+### Quality Gate Decisions
+
+**Skipped Anti-Patterns:**
+- **Mutable Defaults** at src/service.py:45
+  - Reason: Intentional memoization cache, documented in function docstring
+  - Reviewed: YYYY-MM-DD
+
+**Coverage Decisions:**
+- Proceeding at 78% (target 80%)
+  - Reason: Remaining 2% is generated code, will exclude in config
+```
 
 ## Development Commands
 
