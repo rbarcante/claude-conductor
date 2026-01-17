@@ -491,5 +491,6 @@ Workflow protocols the skill implements.
 ## Reference
 
 - [Skill Manifest Schema](./skill-manifest-schema.md) - Complete manifest field reference
+- [Dual-Format Standard](./dual-format-standard.md) - AI Quick Reference format specification
 - [Pattern Template](../patterns/TEMPLATE.md) - Pattern file format
 - [Conductor Methodology](../skills/conductor-methodology/SKILL.md) - Example always-active skill
