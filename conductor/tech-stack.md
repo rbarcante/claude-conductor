@@ -25,9 +25,20 @@ conductor-plugin/
 │   ├── newTrack.md     # Track creation command
 │   ├── implement.md    # Implementation execution command
 │   ├── revert.md       # Revert/rollback command
-│   └── status.md       # Progress tracking command
+│   ├── status.md       # Progress tracking command
+│   └── patterns.md     # Pattern browsing command
+├── protocols/          # Detection and analysis protocols
+│   └── stack-detection.md  # Technology stack detection algorithm
 ├── skills/             # Reusable skill definitions
-│   └── conductor-methodology/  # Core methodology explanations
+│   ├── skill-registry.json    # Central skill index
+│   └── conductor-methodology/ # Core methodology skill
+│       ├── SKILL.md           # Skill content
+│       └── manifest.json      # Activation rules
+├── patterns/           # Pattern Reference Layer
+│   ├── index.md        # Pattern registry
+│   └── core/           # Language-agnostic patterns
+├── docs/               # Schema and development documentation
+│   └── skill-manifest-schema.md  # Skill manifest specification
 ├── templates/          # Template files for project setup
 │   ├── workflow.md     # Default workflow template
 │   └── code_styleguides/  # Code style guide templates

@@ -112,6 +112,14 @@ Apply best practices consistently:
 - Extensible with custom patterns in `patterns/core/` and `patterns/stack/`
 - Browse, search, and display patterns on demand
 
+### Technology Intelligence
+Smart technology detection and context-aware skill activation:
+- **Automatic Stack Detection**: For brownfield projects, automatically detects languages, frameworks, and build tools from manifest files and code analysis
+- **Confidence-Based Presentation**: Detection results shown with HIGH/MEDIUM/LOW/UNCERTAIN confidence levels
+- **Skill Registry System**: Central registry of skills with activation rules based on keywords, file patterns, and tech stack
+- **Context-Aware Skill Activation**: Skills automatically activate during implementation based on task context, providing relevant guidance
+- **Extensible Architecture**: Add custom skills following the Skill Interface Standard
+
 ## Differentiation
 
 Conductor differs from other AI coding tools in several key ways:
