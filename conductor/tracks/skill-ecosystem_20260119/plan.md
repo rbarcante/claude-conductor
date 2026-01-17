@@ -7,12 +7,12 @@
     - [x] Define Conductor-specific requirements
     - [x] Document design decisions
 
-- [ ] Task: Create skill-development.md
-    - [ ] Write tests for documentation completeness
-    - [ ] Create `/docs/skill-development.md`
-    - [ ] Document required skill structure
-    - [ ] Document manifest.json schema with examples
-    - [ ] Document SKILL.md format guidelines
+- [x] Task: Create skill-development.md
+    - [x] Write tests for documentation completeness
+    - [x] Create `/docs/skill-development.md`
+    - [x] Document required skill structure
+    - [x] Document manifest.json schema with examples
+    - [x] Document SKILL.md format guidelines
 
 - [ ] Task: Create skill manifest JSON schema
     - [ ] Define schema for validation
