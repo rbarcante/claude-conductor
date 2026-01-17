@@ -53,7 +53,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Decision Capture Protocol' (Protocol in workflow.md)
 
-## Phase 4: Implement Command Enhancement
+## Phase 4: Implement Command Enhancement [checkpoint: dbdd8e9]
 
 - [x] Task: Add decision capture to implement.md [918724f]
     - [x] Write tests for implement.md structure changes
