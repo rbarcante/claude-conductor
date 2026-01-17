@@ -112,7 +112,7 @@
     - [x] Document skipped warnings with rationale
     - [x] Document coverage decisions
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5: Implement Command Enhancement' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 5: Implement Command Enhancement' (Protocol in workflow.md)
 
 ## Phase 6: Workflow Template Enhancement
 
