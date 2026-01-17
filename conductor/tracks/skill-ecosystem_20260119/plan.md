@@ -122,7 +122,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 5: Reference Skill - API Design' (Protocol in workflow.md)
 
-## Phase 6: Reference Skill - Testing Strategies
+## Phase 6: Reference Skill - Testing Strategies [checkpoint: 8160502]
 
 - [x] Task: Create testing-strategies skill structure
     - [x] Create `/skills/testing-strategies/` directory
