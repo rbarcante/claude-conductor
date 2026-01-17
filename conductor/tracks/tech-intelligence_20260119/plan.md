@@ -19,16 +19,16 @@
 
 ## Phase 2: Enhanced Setup Command
 
-- [ ] Task: Add brownfield detection enhancement to setup.md
-    - [ ] Write tests for setup.md structure changes
-    - [ ] Modify Section 2 (Project Inception) to invoke stack detection
-    - [ ] Add stack presentation step with confidence display
-    - [ ] Add user confirmation/correction flow
+- [x] Task: Add brownfield detection enhancement to setup.md
+    - [x] Write tests for setup.md structure changes
+    - [x] Modify Section 2 (Project Inception) to invoke stack detection
+    - [x] Add stack presentation step with confidence display
+    - [x] Add user confirmation/correction flow
 
-- [ ] Task: Integrate auto-detection with tech-stack generation
-    - [ ] Pre-populate tech-stack.md with detected information
-    - [ ] Mark auto-detected items with confidence indicators
-    - [ ] Allow user to modify before finalizing
+- [x] Task: Integrate auto-detection with tech-stack generation
+    - [x] Pre-populate tech-stack.md with detected information
+    - [x] Mark auto-detected items with confidence indicators
+    - [x] Allow user to modify before finalizing
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Enhanced Setup Command' (Protocol in workflow.md)
 

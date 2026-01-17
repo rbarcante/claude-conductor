@@ -107,7 +107,7 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
                     -   Database Drivers
                 3.  **Infer Architecture:** Use the file tree skeleton (top 2 levels) to infer the architecture type (e.g., Monorepo, Microservices, MVC).
                 4.  **Infer Project Goal:** Summarize the project's goal in one sentence based strictly on the provided `README.md` header or `package.json` description.
-        -   **Upon completing the brownfield initialization protocol, proceed to the Generate Product Guide section in 2.1.**
+        -   **Upon completing the brownfield initialization protocol, proceed to the Automatic Stack Detection section (2.0.1).**
     -   **If Greenfield:**
         -   Announce that a new project will be initialized.
         -   Proceed to the next step in this file.
@@ -125,6 +125,115 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
         -   Write the user's response into `conductor/product.md` under a header named `# Initial Concept`.
 
 5.  **Continue:** Immediately proceed to the next section.
+
+### 2.0.1 Automatic Stack Detection (Brownfield Only)
+**PROTOCOL: For brownfield projects, automatically detect the technology stack using the Stack Detection Protocol.**
+
+**Skip Condition:** This section applies ONLY to brownfield projects. For greenfield projects, skip directly to Section 2.1.
+
+1.  **Invoke Stack Detection Protocol:**
+    -   Execute the Stack Detection Protocol defined in `$CLAUDE_PLUGIN_ROOT/protocols/stack-detection.md`.
+    -   Follow all steps in the protocol:
+        a. Scan for manifest files (package.json, pom.xml, requirements.txt, etc.)
+        b. Analyze file extensions to determine language distribution
+        c. Detect frameworks from dependency declarations
+        d. Detect infrastructure and tooling configuration files
+        e. Calculate confidence score based on signal strength
+
+2.  **Store Detection Results:**
+    -   Store the detection results internally as a JSON stack profile.
+    -   The profile will be used to pre-populate `tech-stack.md` in Section 2.3.
+
+3.  **Present Detection Results to User:**
+    -   Based on the confidence level, present the results with appropriate messaging:
+
+    -   **If Confidence is HIGH (score >= 85):**
+        > ```
+        > -----------------------------------------------
+        > **Stack Detection Results** (Confidence: HIGH)
+        > Stack detection is highly confident in these results.
+        > -----------------------------------------------
+        >
+        > **Primary Language:** [detected primary language]
+        > **Languages Detected:** [comma-separated list]
+        > **Frameworks:** [comma-separated list with categories]
+        > **Build Tools:** [comma-separated list]
+        > **Testing:** [comma-separated list]
+        > **Infrastructure:** [comma-separated list]
+        > **Package Manager:** [detected package manager]
+        > ```
+
+    -   **If Confidence is MEDIUM (score 60-84):**
+        > ```
+        > -----------------------------------------------
+        > **Stack Detection Results** (Confidence: MEDIUM)
+        > Stack detection found partial matches - please verify.
+        > -----------------------------------------------
+        >
+        > **Primary Language:** [detected primary language]
+        > **Languages Detected:** [comma-separated list]
+        > **Frameworks:** [comma-separated list with categories]
+        > **Build Tools:** [comma-separated list]
+        > **Testing:** [comma-separated list]
+        > **Infrastructure:** [comma-separated list]
+        > **Package Manager:** [detected package manager]
+        > ```
+
+    -   **If Confidence is LOW (score 30-59):**
+        > ```
+        > -----------------------------------------------
+        > **Stack Detection Results** (Confidence: LOW)
+        > Limited detection signals - manual verification recommended.
+        > -----------------------------------------------
+        >
+        > **Primary Language:** [detected primary language]
+        > **Languages Detected:** [comma-separated list]
+        > **Frameworks:** [comma-separated list, if any]
+        > **Build Tools:** [comma-separated list, if any]
+        > ```
+
+    -   **If Confidence is UNCERTAIN (score < 30):**
+        > ```
+        > -----------------------------------------------
+        > **Stack Detection Results** (Confidence: UNCERTAIN)
+        > Minimal detection signals. Manual specification strongly recommended.
+        > -----------------------------------------------
+        >
+        > Unable to confidently detect the technology stack.
+        > Detected languages: [list, if any]
+        > ```
+
+4.  **User Confirmation Flow:**
+    -   Present the user with options to accept, edit, or skip the detection:
+        > "Is this detection accurate?
+        > A) **Yes** - Accept and use these detected values
+        > B) **Edit** - Modify the detected values before proceeding
+        > C) **Skip** - Ignore detection and enter stack manually in Section 2.3
+        >
+        > Please respond with A, B, or C."
+
+    -   **If User Selects A (Accept):**
+        -   Store the detected stack profile as-is for use in Section 2.3.
+        -   Set internal flag `stack_auto_detected = true`.
+        -   Proceed to Section 2.1.
+
+    -   **If User Selects B (Edit):**
+        -   Present each detected category one at a time for verification:
+            1. "**Primary Language:** [detected]. Is this correct? (Y/N, or type the correct value)"
+            2. "**Additional Languages:** [list]. Add or remove any? (Y to confirm, or provide corrections)"
+            3. "**Frameworks:** [list]. Correct? (Y/N, or provide corrections)"
+            4. "**Build Tools:** [list]. Correct? (Y/N, or provide corrections)"
+        -   Update the stored stack profile with user corrections.
+        -   Set internal flag `stack_auto_detected = true`.
+        -   Proceed to Section 2.1.
+
+    -   **If User Selects C (Skip):**
+        -   Discard the detected stack profile.
+        -   Set internal flag `stack_auto_detected = false`.
+        -   User will manually specify the stack in Section 2.3.
+        -   Proceed to Section 2.1.
+
+5.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
 
 ### 2.1 Generate Product Guide (Interactive)
 1.  **Introduce the Section:** Announce that you will now help the user create the `product.md`.
@@ -227,8 +336,16 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
 7.  **Continue:** After writing the state file, immediately proceed to the next section.
 
 ### 2.3 Generate Tech Stack (Interactive)
-1.  **Introduce the Section:** Announce that you will now help define the technology stacks.
-2.  **Ask Questions Sequentially:** Ask one question at a time. Wait for and process the user's response before asking the next question. Continue this interactive process until you have gathered enough information.
+1.  **Check for Auto-Detected Stack (Brownfield with Stack Detection):**
+    -   **If `stack_auto_detected = true`** (set in Section 2.0.1):
+        -   Announce: "Using the auto-detected technology stack from earlier. Generating tech-stack.md..."
+        -   Skip the interactive questioning in step 2.
+        -   Proceed directly to step 3 (Draft the Document) using the stored stack profile.
+    -   **If `stack_auto_detected = false` or not set:**
+        -   Proceed with normal interactive flow in step 2.
+
+2.  **Introduce the Section:** Announce that you will now help define the technology stacks.
+3.  **Ask Questions Sequentially:** Ask one question at a time. Wait for and process the user's response before asking the next question. Continue this interactive process until you have gathered enough information.
     -   **CONSTRAINT:** Limit your inquiry to a maximum of 5 questions.
     -   **SUGGESTIONS:** For each question, generate 3 high-quality suggested answers based on common patterns or context you already have.
     -   **Example Topics:** programming languages, frameworks, databases, etc
@@ -253,7 +370,7 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             C) [Option C]
             D) [Type your own answer]
             E) [Autogenerate and review tech-stack.md]
-    -   **FOR EXISTING PROJECTS (BROWNFIELD):**
+    -   **FOR EXISTING PROJECTS (BROWNFIELD) without auto-detection:**
             -   **CRITICAL WARNING:** Your goal is to document the project's *existing* tech stack, not to propose changes.
             -   **State the Inferred Stack:** Based on the code analysis, you MUST state the technology stack that you have inferred. Do not present any other options.
             -   **Request Confirmation:** After stating the detected stack, you MUST ask the user for a simple confirmation to proceed with options like:
@@ -261,10 +378,21 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
                 B) No, I need to provide the correct tech stack.
             -   **Handle Disagreement:** If the user disputes the suggestion, acknowledge their input and allow them to provide the correct technology stack manually as a last resort.
     -   **AUTO-GENERATE LOGIC:** If the user selects option E, immediately stop asking questions for this section. Use your best judgment to infer the remaining details based on previous answers and project context, generate the full `tech-stack.md` content, write it to the file, and proceed to the next section.
-3.  **Draft the Document:** Once the dialogue is complete (or option E is selected), generate the content for `tech-stack.md`. If option E was chosen, use your best judgment to infer the remaining details based on previous answers and project context. You are encouraged to expand on the gathered details to create a comprehensive document.
-    -   **CRITICAL:** The source of truth for generation is **only the user's selected answer(s)**. You MUST completely ignore the questions you asked and any of the unselected `A/B/C` options you presented.
-    -   **Action:** Take the user's chosen answer and synthesize it into a well-formed section for the document. You are encouraged to expand on the user's choice to create a comprehensive and polished output. DO NOT include the conversational options (A, B, C, D, E) in the final file.
-4.  **User Confirmation Loop:** Present the drafted content to the user for review and begin the confirmation loop.
+4.  **Draft the Document:** Once the dialogue is complete (or option E is selected, or using auto-detected stack), generate the content for `tech-stack.md`.
+    -   **If using auto-detected stack profile:**
+        -   Map the stack profile fields to the tech-stack.md template:
+            -   `primary_language` -> Primary Language section
+            -   `languages` -> Languages section (with file counts if available)
+            -   `frameworks` -> Frameworks section (grouped by category: Frontend, Backend, etc.)
+            -   `build_tools` -> Build & Development section
+            -   `testing_frameworks` -> Testing section
+            -   `infrastructure` -> Infrastructure section
+            -   `package_manager` -> Package Manager section
+        -   Include the confidence level as a comment: `<!-- Auto-detected by Stack Detection Protocol (Confidence: [LEVEL]) -->`
+    -   **If option E was chosen:** Use your best judgment to infer the remaining details based on previous answers and project context. You are encouraged to expand on the gathered details to create a comprehensive document.
+    -   **CRITICAL:** The source of truth for generation is **only the user's selected answer(s)** or the auto-detected stack profile. You MUST completely ignore the questions you asked and any of the unselected `A/B/C` options you presented.
+    -   **Action:** Synthesize the information into a well-formed document. You are encouraged to expand to create a comprehensive and polished output. DO NOT include the conversational options (A, B, C, D, E) in the final file.
+5.  **User Confirmation Loop:** Present the drafted content to the user for review and begin the confirmation loop.
     > "I've drafted the tech stack document. Please review the following:"
     >
     > ```markdown
@@ -279,6 +407,12 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
     > Please respond with A or B."
     - **Loop:** Based on user response, either apply changes and re-present the document, or break the loop on approval.
 6.  **Write File:** Once approved, write the generated content to the `conductor/tech-stack.md` file.
+    -   **If stack was auto-detected:** Ensure the file includes at the top:
+        ```markdown
+        <!-- Auto-detected by Stack Detection Protocol -->
+        <!-- Confidence: [HIGH/MEDIUM/LOW/UNCERTAIN] -->
+        <!-- Detection timestamp: [ISO 8601 timestamp] -->
+        ```
 7.  **Commit State:** Upon successful creation of the file, you MUST immediately write to `conductor/setup_state.json` with the exact content:
     `{"last_successful_step": "2.3_tech_stack"}`
 8.  **Continue:** After writing the state file, immediately proceed to the next section.
