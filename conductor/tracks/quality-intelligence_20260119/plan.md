@@ -7,11 +7,11 @@
     - [x] Create `/patterns/anti-patterns/core/` subdirectory
     - [x] Create placeholder subdirectories for future language-specific patterns
 
-- [ ] Task: Create anti-pattern file template
-    - [ ] Write tests to validate anti-pattern file structure
-    - [ ] Create `/patterns/anti-patterns/TEMPLATE.md`
-    - [ ] Include YAML frontmatter schema (name, severity, detection, file_extensions)
-    - [ ] Include required sections (Problem, Detection, Solution, Exceptions)
+- [x] Task: Create anti-pattern file template `59d345b`
+    - [x] Write tests to validate anti-pattern file structure
+    - [x] Create `/patterns/anti-patterns/TEMPLATE.md`
+    - [x] Include YAML frontmatter schema (name, severity, detection, file_extensions)
+    - [x] Include required sections (Problem, Detection, Solution, Exceptions)
 
 - [ ] Task: Create anti-pattern index
     - [ ] Write tests for index structure
