@@ -8,11 +8,11 @@
     - [x] Define optional sections (Alternatives, Status)
     - [x] Document template design
 
-- [ ] Task: Create decisions.md template
-    - [ ] Write tests to validate template structure
-    - [ ] Create `/templates/decisions.md`
-    - [ ] Include format explanation and example
-    - [ ] Include placeholder for first decision
+- [x] Task: Create decisions.md template [6a2cfb2]
+    - [x] Write tests to validate template structure
+    - [x] Create `/templates/decisions.md`
+    - [x] Include format explanation and example
+    - [x] Include placeholder for first decision
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Decision Template Creation' (Protocol in workflow.md)
 
