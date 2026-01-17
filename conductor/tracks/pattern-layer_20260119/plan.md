@@ -58,7 +58,7 @@
     - [x] Define pattern matching rules (exact match, partial match, relevance scoring)
     - [x] Document algorithm in design notes
 
-- [x] Task: Document Pattern Resolution Protocol in CLAUDE.md
+- [x] Task: Document Pattern Resolution Protocol in CLAUDE.md `c79f448`
     - [x] Write tests to validate protocol documentation completeness
     - [x] Add "Pattern Resolution Protocol" section to CLAUDE.md
     - [x] Include step-by-step resolution process
