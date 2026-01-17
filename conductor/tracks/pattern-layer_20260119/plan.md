@@ -46,8 +46,8 @@
     - [x] Create `/patterns/core/testing.md` with full dual-format structure
     - [x] Include activation keywords: test, testing, unit, integration, mock, assert, coverage
 
-- [ ] Task: Update pattern registry index
-    - [ ] Update `/patterns/index.md` to include all 5 core patterns with descriptions
+- [x] Task: Update pattern registry index `0e0a23e`
+    - [x] Update `/patterns/index.md` to include all 5 core patterns with descriptions
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md)
 
