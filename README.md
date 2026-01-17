@@ -17,6 +17,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Build on existing projects**: Intelligent initialization for both new (Greenfield) and existing (Brownfield) projects.
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
+- **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
 
 ## Installation
 
@@ -116,6 +117,60 @@ During implementation, you can also:
 | `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
+| `/conductor:patterns` | Browse and search the Pattern Reference Layer. | Reads `patterns/index.md` |
+
+## Pattern Reference Layer
+
+Conductor includes a Pattern Reference Layer - a library of reusable best-practice patterns that are automatically surfaced during implementation based on task context.
+
+### How It Works
+
+When you run `/conductor:implement`, Conductor analyzes each task description and matches it against pattern activation keywords. If relevant patterns are found, they're surfaced before you begin the task:
+
+```
+📚 **Relevant Patterns Detected:**
+
+1. **Error Handling** (patterns/core/error-handling.md)
+   > Exception handling, error propagation, user-friendly messages
+
+[Apply patterns? (Y)es / (S)kip / (V)iew first]
+```
+
+### Core Patterns
+
+The following patterns are included out of the box:
+
+| Pattern | Description |
+| :--- | :--- |
+| Error Handling | Exception handling, error propagation, user-friendly messages |
+| Logging | Log levels, structured logging, context inclusion |
+| Configuration | Config management, environment variables, secrets handling |
+| Validation | Input validation, schema validation, error messages |
+| Testing | Test structure, mocking, assertions, coverage strategies |
+
+### Browse Patterns
+
+Use the patterns command to explore available patterns:
+
+```bash
+# List all patterns
+/conductor:patterns list
+
+# Search for patterns by keyword
+/conductor:patterns search validation
+
+# View a specific pattern
+/conductor:patterns show error-handling
+```
+
+### Adding Custom Patterns
+
+Create new patterns in `patterns/core/` or `patterns/stack/` using the template at `patterns/TEMPLATE.md`. Each pattern includes:
+
+- **YAML Frontmatter**: Metadata and activation keywords
+- **AI Quick Reference**: Concise guidance for the AI agent
+- **Human Documentation**: Detailed explanations and examples
+- **Anti-Patterns**: Common mistakes to avoid
 
 ## Universal File Resolution Protocol (UFRP)
 

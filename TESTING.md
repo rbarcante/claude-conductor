@@ -263,6 +263,93 @@ cat conductor/tracks/<track_id>/plan.md
 
 ---
 
+### Test 11: Pattern Surfacing During Implementation
+
+**Objective:** Test automatic pattern surfacing during task implementation
+
+**Steps:**
+1. Create a track with tasks that contain pattern keywords:
+   - "Add error handling for API endpoints"
+   - "Implement input validation for user forms"
+   - "Add logging for debugging"
+2. Run `/conductor:implement`
+3. Observe pattern surfacing announcements
+
+**Expected Results:**
+- Patterns should be detected based on task keywords
+- Announcement should appear: `📚 **Relevant Patterns Detected:**`
+- User should be prompted with `[Apply patterns? (Y)es / (S)kip / (V)iew first]`
+- Selecting "View" should display the AI Quick Reference section
+- Selecting "Skip" should continue without applying patterns
+- Tasks with no matching keywords should continue silently
+
+---
+
+### Test 12: Patterns Command - List
+
+**Objective:** Test `/conductor:patterns list` command
+
+**Steps:**
+1. Run `/conductor:patterns` or `/conductor:patterns list`
+
+**Expected Results:**
+- Table of all available patterns displayed
+- Pattern name, category, and description shown
+- Total count displayed
+- Tip for using show command included
+
+---
+
+### Test 13: Patterns Command - Search
+
+**Objective:** Test `/conductor:patterns search` command
+
+**Steps:**
+1. Run `/conductor:patterns search error`
+2. Run `/conductor:patterns search validation`
+3. Run `/conductor:patterns search nonexistent`
+
+**Expected Results:**
+- Search "error" should return Error Handling pattern with high relevance
+- Search "validation" should return Validation pattern
+- Search "nonexistent" should return "No patterns found" message
+- Results should show relevance ranking
+
+---
+
+### Test 14: Patterns Command - Show
+
+**Objective:** Test `/conductor:patterns show` command
+
+**Steps:**
+1. Run `/conductor:patterns show error-handling`
+2. Run `/conductor:patterns show logging`
+3. Run `/conductor:patterns show nonexistent-pattern`
+
+**Expected Results:**
+- Show "error-handling" should display full pattern content
+- AI Quick Reference section should be prominently displayed
+- Show "nonexistent-pattern" should show "Pattern Not Found" with suggestions
+
+---
+
+### Test 15: Edge Case - No Matching Patterns
+
+**Objective:** Test pattern surfacing with tasks that have no matching keywords
+
+**Steps:**
+1. Create a track with generic tasks:
+   - "Update README documentation"
+   - "Refactor file structure"
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Implementation should proceed silently without pattern announcements
+- No "No patterns found" noise should be displayed
+- User can manually search with `/conductor:patterns search`
+
+---
+
 ## Edge Cases to Test
 
 ### Edge Case 1: Empty Tracks File
@@ -327,6 +414,11 @@ After testing, verify:
 - [ ] Error handling is graceful
 - [ ] File permissions are correct
 - [ ] Templates copy correctly from $CLAUDE_PLUGIN_ROOT
+- [ ] Pattern surfacing works during implementation
+- [ ] `/conductor:patterns list` displays all patterns
+- [ ] `/conductor:patterns search` finds relevant patterns
+- [ ] `/conductor:patterns show` displays pattern content
+- [ ] No patterns silently skipped (no noise)
 
 ---
 

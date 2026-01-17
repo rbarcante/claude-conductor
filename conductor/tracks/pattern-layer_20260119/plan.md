@@ -82,42 +82,42 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md) `cbb5505`
 
-## Phase 5: Patterns Command
+## Phase 5: Patterns Command [checkpoint: 6872dfc]
 
-- [x] Task: Create patterns command file
+- [x] Task: Create patterns command file `6872dfc`
     - [x] Write tests for command file structure and YAML frontmatter
     - [x] Create `/commands/patterns.md` with proper frontmatter (name, description, allowed-tools)
     - [x] Define command argument format: `[list|search <query>|show <pattern-name>]`
 
-- [x] Task: Implement list subcommand protocol
+- [x] Task: Implement list subcommand protocol `6872dfc`
     - [x] Document protocol to read patterns/index.md
     - [x] Format output as table with pattern name, category, and description
 
-- [x] Task: Implement search subcommand protocol
+- [x] Task: Implement search subcommand protocol `6872dfc`
     - [x] Document protocol to grep patterns/ for keyword matches
     - [x] Return matching patterns with relevance context
 
-- [x] Task: Implement show subcommand protocol
+- [x] Task: Implement show subcommand protocol `6872dfc`
     - [x] Document protocol to read and display specific pattern file
     - [x] Support both full display and AI-only section display
 
-- [x] Task: Conductor - User Manual Verification 'Phase 5: Patterns Command' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5: Patterns Command' (Protocol in workflow.md) `6872dfc`
 
 ## Phase 6: Integration and Documentation
 
-- [ ] Task: End-to-end integration testing
-    - [ ] Test pattern surfacing during a mock implementation task
-    - [ ] Test patterns command with all subcommands
-    - [ ] Verify no regressions in existing Conductor functionality
+- [x] Task: End-to-end integration testing
+    - [x] Test pattern surfacing during a mock implementation task
+    - [x] Test patterns command with all subcommands
+    - [x] Verify no regressions in existing Conductor functionality
 
-- [ ] Task: Update TESTING.md with pattern-related test scenarios
-    - [ ] Add test scenario for pattern surfacing during implement
-    - [ ] Add test scenario for patterns command usage
-    - [ ] Add edge case: no matching patterns found
+- [x] Task: Update TESTING.md with pattern-related test scenarios
+    - [x] Add test scenario for pattern surfacing during implement
+    - [x] Add test scenario for patterns command usage
+    - [x] Add edge case: no matching patterns found
 
-- [ ] Task: Update README.md with pattern feature documentation
-    - [ ] Add Pattern Reference Layer to features section
-    - [ ] Document /conductor:patterns command usage
-    - [ ] Include example of pattern surfacing during implementation
+- [x] Task: Update README.md with pattern feature documentation
+    - [x] Add Pattern Reference Layer to features section
+    - [x] Document /conductor:patterns command usage
+    - [x] Include example of pattern surfacing during implementation
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 6: Integration and Documentation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 6: Integration and Documentation' (Protocol in workflow.md)
