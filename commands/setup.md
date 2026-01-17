@@ -331,10 +331,30 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             `{"last_successful_step": "2.5_workflow"}`
 
 ### 2.6 Finalization
-1.  **Summarize Actions:** Present a summary of all actions taken during Phase 1, including:
+1.  **Generate Index File:**
+    -   Create `conductor/index.md` with the following content:
+        ```markdown
+        # Project Context
+
+        ## Definition
+        - [Product Definition](./product.md)
+        - [Product Guidelines](./product-guidelines.md)
+        - [Tech Stack](./tech-stack.md)
+
+        ## Workflow
+        - [Workflow](./workflow.md)
+        - [Code Style Guides](./code_styleguides/)
+
+        ## Management
+        - [Tracks Registry](./tracks.md)
+        - [Tracks Directory](./tracks/)
+        ```
+    -   **Announce:** "Created `conductor/index.md` to serve as the project context index."
+
+2.  **Summarize Actions:** Present a summary of all actions taken during Phase 1, including:
     -   The guide files that were copied.
     -   The workflow file that was copied.
-2.  **Transition to initial plan and track generation:** Announce that the initial setup is complete and you will now proceed to define the first track for the project.
+3.  **Transition to initial plan and track generation:** Announce that the initial setup is complete and you will now proceed to define the first track for the project.
 
 ---
 
@@ -425,6 +445,14 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             ```
         Populate fields with actual values. Use the current timestamp.
         iv. **Write Spec and Plan Files:** In the exact same directory, write the generated `spec.md` and `plan.md` files.
+        v.  **Write Index File:** In the exact same directory, write `index.md` with content:
+            ```markdown
+            # Track <track_id> Context
+
+            - [Specification](./spec.md)
+            - [Implementation Plan](./plan.md)
+            - [Metadata](./metadata.json)
+            ```
 
     d. **Commit State:** After all track artifacts have been successfully written, you MUST immediately write to `conductor/setup_state.json` with the exact content:
        `{"last_successful_step": "3.3_initial_track_generated"}`

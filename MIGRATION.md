@@ -4,7 +4,7 @@ This document describes the port of the Conductor extension from Gemini CLI to C
 
 ## Overview
 
-Conductor has been successfully ported from a Gemini CLI extension to a Claude Code plugin with **full feature parity**. All original functionality has been preserved while adapting to Claude Code's architecture and conventions.
+Conductor has been successfully ported from a Gemini CLI extension to a Claude Code plugin with **full feature parity and enhancements**. All original functionality has been preserved while adapting to Claude Code's architecture and conventions. Version 0.2.0 adds the Universal File Resolution Protocol (UFRP) to match the latest gemini-cli extension.
 
 ## What Changed
 
@@ -31,7 +31,9 @@ conductor-plugin/
 ├── commands/*.md
 ├── skills/conductor-methodology/
 ├── templates/
+├── CLAUDE.md (context file)
 ├── README.md
+├── MIGRATION.md
 └── TESTING.md
 ```
 
@@ -80,7 +82,7 @@ All command protocols preserved exactly:
 
 ### Project Structure
 
-The conductor/ directory structure in user projects remains identical:
+The conductor/ directory structure in user projects (version 0.2.0+):
 ```
 conductor/
 ├── product.md
@@ -89,14 +91,31 @@ conductor/
 ├── workflow.md
 ├── code_styleguides/
 ├── tracks.md
+├── index.md (NEW - project navigation index)
 ├── setup_state.json
 └── tracks/<track_id>/
     ├── spec.md
     ├── plan.md
-    └── metadata.json
+    ├── metadata.json
+    └── index.md (NEW - track navigation index)
 ```
 
 ## New Additions
+
+### Universal File Resolution Protocol (UFRP) - Version 0.2.0
+
+Matches gemini-cli extension v0.2.0 features:
+- **Dynamic path resolution** via `index.md` files
+- **Flexible project structure** - customize conductor/ directory layout
+- **Fallback to defaults** - works with or without index files
+- **Full parity** with gemini-cli extension UFRP implementation
+
+Commands now use semantic references (e.g., "**Product Definition**", "**Tech Stack**") instead of hardcoded paths. Files are resolved dynamically via:
+1. Read `conductor/index.md` to find project-level files
+2. Read `conductor/tracks/<track_id>/index.md` for track files
+3. Fallback to default paths if index files missing
+
+See `CLAUDE.md` for complete protocol documentation.
 
 ### Skill System
 
@@ -108,9 +127,10 @@ Added `conductor-methodology` skill:
 ### Enhanced Documentation
 
 New documentation files:
+- `CLAUDE.md` - Context document with UFRP specification (v0.2.0+)
 - `TESTING.md` - Comprehensive testing guide
 - `MIGRATION.md` - This file
-- Updated `README.md` for Claude Code
+- Updated `README.md` for Claude Code with UFRP section
 
 ### Tool Declarations
 
@@ -168,7 +188,8 @@ Projects created with Gemini CLI Conductor extension work seamlessly with Claude
 Projects created with Claude Code Conductor plugin work with Gemini CLI Conductor extension.
 
 ### Version Parity
-Claude Code plugin version 0.1.1 matches Gemini CLI extension version 0.1.1 in functionality.
+- **v0.1.1**: Initial port with core functionality
+- **v0.2.0**: Added UFRP, matching Gemini CLI extension v0.2.0 features
 
 ## Testing
 

@@ -20,11 +20,18 @@ Your workflow MUST anticipate and handle common non-linear Git histories, such a
 
 **CRITICAL**: The user's explicit confirmation is required at multiple checkpoints. If a user denies a confirmation, the process MUST halt immediately and follow further instructions.
 
-**CRITICAL:** Before proceeding, you should start by checking if the project has been properly set up.
-1.  **Verify Tracks File:** Check if the file `conductor/tracks.md` exists. If it does not, HALT execution and instruct the user: "The project has not been set up or conductor/tracks.md has been corrupted. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
-2.  **Verify Track Exists:** Check if the file `conductor/tracks.md` is not empty. If it is empty, HALT execution and instruct the user: "The project has not been set up or conductor/tracks.md has been corrupted. Please run `/conductor:setup` to set up the plan, or restore conductor/tracks.md."
+CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
-**CRITICAL**: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
+---
+
+## 1.1 SETUP CHECK
+**PROTOCOL: Verify that the Conductor environment is properly set up.**
+
+1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of the **Tracks Registry**.
+
+2.  **Verify Track Exists:** Check if the **Tracks Registry** is not empty.
+
+3.  **Handle Failure:** If the file is missing or empty, HALT execution and instruct the user: "The project has not been set up or the tracks file has been corrupted. Please run `/conductor:setup` to set up the plan, or restore the tracks file."
 
 ---
 
@@ -40,7 +47,7 @@ Your workflow MUST anticipate and handle common non-linear Git histories, such a
 3.  **Interaction Paths:**
 
     *   **PATH A: Direct Confirmation**
-        1.  Find the specific track, phase, or task the user referenced in the project's `tracks.md` or `plan.md` files.
+        1.  Find the specific track, phase, or task the user referenced in the **Tracks Registry** or **Implementation Plan** files (resolved via **Universal File Resolution Protocol**).
         2.  Ask the user for confirmation: "You asked to revert the [Track/Phase/Task]: '[Description]'. Is this correct?".
             - **Structure:**
                 A) Yes
@@ -49,7 +56,7 @@ Your workflow MUST anticipate and handle common non-linear Git histories, such a
 
     *   **PATH B: Guided Selection Menu**
         1.  **Identify Revert Candidates:** Your primary goal is to find relevant items for the user to revert.
-            *   **Scan All Plans:** You MUST read the main `conductor/tracks.md` and every `conductor/tracks/*/plan.md` file.
+            *   **Scan All Plans:** You MUST read the **Tracks Registry** and every track's **Implementation Plan** (resolved via **Universal File Resolution Protocol** using the track's index file).
             *   **Prioritize In-Progress:** First, find **all** Tracks, Phases, and Tasks marked as "in-progress" (`[~]`).
             *   **Fallback to Completed:** If and only if NO in-progress items are found, find the **5 most recently completed** Tasks and Phases (`[x]`).
         2.  **Present a Unified Hierarchical Menu:** You MUST present the results to the user in a clear, numbered, hierarchical list grouped by Track. The introductory text MUST change based on the context.
@@ -87,16 +94,16 @@ Your workflow MUST anticipate and handle common non-linear Git histories, such a
 **GOAL: Find ALL actual commit(s) in the Git history that correspond to the user's confirmed intent and analyze them.**
 
 1.  **Identify Implementation Commits:**
-    *   Find the primary SHA(s) for all tasks and phases recorded in the target's `plan.md`.
+    *   Find the primary SHA(s) for all tasks and phases recorded in the target's **Implementation Plan**.
     *   **Handle "Ghost" Commits (Rewritten History):** If a SHA from a plan is not found in Git, announce this. Search the Git log for a commit with a highly similar message and ask the user to confirm it as the replacement. If not confirmed, halt.
 
 2.  **Identify Associated Plan-Update Commits:**
-    *   For each validated implementation commit, use `git log` to find the corresponding plan-update commit that happened *after* it and modified the relevant `plan.md` file.
+    *   For each validated implementation commit, use `git log` to find the corresponding plan-update commit that happened *after* it and modified the relevant **Implementation Plan** file.
 
 3.  **Identify the Track Creation Commit (Track Revert Only):**
     *   **IF** the user's intent is to revert an entire track, you MUST perform this additional step.
-    *   **Method:** Use `git log -- conductor/tracks.md` and search for the commit that first introduced the track entry.
-        *   Look for lines matching the format `- [ ] **Track: <Track Description>**`.
+    *   **Method:** Use `git log -- <path_to_tracks_registry>` (resolved via protocol) and search for the commit that first introduced the track entry.
+        *   Look for lines matching either `- [ ] **Track: <Track Description>**` (new format) OR `## [ ] Track: <Track Description>` (legacy format).
     *   Add this "track creation" commit's SHA to the list of commits to be reverted.
 
 4.  **Compile and Analyze Final List:**
@@ -142,4 +149,4 @@ Your workflow MUST anticipate and handle common non-linear Git histories, such a
     *   After successful revert, announce:
         > "Revert complete. The [Track/Phase/Task]: '[Description]' has been successfully reverted.
         >
-        > You may want to update the `conductor/tracks.md` file to reflect this change."
+        > You may want to update the tracks file to reflect this change."

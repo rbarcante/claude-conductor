@@ -16,6 +16,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Work as a team**: Set project-level context for your product, tech stack, and workflow preferences that become a shared foundation for your team.
 - **Build on existing projects**: Intelligent initialization for both new (Greenfield) and existing (Brownfield) projects.
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
+- **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 
 ## Installation
 
@@ -51,6 +52,7 @@ When you run `/conductor:setup`, Conductor helps you define the core components 
 - `conductor/workflow.md`
 - `conductor/code_styleguides/`
 - `conductor/tracks.md`
+- `conductor/index.md` (navigation index)
 
 ```bash
 /conductor:setup
@@ -67,6 +69,7 @@ When you're ready to take on a new feature or bug fix, run `/conductor:newTrack`
 - `conductor/tracks/<track_id>/spec.md`
 - `conductor/tracks/<track_id>/plan.md`
 - `conductor/tracks/<track_id>/metadata.json`
+- `conductor/tracks/<track_id>/index.md` (track navigation index)
 
 ```bash
 /conductor:newTrack
@@ -108,11 +111,22 @@ During implementation, you can also:
 
 | Command | Description | Artifacts |
 | :--- | :--- | :--- |
-| `/conductor:setup` | Scaffolds the project and sets up the Conductor environment. Run this once per project. | `conductor/product.md`<br>`conductor/product-guidelines.md`<br>`conductor/tech-stack.md`<br>`conductor/workflow.md`<br>`conductor/tracks.md` |
-| `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md` and `plan.md`. | `conductor/tracks/<id>/spec.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks.md` |
+| `/conductor:setup` | Scaffolds the project and sets up the Conductor environment. Run this once per project. | `conductor/product.md`<br>`conductor/product-guidelines.md`<br>`conductor/tech-stack.md`<br>`conductor/workflow.md`<br>`conductor/tracks.md`<br>`conductor/index.md` |
+| `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md` and `plan.md`. | `conductor/tracks/<id>/spec.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks/<id>/index.md`<br>`conductor/tracks.md` |
 | `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
+
+## Universal File Resolution Protocol (UFRP)
+
+Conductor uses a flexible file resolution system that allows you to customize your project structure while maintaining compatibility. The system works through `index.md` files that act as navigation indexes:
+
+- **Project Index**: `conductor/index.md` - Links to all project-level documents
+- **Track Index**: `conductor/tracks/<track_id>/index.md` - Links to track-specific documents
+
+Commands automatically resolve file paths using these index files with fallback to standard default paths. This means you can reorganize your conductor directory structure by updating the index files, and all commands will continue to work correctly.
+
+For more details, see [CLAUDE.md](CLAUDE.md).
 
 ## License
 
