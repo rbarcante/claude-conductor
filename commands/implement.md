@@ -77,13 +77,37 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         -   **Workflow:** Resolve **Workflow** (via the **Universal File Resolution Protocol** using the project's index file).
     c. **Error Handling:** If you fail to read any of these files, you MUST stop and inform the user of the error.
 
-4.  **Execute Tasks and Update Track Plan:**
+4.  **Surface Relevant Patterns:**
+    **PROTOCOL: Apply the Pattern Resolution Protocol (defined in CLAUDE.md) before each task.**
+
+    For each task you are about to execute:
+    a. **Extract Keywords:** From the task description, extract normalized keywords (tokenize, lowercase, remove stop words).
+    b. **Match Patterns:** For each pattern in `patterns/index.md`:
+        - Read the pattern's `activation.keywords` and `activation.file_patterns` from YAML frontmatter
+        - Calculate match score using the scoring rules in CLAUDE.md
+    c. **Surface Decision:**
+        - If any patterns score >= 1.0, announce them using this format:
+          ```
+          📚 **Relevant Patterns Detected:**
+
+          1. **[Pattern Name]** (patterns/core/<name>.md)
+             > <Pattern's one-line description>
+
+          [Apply patterns? (Y)es / (S)kip / (V)iew first]
+          ```
+        - Maximum 3 patterns per task, sorted by score descending
+        - If user chooses "View", display the AI Quick Reference section
+        - If user chooses "Skip", proceed without applying patterns
+        - If user chooses "Yes" or confirms, keep pattern guidance in mind during implementation
+    d. **No Matches:** If no patterns score >= 1.0, continue silently without announcement.
+
+5.  **Execute Tasks and Update Track Plan:**
     a. **Announce:** State that you will now execute the tasks from the track's **Implementation Plan** by following the procedures in the **Workflow**.
     b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
     c. **For Each Task, You MUST:**
         i. **Defer to Workflow:** The **Workflow** file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the **Workflow** file you have in your context. Follow its steps for implementation, testing, and committing precisely.
 
-5.  **Finalize Track:**
+6.  **Finalize Track:**
     -   After all tasks in the track's local **Implementation Plan** are completed, you MUST update the track's status in the **Tracks Registry**.
     -   This requires finding the specific line for the track (e.g., `- [~] **Track: <Description>**`) and replacing it with the completed status (e.g., `- [x] **Track: <Description>**`).
     -   **Commit Changes:** Stage the **Tracks Registry** file and commit with the message `chore(conductor): Mark track '<track_description>' as complete`.

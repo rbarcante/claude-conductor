@@ -51,7 +51,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md) `17689e7`
 
-## Phase 3: Pattern Resolution Protocol
+## Phase 3: Pattern Resolution Protocol [checkpoint: 316e869]
 
 - [x] Task: Design pattern resolution algorithm `bd1c369`
     - [x] Define keyword extraction logic from task descriptions
@@ -64,16 +64,16 @@
     - [x] Include step-by-step resolution process
     - [x] Include fallback behavior when no patterns match
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Pattern Resolution Protocol' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Pattern Resolution Protocol' (Protocol in workflow.md) `316e869`
 
 ## Phase 4: Implement Command Enhancement
 
-- [ ] Task: Add pattern surfacing step to implement.md
-    - [ ] Write tests to validate implement.md structure changes
-    - [ ] Add new section "Surface Relevant Patterns" between context loading and task execution
-    - [ ] Include keyword extraction from current task
-    - [ ] Include pattern matching using resolution protocol
-    - [ ] Include user prompt for pattern acknowledgment (apply/skip)
+- [x] Task: Add pattern surfacing step to implement.md
+    - [x] Write tests to validate implement.md structure changes
+    - [x] Add new section "Surface Relevant Patterns" between context loading and task execution
+    - [x] Include keyword extraction from current task
+    - [x] Include pattern matching using resolution protocol
+    - [x] Include user prompt for pattern acknowledgment (apply/skip)
 
 - [ ] Task: Define pattern surfacing output format
     - [ ] Create standard announcement format for matched patterns
