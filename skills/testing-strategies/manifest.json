@@ -1,0 +1,19 @@
+{
+  "$schema": "../manifest-schema.json",
+  "name": "Testing Strategies",
+  "version": "1.0.0",
+  "description": "Unit testing, integration testing, and mocking strategies for comprehensive test coverage",
+  "author": "Conductor Team",
+  "activation": {
+    "keywords": ["test", "testing", "unit", "integration", "mock", "assert", "expect", "spec", "coverage"],
+    "file_patterns": ["**/test/**", "**/tests/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+    "tech_stack": {
+      "tools": ["Jest", "Vitest", "Mocha", "Pytest", "Go test", "JUnit", "xUnit"]
+    }
+  },
+  "provides": {
+    "guidance": ["unit-testing", "integration-testing", "mocking", "test-structure", "assertions"],
+    "patterns": ["unit-test-patterns", "integration-patterns", "mocking-strategies"]
+  },
+  "dependencies": []
+}
