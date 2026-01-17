@@ -1,0 +1,8 @@
+{
+  "track_id": "tech-intelligence_20260119",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-19T12:00:00Z",
+  "updated_at": "2026-01-19T12:00:00Z",
+  "description": "Add technology detection and awareness capabilities with automatic stack detection, skill registry, and context-aware skill activation"
+}
