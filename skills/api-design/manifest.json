@@ -1,0 +1,19 @@
+{
+  "$schema": "../manifest-schema.json",
+  "name": "API Design",
+  "version": "1.0.0",
+  "description": "REST conventions, error responses, and versioning strategies for API development",
+  "author": "Conductor Team",
+  "activation": {
+    "keywords": ["api", "endpoint", "rest", "route", "controller", "http", "request", "response"],
+    "file_patterns": ["**/routes/**", "**/controllers/**", "**/api/**", "**/endpoints/**"],
+    "tech_stack": {
+      "frameworks": ["Express", "Fastify", "Koa", "Hono", "NestJS", "FastAPI", "Flask", "Django", "Gin", "Echo"]
+    }
+  },
+  "provides": {
+    "guidance": ["rest-conventions", "error-responses", "versioning", "pagination", "authentication"],
+    "patterns": ["rest-conventions", "error-responses", "versioning"]
+  },
+  "dependencies": []
+}
