@@ -30,7 +30,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Track Structure Enhancement' (Protocol in workflow.md)
 
-## Phase 3: Decision Capture Protocol
+## Phase 3: Decision Capture Protocol [checkpoint: 9529722]
 
 - [x] Task: Design decision identification rules [60ab86d]
     - [x] Define what constitutes a "significant decision"
