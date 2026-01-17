@@ -2,11 +2,11 @@
 
 ## Phase 1: Decision Template Creation
 
-- [ ] Task: Design ADR template structure
-    - [ ] Research ADR format best practices
-    - [ ] Define required sections (Context, Decision, Consequences)
-    - [ ] Define optional sections (Alternatives, Status)
-    - [ ] Document template design
+- [~] Task: Design ADR template structure
+    - [x] Research ADR format best practices
+    - [x] Define required sections (Context, Decision, Consequences)
+    - [x] Define optional sections (Alternatives, Status)
+    - [x] Document template design
 
 - [ ] Task: Create decisions.md template
     - [ ] Write tests to validate template structure
