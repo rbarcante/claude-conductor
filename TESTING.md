@@ -778,6 +778,115 @@ cat conductor/tracks/<track_id>/plan.md
 
 ---
 
+## Decision Logging Test Scenarios
+
+### Test 16: Decision Log Creation on New Track
+
+**Objective:** Verify that `/conductor:newTrack` creates decisions.md for each new track
+
+**Steps:**
+1. Run `/conductor:newTrack "Add user authentication"`
+2. Complete the spec and plan generation
+3. Check the track folder structure
+
+**Expected Results:**
+- `conductor/tracks/<track_id>/decisions.md` file created
+- File contains track-specific header: `# Decisions Log: Add user authentication`
+- File contains ADR format explanation
+- File contains placeholder: `_No decisions recorded yet._`
+- `conductor/tracks/<track_id>/index.md` includes link to decisions.md
+
+---
+
+### Test 17: Decision Capture During Implementation
+
+**Objective:** Verify decision capture protocol triggers during implementation
+
+**Steps:**
+1. Create a track with tasks that involve technology choices
+2. Run `/conductor:implement`
+3. When a significant decision point is detected (e.g., choosing a library):
+   - Observe the decision prompt format
+   - Select an option (A/B)
+   - Verify decision is recorded
+
+**Expected Results:**
+- Decision prompt appears with Context, Options (A/B), Pros/Cons
+- After selection, decision is appended to decisions.md
+- ADR entry includes: ID (ADR-001), Date, Status, Context, Decision, Consequences
+- Announcement: "Decision recorded as ADR-001 in decisions.md"
+
+---
+
+### Test 18: Decision Skip Flow
+
+**Objective:** Verify users can skip decision capture
+
+**Steps:**
+1. During implementation, when decision prompt appears
+2. Enter "skip" instead of selecting an option
+
+**Expected Results:**
+- No ADR entry created in decisions.md
+- Implementation continues with recommended option
+- No error or warning messages
+
+---
+
+### Test 19: Multiple Decisions in Same Track
+
+**Objective:** Verify ADR numbering increments correctly
+
+**Steps:**
+1. Record first decision (should be ADR-001)
+2. Continue implementation
+3. Record second decision
+
+**Expected Results:**
+- First decision: ADR-001
+- Second decision: ADR-002
+- Both entries in decisions.md in chronological order
+
+---
+
+### Test 20: Enhanced Git Notes with Decisions (Optional)
+
+**Objective:** Verify git notes include Decisions Made section
+
+**Steps:**
+1. Complete a task that involved decision capture
+2. If using git notes, check the note content
+
+**Expected Results:**
+- Git note contains "Decisions Made" section
+- References the ADR entries (e.g., "ADR-001: Use axios for HTTP")
+- Points to decisions.md for details
+
+**Note:** Git notes are optional. Skip this test if your workflow doesn't use git notes.
+
+---
+
+### Test 21: decisions.md Format Validation
+
+**Objective:** Verify ADR entries follow correct format
+
+**Steps:**
+1. Record a decision during implementation
+2. Read the decisions.md file
+3. Verify format compliance
+
+**Expected Results:**
+Each ADR entry contains:
+- `### ADR-NNN: [Title]`
+- `**Date:** YYYY-MM-DD`
+- `**Status:** Accepted`
+- `#### Context` section
+- `#### Decision` section
+- `#### Consequences` section with Positive/Negative subsections
+- `#### Alternatives Considered` section (if applicable)
+
+---
+
 ## Edge Cases to Test
 
 ### Edge Case 1: Empty Tracks File
@@ -871,6 +980,13 @@ After testing, verify:
 - [ ] Coverage intelligence parses LCOV format
 - [ ] Coverage intelligence handles missing reports gracefully
 - [ ] Coverage suggestions prioritized by business impact
+- [ ] newTrack creates decisions.md for each track
+- [ ] decisions.md has correct ADR format template
+- [ ] Decision capture prompts appear for significant choices
+- [ ] Decision skip flow works without errors
+- [ ] ADR numbering increments correctly
+- [ ] decisions.md entries follow ADR format
+- [ ] Enhanced git notes include Decisions Made section (optional)
 
 ---
 

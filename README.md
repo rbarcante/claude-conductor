@@ -19,6 +19,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
 - **Quality Intelligence**: Automated anti-pattern detection and coverage analysis with actionable test suggestions during implementation.
+- **Decision Logging**: Architecture Decision Record (ADR) logging that captures the "why" behind implementation choices for self-documenting codebases.
 
 ## Installation
 
@@ -70,6 +71,7 @@ When you're ready to take on a new feature or bug fix, run `/conductor:newTrack`
 **Generated Artifacts:**
 - `conductor/tracks/<track_id>/spec.md`
 - `conductor/tracks/<track_id>/plan.md`
+- `conductor/tracks/<track_id>/decisions.md` (ADR logging)
 - `conductor/tracks/<track_id>/metadata.json`
 - `conductor/tracks/<track_id>/index.md` (track navigation index)
 
@@ -114,7 +116,7 @@ During implementation, you can also:
 | Command | Description | Artifacts |
 | :--- | :--- | :--- |
 | `/conductor:setup` | Scaffolds the project and sets up the Conductor environment. Run this once per project. | `conductor/product.md`<br>`conductor/product-guidelines.md`<br>`conductor/tech-stack.md`<br>`conductor/workflow.md`<br>`conductor/tracks.md`<br>`conductor/index.md` |
-| `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md` and `plan.md`. | `conductor/tracks/<id>/spec.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks/<id>/index.md`<br>`conductor/tracks.md` |
+| `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md`, `plan.md`, and `decisions.md`. | `conductor/tracks/<id>/spec.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks/<id>/decisions.md`<br>`conductor/tracks/<id>/index.md`<br>`conductor/tracks.md` |
 | `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
@@ -337,6 +339,88 @@ Create new anti-patterns in `patterns/anti-patterns/core/` using the template at
 - **AI Quick Reference**: Concise detection and fix guidance
 - **Human Documentation**: Detailed explanations with examples
 - **Exceptions**: Valid use cases where the pattern is acceptable
+
+## Decision Logging
+
+Conductor captures the "why" alongside the "what" through Architecture Decision Record (ADR) logging. When significant decisions are made during implementation, they're automatically documented in a track-specific `decisions.md` file.
+
+### How It Works
+
+During `/conductor:implement`, when Conductor detects a significant decision point (technology selection, pattern choice, API design, etc.), it prompts you with options:
+
+```
+---
+**Decision Point: Library Selection**
+
+**Context:** We need to implement HTTP client functionality for API calls.
+
+**Options:**
+A. **axios** (Recommended)
+   Popular HTTP client with interceptors and automatic transforms
+   - Pros: Wide adoption, good TypeScript support
+   - Cons: Additional dependency
+
+B. **Native fetch**
+   Built-in browser/Node.js API
+   - Pros: No dependencies
+   - Cons: More boilerplate, no interceptors
+
+Select an option (A/B/skip):
+---
+```
+
+### ADR Format
+
+Decisions are recorded in the standard ADR format:
+
+```markdown
+### ADR-001: Use axios for HTTP client
+
+**Date:** 2026-01-20
+**Status:** Accepted
+
+#### Context
+The feature requires making API calls to external services. We need a
+reliable HTTP client that supports interceptors for authentication headers.
+
+#### Decision
+We will use axios as the HTTP client library.
+
+#### Consequences
+**Positive:**
+- Consistent error handling across the application
+- Built-in request/response interceptors for auth
+
+**Negative:**
+- Additional 15KB dependency
+- Learning curve for team members unfamiliar with axios
+
+#### Alternatives Considered
+- **Native fetch:** Rejected due to lack of built-in interceptors
+```
+
+### Generated Artifacts
+
+Each track includes a decisions log:
+- `conductor/tracks/<track_id>/decisions.md` - Track-specific decision log
+
+### When Decisions Are Captured
+
+Decisions are prompted for significant choices that:
+- Involve tradeoffs between alternatives
+- Have long-term architectural implications
+- Deviate from established patterns
+- Would benefit future maintainers
+
+Trivial choices (dictated by spec, single option, easily reversible) are skipped automatically.
+
+### Browsing Decisions
+
+View a track's decisions by reading its `decisions.md` file or through the track index:
+
+```bash
+cat conductor/tracks/<track_id>/decisions.md
+```
 
 ## Universal File Resolution Protocol (UFRP)
 
