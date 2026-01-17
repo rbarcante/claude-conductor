@@ -53,9 +53,9 @@
     - [x] Define detection: mutable default arguments (list, dict in Python; objects in JS)
     - [x] Set severity: high
 
-- [ ] Task: Update anti-pattern index
-    - [ ] Add all 5 core anti-patterns to index
-    - [ ] Organize by severity
+- [x] Task: Update anti-pattern index `8cf0dba`
+    - [x] Add all 5 core anti-patterns to index
+    - [x] Organize by severity
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Anti-Pattern Creation' (Protocol in workflow.md)
 
