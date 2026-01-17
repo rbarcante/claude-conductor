@@ -152,7 +152,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 6: Reference Skill - Testing Strategies' (Protocol in workflow.md)
 
-## Phase 7: Skill Registry Integration
+## Phase 7: Skill Registry Integration [checkpoint: eb49143]
 
 - [x] Task: Add reference skills to skill-registry.json
     - [x] Write tests for registry validity
