@@ -178,108 +178,108 @@ Validation should check:
 
 ### Implementation Examples
 
-#### Example 1: Typed Config with Zod (TypeScript)
+#### Example 1: Schema-Based Config Validation
 
-```typescript
-import { z } from 'zod';
+```
+// Define configuration schema with types and defaults
+configSchema = Schema({
+    port: Number(default = 3000),
+    environment: Enum(["development", "staging", "production"], default = "development"),
+    database: {
+        host: String(required = true),
+        port: Number(default = 5432),
+        name: String(required = true),
+        user: String(required = true),
+        password: String(required = true, secret = true)
+    },
+    redis: {
+        url: String(format = "url", optional = true)
+    },
+    features: {
+        newDashboard: Boolean(default = false)
+    }
+})
 
-// Define schema
-const configSchema = z.object({
-    port: z.coerce.number().default(3000),
-    nodeEnv: z.enum(['development', 'staging', 'production']).default('development'),
-    database: z.object({
-        host: z.string().min(1),
-        port: z.coerce.number().default(5432),
-        name: z.string().min(1),
-        user: z.string().min(1),
-        password: z.string().min(1),
-    }),
-    redis: z.object({
-        url: z.string().url().optional(),
-    }).optional(),
-    features: z.object({
-        newDashboard: z.coerce.boolean().default(false),
-    }),
-});
-
-type Config = z.infer<typeof configSchema>;
-
-// Load from environment
-function loadConfig(): Config {
-    const result = configSchema.safeParse({
-        port: process.env.PORT,
-        nodeEnv: process.env.NODE_ENV,
+// Load and validate configuration from environment
+function loadConfig():
+    rawConfig = {
+        port: env.get("PORT"),
+        environment: env.get("NODE_ENV"),
         database: {
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            name: process.env.DB_NAME,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
+            host: env.get("DB_HOST"),
+            port: env.get("DB_PORT"),
+            name: env.get("DB_NAME"),
+            user: env.get("DB_USER"),
+            password: env.get("DB_PASSWORD")
         },
-        redis: process.env.REDIS_URL ? { url: process.env.REDIS_URL } : undefined,
+        redis: {
+            url: env.get("REDIS_URL")
+        },
         features: {
-            newDashboard: process.env.FEATURE_NEW_DASHBOARD,
-        },
-    });
-
-    if (!result.success) {
-        console.error('Configuration validation failed:');
-        console.error(result.error.format());
-        process.exit(1);
+            newDashboard: env.get("FEATURE_NEW_DASHBOARD")
+        }
     }
 
-    return Object.freeze(result.data);
-}
+    result = configSchema.validate(rawConfig)
 
-export const config = loadConfig();
+    if not result.success:
+        log.error("Configuration validation failed:")
+        log.error(result.errors)
+        exit(1)
+
+    return freeze(result.data)  // Make immutable
+
+// Load once at startup
+config = loadConfig()
 ```
 
 #### Example 2: Environment-Specific Config Files
 
-```typescript
-// config/default.ts
-export default {
+```
+// config/default.config
+defaultConfig = {
     api: {
         timeout: 5000,
-        retries: 3,
+        retries: 3
     },
     cache: {
-        ttl: 3600,
-    },
-};
+        ttl: 3600
+    }
+}
 
-// config/development.ts
-export default {
+// config/development.config
+developmentConfig = {
     api: {
-        timeout: 30000, // Longer for debugging
+        timeout: 30000  // Longer for debugging
     },
     logging: {
-        level: 'debug',
-    },
-};
+        level: "debug"
+    }
+}
 
-// config/production.ts
-export default {
+// config/production.config
+productionConfig = {
     api: {
-        timeout: 3000, // Stricter in prod
+        timeout: 3000  // Stricter in prod
     },
     logging: {
-        level: 'info',
-    },
-};
+        level: "info"
+    }
+}
 
-// config/index.ts
-import defaultConfig from './default';
-import devConfig from './development';
-import prodConfig from './production';
+// config/loader
+function loadEnvironmentConfig():
+    envConfigs = {
+        "development": developmentConfig,
+        "production": productionConfig
+    }
 
-const envConfigs = {
-    development: devConfig,
-    production: prodConfig,
-};
+    currentEnv = env.get("NODE_ENV") or "development"
 
-const env = process.env.NODE_ENV || 'development';
-export const config = deepMerge(defaultConfig, envConfigs[env] || {});
+    // Merge default with environment-specific config
+    return deepMerge(defaultConfig, envConfigs[currentEnv] or {})
+
+config = loadEnvironmentConfig()
 ```
 
 ### Best Practices
@@ -310,9 +310,9 @@ export const config = deepMerge(defaultConfig, envConfigs[env] || {});
 ### Anti-Pattern 1: Hardcoded Secrets
 
 **What it looks like:**
-```javascript
-const stripe = new Stripe('sk_live_abc123xyz');
-const dbPassword = 'super_secret_password';
+```
+stripe = new StripeClient("sk_live_abc123xyz")
+dbPassword = "super_secret_password"
 ```
 
 **Why it's problematic:**
@@ -321,28 +321,27 @@ const dbPassword = 'super_secret_password';
 - Same secret used across all environments
 
 **Better approach:**
-```javascript
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const dbPassword = process.env.DB_PASSWORD;
+```
+stripe = new StripeClient(env.get("STRIPE_SECRET_KEY"))
+dbPassword = env.get("DB_PASSWORD")
 
 // Validate at startup
-if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is required');
-}
+if env.get("STRIPE_SECRET_KEY") is null:
+    throw Error("STRIPE_SECRET_KEY is required")
 ```
 
 ### Anti-Pattern 2: Config at First Use
 
 **What it looks like:**
-```javascript
+```
 // Somewhere deep in the codebase...
-function sendEmail(to, subject, body) {
-    const apiKey = process.env.SENDGRID_API_KEY; // First check!
-    if (!apiKey) {
-        throw new Error('SENDGRID_API_KEY not set');
-    }
-    // ...
-}
+function sendEmail(to, subject, body):
+    apiKey = env.get("SENDGRID_API_KEY")  // First check happens here!
+
+    if apiKey is null:
+        throw Error("SENDGRID_API_KEY not set")
+
+    // Send email...
 ```
 
 **Why it's problematic:**
@@ -351,30 +350,27 @@ function sendEmail(to, subject, body) {
 - Hard to know all required config upfront
 
 **Better approach:**
-```javascript
-// config.ts - loaded at startup
-export const config = {
+```
+// config module - loaded at startup
+config = {
     sendgrid: {
-        apiKey: requireEnv('SENDGRID_API_KEY'),
-    },
-};
-
-// email.ts
-import { config } from './config';
-
-function sendEmail(to, subject, body) {
-    // Config already validated
-    const client = new SendGrid(config.sendgrid.apiKey);
-    // ...
+        apiKey: requireEnv("SENDGRID_API_KEY")
+    }
 }
+
+// email module
+function sendEmail(to, subject, body):
+    // Config already validated at startup
+    client = new SendGridClient(config.sendgrid.apiKey)
+    // Send email...
 ```
 
 ### Anti-Pattern 3: Logging Secrets
 
 **What it looks like:**
-```javascript
-console.log('Loaded config:', config);
-// Output: { dbHost: 'localhost', dbPassword: 'secret123', ... }
+```
+print("Loaded config: " + toJson(config))
+// Output: { dbHost: "localhost", dbPassword: "secret123", ... }
 ```
 
 **Why it's problematic:**
@@ -383,19 +379,17 @@ console.log('Loaded config:', config);
 - Violates security compliance requirements
 
 **Better approach:**
-```javascript
-function safeLogConfig(config) {
-    return {
-        ...config,
-        dbPassword: '[REDACTED]',
-        apiKeys: Object.keys(config.apiKeys).reduce((acc, key) => {
-            acc[key] = '[REDACTED]';
-            return acc;
-        }, {}),
-    };
-}
+```
+function safeLogConfig(config):
+    sanitized = copy(config)
+    sanitized.dbPassword = "[REDACTED]"
 
-console.log('Loaded config:', safeLogConfig(config));
+    for key in sanitized.apiKeys:
+        sanitized.apiKeys[key] = "[REDACTED]"
+
+    return sanitized
+
+log.info("Loaded config: " + toJson(safeLogConfig(config)))
 ```
 
 ---

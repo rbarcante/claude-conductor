@@ -150,75 +150,76 @@ Every error should carry enough context to understand what happened:
 
 ### Implementation Examples
 
-#### Example 1: Basic Error Wrapper
+#### Example 1: Custom Error Class with Context
 
-```typescript
-// Define domain errors
-class AppError extends Error {
-    constructor(
-        public code: string,
-        public message: string,
-        public userMessage: string,
-        public statusCode: number = 500,
-        public cause?: Error
-    ) {
-        super(message);
-        this.name = 'AppError';
-    }
-}
+```
+// Define a domain-specific error class
+class AppError extends Error:
+    properties:
+        code: String           // "USER_NOT_FOUND", "DATABASE_ERROR"
+        message: String        // Technical details for logs
+        userMessage: String    // Safe message for end users
+        statusCode: Integer    // HTTP status code (404, 500, etc.)
+        cause: Error           // Original error being wrapped
 
-// Usage
-async function getUser(id: string): Promise<User> {
-    try {
-        const user = await db.users.findById(id);
-        if (!user) {
+// Usage in a service function
+function getUser(id):
+    try:
+        user = database.users.findById(id)
+
+        if user is null:
             throw new AppError(
-                'USER_NOT_FOUND',
-                `User with id ${id} not found in database`,
-                'User not found',
-                404
-            );
-        }
-        return user;
-    } catch (error) {
-        if (error instanceof AppError) throw error;
+                code = "USER_NOT_FOUND",
+                message = "User with id " + id + " not found in database",
+                userMessage = "User not found",
+                statusCode = 404
+            )
+
+        return user
+
+    catch error:
+        // Re-throw if already an AppError
+        if error is AppError:
+            throw error
+
+        // Wrap unexpected errors
         throw new AppError(
-            'DATABASE_ERROR',
-            error.message,
-            'Unable to fetch user. Please try again.',
-            500,
-            error
-        );
-    }
-}
+            code = "DATABASE_ERROR",
+            message = error.message,
+            userMessage = "Unable to fetch user. Please try again.",
+            statusCode = 500,
+            cause = error
+        )
 ```
 
 #### Example 2: Result Type Pattern (No Exceptions)
 
-```typescript
-type Result<T, E = Error> =
-    | { ok: true; value: T }
-    | { ok: false; error: E };
+```
+// Define a Result type for explicit error handling
+type Result<T, E>:
+    - Success: { ok: true, value: T }
+    - Failure: { ok: false, error: E }
 
-function parseConfig(raw: string): Result<Config, ParseError> {
-    try {
-        const config = JSON.parse(raw);
-        if (!isValidConfig(config)) {
-            return { ok: false, error: new ParseError('Invalid config structure') };
-        }
-        return { ok: true, value: config };
-    } catch (e) {
-        return { ok: false, error: new ParseError('Invalid JSON') };
-    }
-}
+function parseConfig(rawString):
+    try:
+        config = parseJson(rawString)
 
-// Usage - forces explicit error handling
-const result = parseConfig(rawConfig);
-if (!result.ok) {
-    log.warn('Config parse failed', { error: result.error });
-    return defaultConfig;
-}
-return result.value;
+        if not isValidConfig(config):
+            return Failure(ParseError("Invalid config structure"))
+
+        return Success(config)
+
+    catch parseException:
+        return Failure(ParseError("Invalid JSON format"))
+
+// Usage - caller must handle both cases
+result = parseConfig(rawConfigString)
+
+if not result.ok:
+    log.warn("Config parse failed", error = result.error)
+    return defaultConfig
+
+return result.value
 ```
 
 ### Best Practices
@@ -249,12 +250,12 @@ return result.value;
 ### Anti-Pattern 1: Pokemon Exception Handling
 
 **What it looks like:**
-```javascript
-try {
-    doSomething();
-} catch (e) {
-    // Gotta catch 'em all!
-}
+```
+try:
+    doSomething()
+catch error:
+    // Gotta catch 'em all! (silently ignored)
+    pass
 ```
 
 **Why it's problematic:**
@@ -263,29 +264,27 @@ try {
 - Hides real issues until they become critical
 
 **Better approach:**
-```javascript
-try {
-    doSomething();
-} catch (e) {
-    log.error('doSomething failed', { error: e });
-    if (e instanceof ExpectedError) {
-        return fallbackValue;
-    }
-    throw e; // Re-throw unexpected errors
-}
+```
+try:
+    doSomething()
+catch error:
+    log.error("doSomething failed", error = error)
+
+    if error is ExpectedError:
+        return fallbackValue
+
+    throw error  // Re-throw unexpected errors
 ```
 
 ### Anti-Pattern 2: String-Based Error Checking
 
 **What it looks like:**
-```javascript
-try {
-    await saveUser(user);
-} catch (e) {
-    if (e.message.includes('duplicate key')) {
+```
+try:
+    saveUser(user)
+catch error:
+    if error.message.contains("duplicate key"):
         // Handle duplicate...
-    }
-}
 ```
 
 **Why it's problematic:**
@@ -294,23 +293,20 @@ try {
 - Different databases use different messages
 
 **Better approach:**
-```javascript
-try {
-    await saveUser(user);
-} catch (e) {
-    if (e.code === 'DUPLICATE_KEY' || e.code === '23505') {
+```
+try:
+    saveUser(user)
+catch error:
+    if error.code == "DUPLICATE_KEY" or error.code == "23505":
         // Handle duplicate using error codes
-    }
-}
 ```
 
 ### Anti-Pattern 3: Exposing Internal Errors to Users
 
 **What it looks like:**
-```javascript
-app.use((err, req, res, next) => {
-    res.status(500).json({ error: err.stack });
-});
+```
+function globalErrorHandler(error, request, response):
+    response.status(500).json({ error: error.stackTrace })
 ```
 
 **Why it's problematic:**
@@ -319,15 +315,15 @@ app.use((err, req, res, next) => {
 - Privacy risk: may expose other users' data in context
 
 **Better approach:**
-```javascript
-app.use((err, req, res, next) => {
-    const requestId = req.id;
-    log.error('Request failed', { requestId, error: err });
-    res.status(err.statusCode || 500).json({
-        error: err.userMessage || 'An unexpected error occurred',
-        requestId: requestId // Helps users report issues
-    });
-});
+```
+function globalErrorHandler(error, request, response):
+    requestId = request.id
+    log.error("Request failed", requestId = requestId, error = error)
+
+    response.status(error.statusCode or 500).json({
+        error: error.userMessage or "An unexpected error occurred",
+        requestId: requestId  // Helps users report issues
+    })
 ```
 
 ---

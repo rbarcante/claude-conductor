@@ -181,78 +181,72 @@ Every log entry should include enough context to understand it in isolation:
 
 ### Implementation Examples
 
-#### Example 1: Logger Setup (Node.js/Pino)
+#### Example 1: Logger Setup with Configuration
 
-```typescript
-import pino from 'pino';
-
-// Create base logger
-const logger = pino({
-    level: process.env.LOG_LEVEL || 'info',
-    formatters: {
-        level: (label) => ({ level: label }),
-    },
-    redact: {
-        paths: ['password', 'token', 'authorization', '*.password'],
-        censor: '[REDACTED]'
-    },
-    base: {
-        service: process.env.SERVICE_NAME,
-        version: process.env.npm_package_version,
-        env: process.env.NODE_ENV
+```
+// Create base logger with configuration
+logger = createLogger({
+    level: environment.LOG_LEVEL or "info",
+    format: "json",
+    redactPaths: ["password", "token", "authorization", "*.password"],
+    redactValue: "[REDACTED]",
+    defaultContext: {
+        service: environment.SERVICE_NAME,
+        version: environment.APP_VERSION,
+        env: environment.NODE_ENV
     }
-});
+})
 
-// Request middleware
-function requestLogger(req, res, next) {
-    req.log = logger.child({
-        requestId: req.id,
-        method: req.method,
-        path: req.path,
-        userId: req.user?.id
-    });
+// Request logging middleware
+function requestLoggerMiddleware(request, response, next):
+    // Create child logger with request context
+    request.logger = logger.createChild({
+        requestId: request.id,
+        method: request.method,
+        path: request.path,
+        userId: request.user?.id
+    })
 
-    const start = Date.now();
+    startTime = currentTimeMillis()
 
-    res.on('finish', () => {
-        req.log.info({
-            statusCode: res.statusCode,
-            duration_ms: Date.now() - start
-        }, 'Request completed');
-    });
+    // Log when response finishes
+    response.onFinish(function():
+        request.logger.info("Request completed", {
+            statusCode: response.statusCode,
+            duration_ms: currentTimeMillis() - startTime
+        })
+    )
 
-    next();
-}
-
-export { logger, requestLogger };
+    next()
 ```
 
-#### Example 2: Sensitive Data Handling
+#### Example 2: Sensitive Data Sanitization
 
-```typescript
-// Create a sanitizer for sensitive fields
-const sensitiveFields = ['password', 'token', 'ssn', 'creditCard'];
+```
+// Define sensitive field patterns
+sensitiveFields = ["password", "token", "ssn", "creditCard", "secret"]
 
-function sanitizeForLogging(obj: Record<string, any>): Record<string, any> {
-    const sanitized = { ...obj };
+function sanitizeForLogging(data):
+    sanitized = copy(data)
 
-    for (const key of Object.keys(sanitized)) {
-        if (sensitiveFields.some(f => key.toLowerCase().includes(f))) {
-            sanitized[key] = '[REDACTED]';
-        } else if (key === 'email' && sanitized[key]) {
-            // Partially mask email
-            const [local, domain] = sanitized[key].split('@');
-            sanitized[key] = `${local[0]}***@${domain}`;
-        } else if (typeof sanitized[key] === 'object') {
-            sanitized[key] = sanitizeForLogging(sanitized[key]);
-        }
-    }
+    for key in sanitized.keys():
+        // Check if field name matches sensitive patterns
+        if anySensitiveFieldMatches(key, sensitiveFields):
+            sanitized[key] = "[REDACTED]"
 
-    return sanitized;
-}
+        // Partially mask email addresses
+        else if key == "email" and sanitized[key] is not null:
+            localPart, domain = sanitized[key].split("@")
+            sanitized[key] = localPart[0] + "***@" + domain
+
+        // Recursively sanitize nested objects
+        else if sanitized[key] is object:
+            sanitized[key] = sanitizeForLogging(sanitized[key])
+
+    return sanitized
 
 // Usage
-logger.info(sanitizeForLogging(userInput), 'Processing user data');
+logger.info("Processing user data", sanitizeForLogging(userInput))
 ```
 
 ### Best Practices
@@ -283,12 +277,12 @@ logger.info(sanitizeForLogging(userInput), 'Processing user data');
 ### Anti-Pattern 1: Logging Sensitive Data
 
 **What it looks like:**
-```javascript
-logger.info('User login', {
+```
+logger.info("User login", {
     email: user.email,
     password: user.password,  // NEVER!
     token: authToken          // NEVER!
-});
+})
 ```
 
 **Why it's problematic:**
@@ -297,52 +291,50 @@ logger.info('User login', {
 - Logs often have broader access than databases
 
 **Better approach:**
-```javascript
-logger.info('User login', {
+```
+logger.info("User login", {
     userId: user.id,
     email: maskEmail(user.email),
     // password: NEVER LOG
     tokenId: authToken.id  // Log identifier, not value
-});
+})
 ```
 
-### Anti-Pattern 2: Console.log in Production
+### Anti-Pattern 2: Print Statements in Production
 
 **What it looks like:**
-```javascript
-console.log('Processing order:', orderId);
-console.log('User data:', JSON.stringify(user));
+```
+print("Processing order: " + orderId)
+print("User data: " + toJson(user))
 ```
 
 **Why it's problematic:**
 - No log levels
 - No structure
 - No context
-- Performance impact (synchronous)
+- Performance impact (often synchronous)
 - Often left in accidentally
 
 **Better approach:**
-```javascript
-logger.info({ orderId }, 'Processing order');
-logger.debug({ user: sanitize(user) }, 'User data loaded');
+```
+logger.info("Processing order", orderId = orderId)
+logger.debug("User data loaded", user = sanitize(user))
 ```
 
 ### Anti-Pattern 3: Logging Everything
 
 **What it looks like:**
-```javascript
-function calculateTotal(items) {
-    logger.debug('Entering calculateTotal');
-    logger.debug('Items:', items);
-    let total = 0;
-    for (const item of items) {
-        logger.debug('Processing item:', item);
-        total += item.price;
-        logger.debug('Running total:', total);
-    }
-    logger.debug('Exiting calculateTotal');
-    return total;
-}
+```
+function calculateTotal(items):
+    logger.debug("Entering calculateTotal")
+    logger.debug("Items: " + items)
+    total = 0
+    for item in items:
+        logger.debug("Processing item: " + item)
+        total = total + item.price
+        logger.debug("Running total: " + total)
+    logger.debug("Exiting calculateTotal")
+    return total
 ```
 
 **Why it's problematic:**
@@ -352,13 +344,12 @@ function calculateTotal(items) {
 - Difficult to find relevant information
 
 **Better approach:**
-```javascript
-function calculateTotal(items) {
-    logger.debug({ itemCount: items.length }, 'Calculating order total');
-    const total = items.reduce((sum, item) => sum + item.price, 0);
-    logger.debug({ total }, 'Order total calculated');
-    return total;
-}
+```
+function calculateTotal(items):
+    logger.debug("Calculating order total", itemCount = items.length)
+    total = sum(item.price for item in items)
+    logger.debug("Order total calculated", total = total)
+    return total
 ```
 
 ---

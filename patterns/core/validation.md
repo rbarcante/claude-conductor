@@ -188,92 +188,89 @@ Never rely solely on client-side validation—it can be bypassed.
 
 ### Implementation Examples
 
-#### Example 1: Request Validation with Zod (TypeScript)
+#### Example 1: Request Validation with Schema
 
-```typescript
-import { z } from 'zod';
-
-// Define schema
-const createUserSchema = z.object({
-    email: z.string().email('Invalid email format'),
-    password: z.string()
-        .min(8, 'Password must be at least 8 characters')
-        .regex(/[A-Z]/, 'Password must contain uppercase letter')
-        .regex(/[0-9]/, 'Password must contain a number'),
-    age: z.number()
-        .int('Age must be a whole number')
-        .min(13, 'Must be at least 13 years old')
-        .max(120, 'Invalid age'),
-    username: z.string()
-        .min(3, 'Username too short')
-        .max(20, 'Username too long')
-        .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores'),
-});
-
-type CreateUserInput = z.infer<typeof createUserSchema>;
+```
+// Define validation schema
+createUserSchema = Schema({
+    email: String(format = "email", errorMessage = "Invalid email format"),
+    password: String(
+        minLength = 8, errorMessage = "Password must be at least 8 characters",
+        pattern = "[A-Z]", patternError = "Password must contain uppercase letter",
+        pattern = "[0-9]", patternError = "Password must contain a number"
+    ),
+    age: Integer(
+        min = 13, minError = "Must be at least 13 years old",
+        max = 120, maxError = "Invalid age"
+    ),
+    username: String(
+        minLength = 3, minError = "Username too short",
+        maxLength = 20, maxError = "Username too long",
+        pattern = "^[a-z0-9_]+$",
+        patternError = "Username can only contain lowercase letters, numbers, and underscores"
+    )
+})
 
 // Validation middleware
-function validateRequest(schema: z.Schema) {
-    return (req, res, next) => {
-        const result = schema.safeParse(req.body);
+function validateRequest(schema):
+    return function(request, response, next):
+        result = schema.validate(request.body)
 
-        if (!result.success) {
-            return res.status(400).json({
-                error: 'Validation failed',
-                details: result.error.errors.map(err => ({
-                    field: err.path.join('.'),
+        if not result.success:
+            return response.status(400).json({
+                error: "Validation failed",
+                details: result.errors.map(err => {
+                    field: err.path,
                     message: err.message,
-                    code: err.code,
-                })),
-            });
-        }
+                    code: err.code
+                })
+            })
 
-        req.validatedBody = result.data;
-        next();
-    };
-}
+        request.validatedBody = result.data
+        next()
 
 // Usage
-app.post('/users', validateRequest(createUserSchema), createUser);
+app.post("/users", validateRequest(createUserSchema), createUser)
 ```
 
-#### Example 2: Custom Validation Rules
+#### Example 2: Custom and Cross-Field Validation
 
-```typescript
-// Extend Zod with custom validations
-const phoneNumber = z.string().refine(
-    (val) => /^\+?[1-9]\d{1,14}$/.test(val),
-    { message: 'Invalid phone number format (E.164)' }
-);
+```
+// Custom validation rule for phone numbers
+phoneNumberRule = customValidator(
+    function(value):
+        return matchesPattern(value, "^\+?[1-9]\d{1,14}$"),
+    errorMessage = "Invalid phone number format (E.164)"
+)
 
-const futureDate = z.date().refine(
-    (date) => date > new Date(),
-    { message: 'Date must be in the future' }
-);
+// Custom rule for future dates
+futureDateRule = customValidator(
+    function(value):
+        return value > currentDate(),
+    errorMessage = "Date must be in the future"
+)
 
-// Cross-field validation
-const dateRangeSchema = z.object({
-    startDate: z.date(),
-    endDate: z.date(),
-}).refine(
-    (data) => data.endDate > data.startDate,
-    {
-        message: 'End date must be after start date',
-        path: ['endDate'], // Error appears on endDate field
-    }
-);
+// Cross-field validation (comparing two fields)
+dateRangeSchema = Schema({
+    startDate: Date(),
+    endDate: Date()
+}).crossFieldValidation(
+    function(data):
+        return data.endDate > data.startDate,
+    errorMessage = "End date must be after start date",
+    errorField = "endDate"
+)
 
-// Conditional validation
-const shippingSchema = z.object({
-    deliveryType: z.enum(['pickup', 'delivery']),
-    address: z.string().optional(),
-}).refine(
-    (data) => data.deliveryType !== 'delivery' || data.address,
-    {
-        message: 'Address is required for delivery',
-        path: ['address'],
-    }
-);
+// Conditional validation (field required based on another field)
+shippingSchema = Schema({
+    deliveryType: Enum(["pickup", "delivery"]),
+    address: String(optional = true)
+}).conditionalValidation(
+    function(data):
+        return data.deliveryType != "delivery" or data.address is not null,
+    errorMessage = "Address is required for delivery",
+    errorField = "address"
+)
 ```
 
 ### Best Practices
@@ -304,14 +301,14 @@ const shippingSchema = z.object({
 ### Anti-Pattern 1: Blacklist Validation
 
 **What it looks like:**
-```javascript
-function validateUsername(username) {
-    const forbidden = ['admin', 'root', 'system'];
-    if (forbidden.includes(username.toLowerCase())) {
-        return { valid: false, error: 'Username not allowed' };
-    }
-    return { valid: true };
-}
+```
+function validateUsername(username):
+    forbidden = ["admin", "root", "system"]
+
+    if username.toLowerCase() in forbidden:
+        return { valid: false, error: "Username not allowed" }
+
+    return { valid: true }
 ```
 
 **Why it's problematic:**
@@ -320,25 +317,26 @@ function validateUsername(username) {
 - Doesn't validate format
 
 **Better approach:**
-```javascript
+```
 // Whitelist: define what IS allowed
-const usernameSchema = z.string()
-    .min(3)
-    .max(20)
-    .regex(/^[a-z0-9_]+$/)
-    .refine(name => !reservedNames.includes(name), {
-        message: 'This username is reserved'
-    });
+usernameSchema = String(
+    minLength = 3,
+    maxLength = 20,
+    pattern = "^[a-z0-9_]+$"
+).customValidator(
+    function(name):
+        return name not in reservedNames,
+    errorMessage = "This username is reserved"
+)
 ```
 
 ### Anti-Pattern 2: Silent Coercion
 
 **What it looks like:**
-```javascript
-function processAge(input) {
-    const age = parseInt(input) || 0;  // Silently defaults to 0
-    return saveUser({ age });
-}
+```
+function processAge(input):
+    age = parseInteger(input) or 0  // Silently defaults to 0
+    return saveUser({ age: age })
 ```
 
 **Why it's problematic:**
@@ -347,42 +345,37 @@ function processAge(input) {
 - Hard to debug later
 
 **Better approach:**
-```javascript
-const ageSchema = z.coerce.number()
-    .int()
-    .min(0)
-    .max(150);
+```
+ageSchema = Integer(min = 0, max = 150)
 
-function processAge(input) {
-    const result = ageSchema.safeParse(input);
-    if (!result.success) {
-        throw new ValidationError('age', 'Must be a valid age');
-    }
-    return saveUser({ age: result.data });
-}
+function processAge(input):
+    result = ageSchema.validate(input)
+
+    if not result.success:
+        throw ValidationError("age", "Must be a valid age")
+
+    return saveUser({ age: result.data })
 ```
 
 ### Anti-Pattern 3: Client-Only Validation
 
 **What it looks like:**
-```javascript
-// React component
-function SignupForm() {
-    const [email, setEmail] = useState('');
-    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+```
+// Client-side form component
+class SignupForm:
+    email = ""
 
-    const handleSubmit = async () => {
-        if (isValid) {
-            await api.createUser({ email }); // Server trusts client
-        }
-    };
-}
+    function isValid():
+        return matchesEmailPattern(email)
 
-// Server
-app.post('/users', async (req, res) => {
-    // No validation! Trusts client
-    await db.users.create(req.body);
-});
+    function handleSubmit():
+        if isValid():
+            api.createUser({ email: email })  // Server trusts client
+
+// Server endpoint
+function handleCreateUser(request, response):
+    // No validation! Trusts client blindly
+    database.users.create(request.body)
 ```
 
 **Why it's problematic:**
@@ -391,15 +384,15 @@ app.post('/users', async (req, res) => {
 - Inconsistent data in database
 
 **Better approach:**
-```javascript
+```
 // Server ALWAYS validates
-app.post('/users', async (req, res) => {
-    const result = userSchema.safeParse(req.body);
-    if (!result.success) {
-        return res.status(400).json({ errors: result.error.errors });
-    }
-    await db.users.create(result.data);
-});
+function handleCreateUser(request, response):
+    result = userSchema.validate(request.body)
+
+    if not result.success:
+        return response.status(400).json({ errors: result.errors })
+
+    database.users.create(result.data)
 ```
 
 ---

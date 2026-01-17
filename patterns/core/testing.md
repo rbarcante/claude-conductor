@@ -140,19 +140,18 @@ The test pyramid guides how many tests of each type to write:
 
 Every test should have three distinct sections:
 
-```typescript
-it('should calculate total with discount', () => {
+```
+test "should calculate total with discount":
     // Arrange - Set up test data and dependencies
-    const cart = new ShoppingCart();
-    cart.addItem({ name: 'Widget', price: 100 });
-    const discount = new PercentDiscount(10);
+    cart = new ShoppingCart()
+    cart.addItem({ name: "Widget", price: 100 })
+    discount = new PercentDiscount(10)
 
     // Act - Execute the code under test
-    const total = cart.calculateTotal(discount);
+    total = cart.calculateTotal(discount)
 
     // Assert - Verify the result
-    expect(total).toBe(90);
-});
+    assert total == 90
 ```
 
 **Why this matters:**
@@ -164,141 +163,117 @@ it('should calculate total with discount', () => {
 
 Tests should be independent and not affect each other:
 
-```typescript
+```
 // Bad: Tests share state
-let user;
+sharedUser = null
 
-beforeAll(() => {
-    user = createUser(); // Shared across all tests
-});
+beforeAllTests():
+    sharedUser = createUser()  // Shared across all tests
 
-it('test1', () => {
-    user.name = 'Changed'; // Modifies shared state
-});
+test "test1":
+    sharedUser.name = "Changed"  // Modifies shared state
 
-it('test2', () => {
-    expect(user.name).toBe('Original'); // Fails due to test1
-});
+test "test2":
+    assert sharedUser.name == "Original"  // FAILS due to test1!
 
 // Good: Each test has its own data
-it('test1', () => {
-    const user = createUser();
-    user.name = 'Changed';
-    expect(user.name).toBe('Changed');
-});
+test "test1":
+    user = createUser()
+    user.name = "Changed"
+    assert user.name == "Changed"
 
-it('test2', () => {
-    const user = createUser();
-    expect(user.name).toBe('Original');
-});
+test "test2":
+    user = createUser()
+    assert user.name == "Original"
 ```
 
 ### Implementation Examples
 
 #### Example 1: Unit Test with Mocking
 
-```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { OrderService } from './order-service';
-import { PaymentGateway } from './payment-gateway';
-import { OrderRepository } from './order-repository';
+```
+describe "OrderService":
+    orderService = null
+    mockPayment = null
+    mockRepo = null
 
-describe('OrderService', () => {
-    let orderService: OrderService;
-    let mockPayment: PaymentGateway;
-    let mockRepo: OrderRepository;
-
-    beforeEach(() => {
+    beforeEachTest():
         // Create fresh mocks for each test
-        mockPayment = {
-            charge: vi.fn(),
-            refund: vi.fn(),
-        };
-        mockRepo = {
-            save: vi.fn(),
-            findById: vi.fn(),
-        };
-        orderService = new OrderService(mockPayment, mockRepo);
-    });
+        mockPayment = createMock({
+            charge: mockFunction(),
+            refund: mockFunction()
+        })
+        mockRepo = createMock({
+            save: mockFunction(),
+            findById: mockFunction()
+        })
+        orderService = new OrderService(mockPayment, mockRepo)
 
-    describe('placeOrder', () => {
-        it('should charge payment and save order on success', async () => {
+    describe "placeOrder":
+        test "should charge payment and save order on success":
             // Arrange
-            const order = { items: [{ id: '1', price: 100 }], total: 100 };
-            mockPayment.charge.mockResolvedValue({ transactionId: 'tx_123' });
-            mockRepo.save.mockResolvedValue({ ...order, id: 'order_1' });
+            order = { items: [{ id: "1", price: 100 }], total: 100 }
+            mockPayment.charge.willReturn({ transactionId: "tx_123" })
+            mockRepo.save.willReturn({ ...order, id: "order_1" })
 
             // Act
-            const result = await orderService.placeOrder(order);
+            result = orderService.placeOrder(order)
 
             // Assert
-            expect(mockPayment.charge).toHaveBeenCalledWith(100);
-            expect(mockRepo.save).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    items: order.items,
-                    transactionId: 'tx_123',
-                })
-            );
-            expect(result.id).toBe('order_1');
-        });
+            assert mockPayment.charge.wasCalledWith(100)
+            assert mockRepo.save.wasCalledWith(objectContaining({
+                items: order.items,
+                transactionId: "tx_123"
+            }))
+            assert result.id == "order_1"
 
-        it('should not save order if payment fails', async () => {
+        test "should not save order if payment fails":
             // Arrange
-            const order = { items: [{ id: '1', price: 100 }], total: 100 };
-            mockPayment.charge.mockRejectedValue(new Error('Card declined'));
+            order = { items: [{ id: "1", price: 100 }], total: 100 }
+            mockPayment.charge.willThrow(Error("Card declined"))
 
             // Act & Assert
-            await expect(orderService.placeOrder(order))
-                .rejects.toThrow('Card declined');
-            expect(mockRepo.save).not.toHaveBeenCalled();
-        });
-    });
-});
+            assertThrows(
+                function(): orderService.placeOrder(order),
+                expectedError: "Card declined"
+            )
+            assert mockRepo.save.wasNotCalled()
 ```
 
 #### Example 2: Integration Test with Test Database
 
-```typescript
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { createTestDatabase, cleanupTestDatabase } from './test-utils';
-import { UserRepository } from './user-repository';
+```
+describe "UserRepository Integration":
+    db = null
+    repo = null
 
-describe('UserRepository Integration', () => {
-    let db;
-    let repo: UserRepository;
+    beforeAllTests():
+        db = createTestDatabase()
+        repo = new UserRepository(db)
 
-    beforeAll(async () => {
-        db = await createTestDatabase();
-        repo = new UserRepository(db);
-    });
+    afterAllTests():
+        cleanupTestDatabase(db)
 
-    afterAll(async () => {
-        await cleanupTestDatabase(db);
-    });
-
-    beforeEach(async () => {
+    beforeEachTest():
         // Clean tables between tests
-        await db.query('DELETE FROM users');
-    });
+        db.execute("DELETE FROM users")
 
-    it('should create and retrieve a user', async () => {
+    test "should create and retrieve a user":
         // Arrange
-        const userData = { email: 'test@example.com', name: 'Test User' };
+        userData = { email: "test@example.com", name: "Test User" }
 
         // Act
-        const created = await repo.create(userData);
-        const retrieved = await repo.findById(created.id);
+        created = repo.create(userData)
+        retrieved = repo.findById(created.id)
 
         // Assert
-        expect(retrieved).toMatchObject(userData);
-        expect(retrieved.id).toBe(created.id);
-    });
+        assert retrieved.email == userData.email
+        assert retrieved.name == userData.name
+        assert retrieved.id == created.id
 
-    it('should return null for non-existent user', async () => {
-        const result = await repo.findById('non-existent-id');
-        expect(result).toBeNull();
-    });
-});
+    test "should return null for non-existent user":
+        result = repo.findById("non-existent-id")
+        assert result is null
 ```
 
 ### Best Practices
@@ -329,15 +304,14 @@ describe('UserRepository Integration', () => {
 ### Anti-Pattern 1: Testing Implementation Details
 
 **What it looks like:**
-```typescript
-it('should call internal method correctly', () => {
-    const service = new UserService();
-    const spy = vi.spyOn(service, '_hashPassword');
+```
+test "should call internal method correctly":
+    service = new UserService()
+    spy = spyOn(service, "_hashPassword")
 
-    service.createUser({ password: '123' });
+    service.createUser({ password: "123" })
 
-    expect(spy).toHaveBeenCalledWith('123', 10); // Tests internal details
-});
+    assert spy.wasCalledWith("123", 10)  // Tests internal details!
 ```
 
 **Why it's problematic:**
@@ -346,33 +320,30 @@ it('should call internal method correctly', () => {
 - Creates brittle tests
 
 **Better approach:**
-```typescript
-it('should store hashed password, not plain text', async () => {
-    const service = new UserService();
-    const user = await service.createUser({ password: '123' });
+```
+test "should store hashed password, not plain text":
+    service = new UserService()
+    user = service.createUser({ password: "123" })
 
-    expect(user.password).not.toBe('123');
-    expect(await verifyPassword('123', user.password)).toBe(true);
-});
+    assert user.password != "123"
+    assert verifyPassword("123", user.password) == true
 ```
 
 ### Anti-Pattern 2: Test Interdependence
 
 **What it looks like:**
-```typescript
-let createdUserId;
+```
+createdUserId = null  // Shared state!
 
-it('should create a user', async () => {
-    const user = await api.createUser({ name: 'Test' });
-    createdUserId = user.id; // Shared state!
-    expect(user.name).toBe('Test');
-});
+test "should create a user":
+    user = api.createUser({ name: "Test" })
+    createdUserId = user.id  // Sets shared state
+    assert user.name == "Test"
 
-it('should update the user', async () => {
-    // Depends on previous test!
-    const user = await api.updateUser(createdUserId, { name: 'Updated' });
-    expect(user.name).toBe('Updated');
-});
+test "should update the user":
+    // DEPENDS on previous test running first!
+    user = api.updateUser(createdUserId, { name: "Updated" })
+    assert user.name == "Updated"
 ```
 
 **Why it's problematic:**
@@ -381,39 +352,36 @@ it('should update the user', async () => {
 - Debugging is difficult
 
 **Better approach:**
-```typescript
-it('should create a user', async () => {
-    const user = await api.createUser({ name: 'Test' });
-    expect(user.name).toBe('Test');
-    await api.deleteUser(user.id); // Cleanup
-});
+```
+test "should create a user":
+    user = api.createUser({ name: "Test" })
+    assert user.name == "Test"
+    api.deleteUser(user.id)  // Cleanup
 
-it('should update a user', async () => {
+test "should update a user":
     // Self-contained setup
-    const user = await api.createUser({ name: 'Test' });
+    user = api.createUser({ name: "Test" })
 
-    const updated = await api.updateUser(user.id, { name: 'Updated' });
+    updated = api.updateUser(user.id, { name: "Updated" })
 
-    expect(updated.name).toBe('Updated');
-    await api.deleteUser(user.id); // Cleanup
-});
+    assert updated.name == "Updated"
+    api.deleteUser(user.id)  // Cleanup
 ```
 
 ### Anti-Pattern 3: Excessive Mocking
 
 **What it looks like:**
-```typescript
-it('should process order', async () => {
-    const mockUser = { id: '1', email: 'test@test.com' };
-    const mockOrder = { id: '1', items: [] };
-    const mockPayment = { status: 'success' };
-    const mockInventory = { available: true };
-    const mockShipping = { trackingId: '123' };
-    const mockEmail = { sent: true };
+```
+test "should process order":
+    mockUser = { id: "1", email: "test@test.com" }
+    mockOrder = { id: "1", items: [] }
+    mockPayment = { status: "success" }
+    mockInventory = { available: true }
+    mockShipping = { trackingId: "123" }
+    mockEmail = { sent: true }
     // ... 10 more mocks
 
     // Test has become meaningless - what is even being tested?
-});
 ```
 
 **Why it's problematic:**
@@ -422,18 +390,16 @@ it('should process order', async () => {
 - Tests pass but production breaks
 
 **Better approach:**
-```typescript
+```
 // Unit test: mock external dependencies only
-it('should validate order items', () => {
-    const result = validateOrder({ items: [] });
-    expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Order must have at least one item');
-});
+test "should validate order items":
+    result = validateOrder({ items: [] })
+    assert result.valid == false
+    assert "Order must have at least one item" in result.errors
 
 // Integration test: test component interactions with real(ish) dependencies
-it('should process order end-to-end', async () => {
+test "should process order end-to-end":
     // Use test database, mock only external services (payment, email)
-});
 ```
 
 ---
