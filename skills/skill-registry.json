@@ -13,6 +13,57 @@
       "provides": {
         "guidance": ["conductor-concepts", "context-driven-development", "track-lifecycle"]
       }
+    },
+    {
+      "name": "TypeScript Best Practices",
+      "version": "1.0.0",
+      "path": "./typescript-best-practices",
+      "description": "Type safety, async patterns, and null handling guidance for TypeScript development",
+      "activation": {
+        "keywords": ["typescript", "type", "interface", "generic", "async", "await", "promise", "nullable"],
+        "file_patterns": ["**/*.ts", "**/*.tsx", "**/tsconfig.json"],
+        "tech_stack": {
+          "languages": ["TypeScript"]
+        }
+      },
+      "provides": {
+        "guidance": ["type-safety", "async-patterns", "null-handling", "generics"],
+        "patterns": ["type-safety", "async-patterns", "null-handling"]
+      }
+    },
+    {
+      "name": "API Design",
+      "version": "1.0.0",
+      "path": "./api-design",
+      "description": "REST conventions, error responses, and versioning strategies for API development",
+      "activation": {
+        "keywords": ["api", "endpoint", "rest", "route", "controller", "http", "request", "response"],
+        "file_patterns": ["**/routes/**", "**/controllers/**", "**/api/**", "**/endpoints/**"],
+        "tech_stack": {
+          "frameworks": ["Express", "Fastify", "Koa", "Hono", "NestJS", "FastAPI", "Flask", "Django", "Gin", "Echo"]
+        }
+      },
+      "provides": {
+        "guidance": ["rest-conventions", "error-responses", "versioning", "pagination", "authentication"],
+        "patterns": ["rest-conventions", "error-responses", "versioning"]
+      }
+    },
+    {
+      "name": "Testing Strategies",
+      "version": "1.0.0",
+      "path": "./testing-strategies",
+      "description": "Unit testing, integration testing, and mocking strategies for comprehensive test coverage",
+      "activation": {
+        "keywords": ["test", "testing", "unit", "integration", "mock", "assert", "expect", "spec", "coverage"],
+        "file_patterns": ["**/test/**", "**/tests/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+        "tech_stack": {
+          "tools": ["Jest", "Vitest", "Mocha", "Pytest", "Go test", "JUnit", "xUnit"]
+        }
+      },
+      "provides": {
+        "guidance": ["unit-testing", "integration-testing", "mocking", "test-structure", "assertions"],
+        "patterns": ["unit-test-patterns", "integration-patterns", "mocking-strategies"]
+      }
     }
   ]
 }

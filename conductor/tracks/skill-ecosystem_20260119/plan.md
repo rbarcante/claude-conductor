@@ -154,17 +154,17 @@
 
 ## Phase 7: Skill Registry Integration
 
-- [ ] Task: Add reference skills to skill-registry.json
-    - [ ] Write tests for registry validity
-    - [ ] Add typescript-best-practices entry
-    - [ ] Add api-design entry
-    - [ ] Add testing-strategies entry
+- [x] Task: Add reference skills to skill-registry.json
+    - [x] Write tests for registry validity
+    - [x] Add typescript-best-practices entry
+    - [x] Add api-design entry
+    - [x] Add testing-strategies entry
 
-- [ ] Task: Update conductor-methodology skill
-    - [ ] Create manifest.json for conductor-methodology
-    - [ ] Update registry entry with manifest reference
+- [x] Task: Update conductor-methodology skill
+    - [x] Create manifest.json for conductor-methodology
+    - [x] Update registry entry with manifest reference
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 7: Skill Registry Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 7: Skill Registry Integration' (Protocol in workflow.md)
 
 ## Phase 8: Integration and Documentation
 
