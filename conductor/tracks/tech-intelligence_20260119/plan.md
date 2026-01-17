@@ -71,17 +71,17 @@
 
 ## Phase 5: Implement Command Enhancement
 
-- [ ] Task: Add skill activation step to implement.md
-    - [ ] Write tests for implement.md structure changes
-    - [ ] Add new section "Activate Relevant Skills" before task execution
-    - [ ] Include skill registry loading
-    - [ ] Include task-to-skill matching
-    - [ ] Include skill context loading
+- [x] Task: Add skill activation step to implement.md
+    - [x] Write tests for implement.md structure changes
+    - [x] Add new section "Activate Relevant Skills" before task execution
+    - [x] Include skill registry loading
+    - [x] Include task-to-skill matching
+    - [x] Include skill context loading
 
-- [ ] Task: Define skill activation output format
-    - [ ] Create standard announcement format for activated skills
-    - [ ] Include skill name and brief description
-    - [ ] Include what guidance is now available
+- [x] Task: Define skill activation output format
+    - [x] Create standard announcement format for activated skills
+    - [x] Include skill name and brief description
+    - [x] Include what guidance is now available
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: Implement Command Enhancement' (Protocol in workflow.md)
 

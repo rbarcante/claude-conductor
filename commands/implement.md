@@ -61,6 +61,61 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
+## 2.5 SKILL ACTIVATION
+**PROTOCOL: Load relevant skills before implementation begins.**
+
+This section activates skills that provide domain-specific guidance for the selected track. Follow the **Skill Loading Protocol** defined in CLAUDE.md for detailed scoring rules.
+
+1.  **Load Skill Registry:**
+    -   Read `skills/skill-registry.json` to get available skills
+    -   If registry doesn't exist, skip skill activation silently and proceed to Track Implementation
+
+2.  **Load Always-Active Skills:**
+    -   Identify skills with `activation.always_active: true`
+    -   Read their SKILL.md files and add guidance to implementation context
+
+3.  **Match Skills to Track Context:**
+    -   Extract keywords from track description and current task
+    -   Match against skill `activation.keywords`
+    -   Match project tech stack against skill `activation.tech_stack`
+    -   Match files to be modified against skill `activation.file_patterns`
+    -   Calculate activation scores per Skill Loading Protocol in CLAUDE.md
+
+4.  **Activate Matching Skills:**
+    -   For skills scoring >= 1.5, load their SKILL.md files
+    -   Maximum 5 additional skills (beyond always-active)
+    -   Sort by score descending
+
+5.  **Announce Activated Skills:**
+    -   Use the standard skill announcement format (see below)
+    -   List skill name, activation reason, and brief description
+    -   Proceed to Track Implementation after announcement
+
+### Skill Announcement Format
+
+When skills are activated, announce to the user:
+
+```
+🔧 **Skills Activated for This Track:**
+
+**Always Active:**
+- Conductor Methodology: Core development workflow guidance
+
+**Context-Activated:** (based on track/task matching)
+- [Skill Name] (score: X.X): [Brief description]
+
+Proceeding with implementation using activated skill guidance.
+```
+
+If no additional skills are activated beyond always-active:
+```
+🔧 **Skills Activated:** Conductor Methodology (always active)
+```
+
+If skill registry is missing or no always-active skills exist, proceed silently without announcement.
+
+---
+
 ## 3.0 TRACK IMPLEMENTATION
 **PROTOCOL: Execute the selected track.**
 
