@@ -127,7 +127,7 @@
     - [x] Include sections for anti-patterns detected/fixed
     - [x] Include sections for coverage decisions
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 6: Workflow Template Enhancement' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 6: Workflow Template Enhancement' (Protocol in workflow.md)
 
 ## Phase 7: Integration and Documentation
 
