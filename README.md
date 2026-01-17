@@ -18,6 +18,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
+- **Skill Ecosystem**: Extensible skill plugin architecture with reference skills for TypeScript, API Design, and Testing that provide domain-specific guidance.
 - **Quality Intelligence**: Automated anti-pattern detection and coverage analysis with actionable test suggestions during implementation.
 - **Decision Logging**: Architecture Decision Record (ADR) logging that captures the "why" behind implementation choices for self-documenting codebases.
 
@@ -121,6 +122,7 @@ During implementation, you can also:
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
 | `/conductor:patterns` | Browse and search the Pattern Reference Layer. | Reads `patterns/index.md` |
+| `/conductor:skills` | Manage and explore Conductor skills (list, info, enable, disable). | Reads/writes `skills/skill-registry.json`, `conductor/settings.json` |
 
 ## Pattern Reference Layer
 
@@ -250,10 +252,76 @@ When running `/conductor:implement`, activated skills are announced:
 
 ### Creating Custom Skills
 
-See `/docs/skill-manifest-schema.md` for creating custom skills. Each skill includes:
+See [docs/skill-development.md](docs/skill-development.md) for a comprehensive guide on creating custom skills. Each skill includes:
 
 - **manifest.json**: Metadata and activation rules
 - **SKILL.md**: Guidance content for the AI agent
+- **patterns/** (optional): Skill-specific pattern files
+- **README.md** (optional): External documentation
+
+## Skill Ecosystem
+
+Conductor includes a rich skill ecosystem with reference skills and a management command for exploring and configuring skills.
+
+### Managing Skills
+
+Use the skills command to explore and configure skills:
+
+```bash
+# List all available skills
+/conductor:skills list
+
+# View detailed information about a skill
+/conductor:skills info typescript-best-practices
+
+# Disable a skill for the current project
+/conductor:skills disable api-design
+
+# Re-enable a skill
+/conductor:skills enable api-design
+```
+
+### Reference Skills
+
+Conductor includes the following reference skills out of the box:
+
+| Skill | Description | Activation |
+| :--- | :--- | :--- |
+| **TypeScript Best Practices** | Type safety, async patterns, null handling | `.ts`, `.tsx` files; TypeScript tech stack |
+| **API Design** | REST conventions, error responses, versioning | routes/controllers/api directories; backend frameworks |
+| **Testing Strategies** | Unit testing, integration testing, mocking | test files (`*.test.*`, `*.spec.*`); test frameworks |
+
+### Skill Patterns
+
+Each reference skill includes domain-specific patterns:
+
+**TypeScript Best Practices:**
+- `type-safety.md` - Type definitions, generics, discriminated unions
+- `async-patterns.md` - Async/await, Promise handling, error management
+- `null-handling.md` - Optional chaining, nullish coalescing, type guards
+
+**API Design:**
+- `rest-conventions.md` - URL naming, HTTP methods, resource design
+- `error-responses.md` - Error format, status codes, error classes
+- `versioning.md` - URL versioning, deprecation, migration
+
+**Testing Strategies:**
+- `unit-test-patterns.md` - Structure, naming, assertions
+- `integration-patterns.md` - Database, API, service tests
+- `mocking-strategies.md` - When and how to mock
+
+### Project-Level Skill Configuration
+
+Skills can be enabled/disabled per-project via `conductor/settings.json`:
+
+```json
+{
+  "version": "1.0.0",
+  "disabledSkills": ["./api-design"]
+}
+```
+
+Note: Always-active skills (like Conductor Methodology) cannot be disabled.
 
 ## Quality Intelligence
 

@@ -931,6 +931,148 @@ Each ADR entry contains:
 
 ---
 
+## Skill Ecosystem Test Scenarios
+
+### Test 22: Skills Command - List
+
+**Objective:** Test `/conductor:skills list` command
+
+**Steps:**
+1. Run `/conductor:skills` or `/conductor:skills list`
+
+**Expected Results:**
+- Table of all available skills displayed
+- Shows columns: Skill, Version, Status, Description
+- Status shows "Always Active", "Available", or "Disabled"
+- Total count displayed
+- Tip for using info command included
+
+---
+
+### Test 23: Skills Command - Info
+
+**Objective:** Test `/conductor:skills info` command
+
+**Steps:**
+1. Run `/conductor:skills info typescript-best-practices`
+2. Run `/conductor:skills info conductor-methodology`
+3. Run `/conductor:skills info nonexistent-skill`
+
+**Expected Results:**
+- Info shows complete manifest details:
+  - Name, version, status
+  - Description
+  - Activation rules (keywords, file patterns, tech stack)
+  - Provides (guidance, patterns, templates)
+  - Dependencies
+- For nonexistent skill, shows "Skill Not Found" with available skills list
+
+---
+
+### Test 24: Skills Command - Enable/Disable
+
+**Objective:** Test `/conductor:skills enable` and `disable` commands
+
+**Steps:**
+1. Run `/conductor:skills disable typescript-best-practices`
+2. Check `conductor/settings.json` is created with disabled skill
+3. Run `/conductor:skills list` - verify skill shows "Disabled"
+4. Run `/conductor:skills enable typescript-best-practices`
+5. Verify skill removed from `disabledSkills` array
+6. Run `/conductor:skills disable conductor-methodology`
+
+**Expected Results:**
+- Disable creates/updates `conductor/settings.json`
+- Disabled skills shown in list with "Disabled" status
+- Enable removes skill from disabled list
+- Always-active skills cannot be disabled (warning message)
+
+---
+
+### Test 25: Skill Activation with Reference Skills
+
+**Objective:** Test reference skills activate correctly based on context
+
+**Steps:**
+1. Create a track with description containing "typescript interface"
+2. Run `/conductor:implement`
+3. Observe skill activation announcement
+
+**Expected Results:**
+- TypeScript Best Practices skill should activate
+- Score should be displayed (based on keyword + tech stack matches)
+- Skill guidance should be available during implementation
+
+---
+
+### Test 26: Multiple Skill Activation
+
+**Objective:** Test multiple skills activate when context matches
+
+**Steps:**
+1. Create a track with description: "Add REST API endpoint with unit tests for TypeScript service"
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Multiple skills should activate:
+  - TypeScript Best Practices (keywords: typescript)
+  - API Design (keywords: api, endpoint, rest)
+  - Testing Strategies (keywords: tests, unit)
+- All activated skills listed in announcement
+
+---
+
+### Test 27: Skill Patterns Access
+
+**Objective:** Test skill-provided patterns are accessible
+
+**Steps:**
+1. Navigate to `skills/typescript-best-practices/patterns/`
+2. Verify pattern files exist and follow Pattern Template format
+3. Check patterns include AI Quick Reference section
+
+**Expected Results:**
+- Each skill has patterns/ directory
+- Pattern files include YAML frontmatter with activation keywords
+- Patterns follow dual-format (AI Quick Reference + Human Documentation)
+
+---
+
+### Test 28: Invalid Skill Handling
+
+**Objective:** Test graceful handling of invalid skills
+
+**Steps:**
+1. Add invalid entry to skill-registry.json (missing required field)
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Warning logged for invalid skill
+- Other skills continue to load
+- Implementation proceeds without blocking
+
+---
+
+### Test 29: Skill Development Workflow
+
+**Objective:** Verify skill creation follows documented process
+
+**Steps:**
+1. Read `docs/skill-development.md`
+2. Create a test skill following the guide:
+   - Create directory `skills/test-skill/`
+   - Create `manifest.json` with required fields
+   - Create `SKILL.md` with frontmatter
+3. Add to skill-registry.json
+4. Run `/conductor:skills info test-skill`
+
+**Expected Results:**
+- Info command shows new skill details
+- Skill activates when keywords match
+- Documentation provides clear guidance
+
+---
+
 ## Validation Checklist
 
 After testing, verify:
@@ -987,6 +1129,16 @@ After testing, verify:
 - [ ] ADR numbering increments correctly
 - [ ] decisions.md entries follow ADR format
 - [ ] Enhanced git notes include Decisions Made section (optional)
+- [ ] `/conductor:skills list` shows all registered skills
+- [ ] `/conductor:skills info <skill>` displays skill details
+- [ ] `/conductor:skills enable/disable` works for non-always-active skills
+- [ ] Always-active skills cannot be disabled
+- [ ] Reference skills activate based on keywords
+- [ ] Reference skills activate based on tech stack
+- [ ] Reference skills activate based on file patterns
+- [ ] Skill patterns follow Pattern Template format
+- [ ] Invalid skills handled gracefully with warnings
+- [ ] `docs/skill-development.md` provides clear guidance
 
 ---
 
