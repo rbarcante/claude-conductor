@@ -49,14 +49,39 @@ All tasks follow a strict lifecycle:
    - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
    - Perform the commit.
 
-9. **Attach Task Summary with Git Notes:**
+9. **Attach Task Summary with Git Notes (Optional):**
    - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
+   - **Step 9.2: Draft Note Content:** Create a detailed summary using the enhanced format below.
    - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
      ```bash
-     # The note content from the previous step is passed via the -m flag.
      git notes add -m "<note content>" <commit_hash>
      ```
+
+   **Enhanced Git Note Format:**
+   ```markdown
+   ## Task: [Task Name]
+
+   ### Summary
+   [Brief description of what was accomplished]
+
+   ### Why
+   [The rationale behind this implementation - why this approach was chosen]
+
+   ### Changes
+   - [List of changes made]
+   - [Files created/modified]
+
+   ### Decisions Made
+   [Reference any ADRs recorded during this task]
+   - ADR-001: [Decision title] (see decisions.md)
+   - ADR-002: [Decision title] (see decisions.md)
+
+   ### Files Modified
+   - path/to/file1.ext
+   - path/to/file2.ext
+   ```
+
+   **Note:** Git notes are optional. If your team prefers not to use git notes, skip this step. The commit message and plan.md provide core traceability.
 
 10. **Get and Record Task Commit SHA:**
     - **Step 10.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
@@ -119,9 +144,10 @@ All tasks follow a strict lifecycle:
     -   Stage all changes. If no changes occurred in this step, proceed with an empty commit.
     -   Perform the commit with a clear and concise message (e.g., `conductor(checkpoint): Checkpoint end of Phase X`).
 
-7.  **Attach Auditable Verification Report using Git Notes:**
+7.  **Attach Auditable Verification Report using Git Notes (Optional):**
     -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the manual verification steps, and the user's confirmation.
     -   **Step 7.2: Attach Note:** Use the `git notes` command and the full commit hash from the previous step to attach the full report to the checkpoint commit.
+    -   **Note:** This step is optional. If your team prefers not to use git notes, skip this step.
 
 8.  **Get and Record Phase Checkpoint SHA:**
     -   **Step 8.1: Get Commit Hash:** Obtain the hash of the *just-created checkpoint commit* (`git log -1 --format="%H"`).
@@ -132,7 +158,7 @@ All tasks follow a strict lifecycle:
     - **Action:** Stage the modified `plan.md` file.
     - **Action:** Commit this change with a descriptive message following the format `conductor(plan): Mark phase '<PHASE NAME>' as complete`.
 
-10.  **Announce Completion:** Inform the user that the phase is complete and the checkpoint has been created, with the detailed verification report attached as a git note.
+10.  **Announce Completion:** Inform the user that the phase is complete and the checkpoint has been created.
 
 ### Quality Gates
 
@@ -339,7 +365,8 @@ A task is complete when:
 6. Works beautifully on mobile (if applicable)
 7. Implementation notes added to `plan.md`
 8. Changes committed with proper message
-9. Git note with task summary attached to the commit
+9. Git note with task summary attached (optional)
+10. Significant decisions recorded in `decisions.md` (when applicable)
 
 ## Emergency Procedures
 
