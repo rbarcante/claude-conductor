@@ -57,7 +57,7 @@
     - [x] Add all 5 core anti-patterns to index
     - [x] Organize by severity
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Anti-Pattern Creation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Core Anti-Pattern Creation' (Protocol in workflow.md)
 
 ## Phase 3: Quality Analysis Protocol
 
