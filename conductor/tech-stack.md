@@ -28,7 +28,8 @@ conductor-plugin/
 │   ├── status.md       # Progress tracking command
 │   └── patterns.md     # Pattern browsing command
 ├── protocols/          # Detection and analysis protocols
-│   └── stack-detection.md  # Technology stack detection algorithm
+│   ├── stack-detection.md  # Technology stack detection algorithm
+│   └── decision-capture.md # Decision identification and capture protocol
 ├── skills/             # Reusable skill definitions
 │   ├── skill-registry.json    # Central skill index
 │   └── conductor-methodology/ # Core methodology skill
@@ -96,6 +97,7 @@ Located in `conductor/tracks/<track_id>/`:
 |------|---------|
 | `spec.md` | Detailed requirements specification |
 | `plan.md` | Phased implementation plan with tasks and sub-tasks |
+| `decisions.md` | Architecture Decision Records (ADR) for track decisions |
 | `metadata.json` | Track metadata (type, status, timestamps) |
 
 ### Style Guides

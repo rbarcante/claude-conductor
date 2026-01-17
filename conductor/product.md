@@ -90,6 +90,7 @@ Execute the plan systematically:
 - Update task status in real-time
 - Commit with proper messages and git notes
 - Phase completion verification and checkpointing
+- Capture significant decisions in ADR format
 
 ### Progress Tracking (`/conductor:status`)
 Always know where you stand:
@@ -119,6 +120,13 @@ Smart technology detection and context-aware skill activation:
 - **Skill Registry System**: Central registry of skills with activation rules based on keywords, file patterns, and tech stack
 - **Context-Aware Skill Activation**: Skills automatically activate during implementation based on task context, providing relevant guidance
 - **Extensible Architecture**: Add custom skills following the Skill Interface Standard
+
+### Decision Logging
+Capture the "why" alongside the "what":
+- **Architecture Decision Records**: Track significant decisions in standard ADR format
+- **Decision Capture Protocol**: Automatically detect decision points during implementation (tech selection, pattern choice, tradeoffs)
+- **Track-Scoped Decisions**: Each track maintains its own `decisions.md` file
+- **Searchable History**: Chronologically ordered, grep-friendly decision records
 
 ## Differentiation
 
