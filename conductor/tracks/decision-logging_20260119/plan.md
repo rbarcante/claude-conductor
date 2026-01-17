@@ -14,7 +14,7 @@
     - [x] Include format explanation and example
     - [x] Include placeholder for first decision
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Decision Template Creation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Decision Template Creation' (Protocol in workflow.md)
 
 ## Phase 2: Track Structure Enhancement
 
