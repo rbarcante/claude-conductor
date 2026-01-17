@@ -66,7 +66,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Pattern Resolution Protocol' (Protocol in workflow.md) `316e869`
 
-## Phase 4: Implement Command Enhancement
+## Phase 4: Implement Command Enhancement [checkpoint: cbb5505]
 
 - [x] Task: Add pattern surfacing step to implement.md `0d4fc37`
     - [x] Write tests to validate implement.md structure changes
@@ -80,28 +80,28 @@
     - [x] Include pattern name, path, and brief description
     - [x] Include skip option for user
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md) `cbb5505`
 
 ## Phase 5: Patterns Command
 
-- [ ] Task: Create patterns command file
-    - [ ] Write tests for command file structure and YAML frontmatter
-    - [ ] Create `/commands/patterns.md` with proper frontmatter (name, description, allowed-tools)
-    - [ ] Define command argument format: `[list|search <query>|show <pattern-name>]`
+- [x] Task: Create patterns command file
+    - [x] Write tests for command file structure and YAML frontmatter
+    - [x] Create `/commands/patterns.md` with proper frontmatter (name, description, allowed-tools)
+    - [x] Define command argument format: `[list|search <query>|show <pattern-name>]`
 
-- [ ] Task: Implement list subcommand protocol
-    - [ ] Document protocol to read patterns/index.md
-    - [ ] Format output as table with pattern name, category, and description
+- [x] Task: Implement list subcommand protocol
+    - [x] Document protocol to read patterns/index.md
+    - [x] Format output as table with pattern name, category, and description
 
-- [ ] Task: Implement search subcommand protocol
-    - [ ] Document protocol to grep patterns/ for keyword matches
-    - [ ] Return matching patterns with relevance context
+- [x] Task: Implement search subcommand protocol
+    - [x] Document protocol to grep patterns/ for keyword matches
+    - [x] Return matching patterns with relevance context
 
-- [ ] Task: Implement show subcommand protocol
-    - [ ] Document protocol to read and display specific pattern file
-    - [ ] Support both full display and AI-only section display
+- [x] Task: Implement show subcommand protocol
+    - [x] Document protocol to read and display specific pattern file
+    - [x] Support both full display and AI-only section display
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5: Patterns Command' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5: Patterns Command' (Protocol in workflow.md)
 
 ## Phase 6: Integration and Documentation
 
