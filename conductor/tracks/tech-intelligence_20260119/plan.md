@@ -2,18 +2,18 @@
 
 ## Phase 1: Stack Detection Protocol
 
-- [ ] Task: Design stack detection algorithm
-    - [ ] Define manifest file signatures (package.json, pom.xml, requirements.txt, etc.)
-    - [ ] Define file extension to language mapping
-    - [ ] Define framework detection patterns
-    - [ ] Document confidence scoring methodology
+- [x] Task: Design stack detection algorithm
+    - [x] Define manifest file signatures (package.json, pom.xml, requirements.txt, etc.)
+    - [x] Define file extension to language mapping
+    - [x] Define framework detection patterns
+    - [x] Document confidence scoring methodology
 
-- [ ] Task: Create Stack Detection Protocol document
-    - [ ] Write tests to validate protocol document structure
-    - [ ] Create `/protocols/stack-detection.md`
-    - [ ] Include step-by-step detection process
-    - [ ] Include output format (JSON stack profile)
-    - [ ] Include confidence thresholds and fallback behavior
+- [x] Task: Create Stack Detection Protocol document
+    - [x] Write tests to validate protocol document structure
+    - [x] Create `/protocols/stack-detection.md`
+    - [x] Include step-by-step detection process
+    - [x] Include output format (JSON stack profile)
+    - [x] Include confidence thresholds and fallback behavior
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Stack Detection Protocol' (Protocol in workflow.md)
 
@@ -34,21 +34,21 @@
 
 ## Phase 3: Skill Registry System
 
-- [ ] Task: Design skill manifest schema
-    - [ ] Define required fields (name, version, path)
-    - [ ] Define activation rules schema (keywords, file_patterns, tech_stack)
-    - [ ] Define provides schema (patterns, templates, protocols)
-    - [ ] Document schema in `/docs/skill-manifest-schema.md`
+- [x] Task: Design skill manifest schema
+    - [x] Define required fields (name, version, path)
+    - [x] Define activation rules schema (keywords, file_patterns, tech_stack)
+    - [x] Define provides schema (patterns, templates, protocols)
+    - [x] Document schema in `/docs/skill-manifest-schema.md`
 
-- [ ] Task: Create skill registry
-    - [ ] Write tests for registry JSON structure
-    - [ ] Create `/skills/skill-registry.json`
-    - [ ] Add existing conductor-methodology skill to registry
-    - [ ] Include activation rules for methodology skill
+- [x] Task: Create skill registry
+    - [x] Write tests for registry JSON structure
+    - [x] Create `/skills/skill-registry.json`
+    - [x] Add existing conductor-methodology skill to registry
+    - [x] Include activation rules for methodology skill
 
-- [ ] Task: Add manifest.json to conductor-methodology skill
-    - [ ] Create `/skills/conductor-methodology/manifest.json`
-    - [ ] Define activation rules (always active as base methodology)
+- [x] Task: Add manifest.json to conductor-methodology skill
+    - [x] Create `/skills/conductor-methodology/manifest.json`
+    - [x] Define activation rules (always active as base methodology)
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Skill Registry System' (Protocol in workflow.md)
 
