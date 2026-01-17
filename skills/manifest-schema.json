@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://conductor.dev/schemas/skill-manifest.json",
+  "title": "Skill Manifest",
+  "description": "Schema for Conductor skill manifest.json files",
+  "type": "object",
+  "required": ["name", "version", "description"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema file"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable skill name",
+      "minLength": 1,
+      "examples": ["TypeScript Best Practices", "API Design"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version (MAJOR.MINOR.PATCH)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "examples": ["1.0.0", "2.3.1"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the skill provides",
+      "minLength": 1,
+      "maxLength": 200,
+      "examples": ["Best practices and patterns for TypeScript development"]
+    },
+    "author": {
+      "type": "string",
+      "description": "Skill author name or organization",
+      "examples": ["Conductor Team", "Jane Developer"]
+    },
+    "activation": {
+      "type": "object",
+      "description": "Rules determining when this skill activates",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "description": "Keywords that trigger skill activation",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "uniqueItems": true,
+          "examples": [["typescript", "type", "interface"]]
+        },
+        "file_patterns": {
+          "type": "array",
+          "description": "Glob patterns for files that trigger activation",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["**/*.ts", "**/*.tsx"]]
+        },
+        "tech_stack": {
+          "type": "object",
+          "description": "Technology requirements for activation",
+          "properties": {
+            "languages": {
+              "type": "array",
+              "description": "Programming languages that trigger activation",
+              "items": {
+                "type": "string"
+              },
+              "examples": [["TypeScript", "JavaScript"]]
+            },
+            "frameworks": {
+              "type": "array",
+              "description": "Frameworks that trigger activation",
+              "items": {
+                "type": "string"
+              },
+              "examples": [["React", "Next.js", "Express"]]
+            },
+            "tools": {
+              "type": "array",
+              "description": "Tools that trigger activation",
+              "items": {
+                "type": "string"
+              },
+              "examples": [["Docker", "Kubernetes"]]
+            }
+          },
+          "additionalProperties": false
+        },
+        "always_active": {
+          "type": "boolean",
+          "description": "When true, skill is always loaded regardless of context",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "provides": {
+      "type": "object",
+      "description": "Capabilities this skill offers",
+      "properties": {
+        "guidance": {
+          "type": "array",
+          "description": "Topic identifiers for guidance areas",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["type-safety", "async-patterns"]]
+        },
+        "patterns": {
+          "type": "array",
+          "description": "Pattern IDs provided by this skill",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["error-handling", "null-safety"]]
+        },
+        "templates": {
+          "type": "array",
+          "description": "Relative paths to template files",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["./templates/component.tsx"]]
+        },
+        "protocols": {
+          "type": "array",
+          "description": "Protocol IDs the skill implements",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["tdd-workflow"]]
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Other skill IDs this skill depends on",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "examples": [["conductor-methodology"]]
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "TypeScript Best Practices",
+      "version": "1.0.0",
+      "description": "Best practices and patterns for TypeScript development",
+      "activation": {
+        "keywords": ["typescript", "type", "interface", "generic"],
+        "file_patterns": ["**/*.ts", "**/*.tsx"],
+        "tech_stack": {
+          "languages": ["TypeScript"]
+        }
+      },
+      "provides": {
+        "guidance": ["type-safety", "async-patterns"],
+        "patterns": ["type-safety", "null-handling"]
+      }
+    },
+    {
+      "name": "Conductor Methodology",
+      "version": "1.0.0",
+      "description": "Core Conductor development methodology",
+      "activation": {
+        "always_active": true
+      },
+      "provides": {
+        "guidance": ["conductor-concepts", "track-lifecycle"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://conductor.dev/schemas/skill-registry.json",
+  "title": "Skill Registry",
+  "description": "Schema for Conductor skill-registry.json",
+  "type": "object",
+  "required": ["version", "skills"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema file"
+    },
+    "version": {
+      "type": "string",
+      "description": "Registry schema version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "examples": ["1.0.0"]
+    },
+    "skills": {
+      "type": "array",
+      "description": "Array of registered skills",
+      "items": {
+        "type": "object",
+        "required": ["name", "version", "path", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable skill name",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Semantic version (MAJOR.MINOR.PATCH)",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path from skills/ to skill directory",
+            "pattern": "^\\./[a-z0-9-]+$"
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of what the skill provides",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "activation": {
+            "type": "object",
+            "description": "Rules determining when this skill activates",
+            "properties": {
+              "keywords": {
+                "type": "array",
+                "items": { "type": "string" },
+                "uniqueItems": true
+              },
+              "file_patterns": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "tech_stack": {
+                "type": "object",
+                "properties": {
+                  "languages": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "frameworks": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "tools": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "always_active": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "provides": {
+            "type": "object",
+            "properties": {
+              "guidance": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "patterns": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "templates": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "protocols": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": false
+          },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "version": "1.0.0",
+      "skills": [
+        {
+          "name": "Conductor Methodology",
+          "version": "1.0.0",
+          "path": "./conductor-methodology",
+          "description": "Core Conductor development methodology",
+          "activation": {
+            "always_active": true
+          },
+          "provides": {
+            "guidance": ["conductor-concepts", "track-lifecycle"]
+          }
+        }
+      ]
+    }
+  ]
+}

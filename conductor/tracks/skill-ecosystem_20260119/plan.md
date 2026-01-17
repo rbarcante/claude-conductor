@@ -14,10 +14,10 @@
     - [x] Document manifest.json schema with examples
     - [x] Document SKILL.md format guidelines
 
-- [ ] Task: Create skill manifest JSON schema
-    - [ ] Define schema for validation
-    - [ ] Include all required and optional fields
-    - [ ] Add schema examples for different skill types
+- [x] Task: Create skill manifest JSON schema
+    - [x] Define schema for validation
+    - [x] Include all required and optional fields
+    - [x] Add schema examples for different skill types
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Skill Interface Standard Documentation' (Protocol in workflow.md)
 
