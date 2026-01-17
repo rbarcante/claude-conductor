@@ -91,7 +91,7 @@
     - [x] Include test suggestion generation process
     - [x] Include priority calculation methodology
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Coverage Intelligence Protocol' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 4: Coverage Intelligence Protocol' (Protocol in workflow.md)
 
 ## Phase 5: Implement Command Enhancement
 
