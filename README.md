@@ -172,6 +172,86 @@ Create new patterns in `patterns/core/` or `patterns/stack/` using the template 
 - **Human Documentation**: Detailed explanations and examples
 - **Anti-Patterns**: Common mistakes to avoid
 
+## Technology Intelligence
+
+Conductor includes intelligent technology detection and skill activation capabilities that enhance the development experience.
+
+### Automatic Stack Detection
+
+For brownfield (existing) projects, Conductor automatically detects your technology stack during setup:
+
+- **Primary Language**: Based on manifest files and file extensions
+- **Frameworks**: From dependency analysis (React, Express, Django, FastAPI, etc.)
+- **Build Tools**: Package managers and build systems
+- **Testing Frameworks**: Detected from dev dependencies
+
+Detection confidence levels:
+- **HIGH**: Manifest files with matching dependencies found (score >= 85)
+- **MEDIUM**: Partial matches detected (score 60-84)
+- **LOW**: Limited signals available (score 30-59)
+- **UNCERTAIN**: Minimal signals, manual specification recommended (score < 30)
+
+#### Example Detection Output
+
+```
+🔍 **Stack Detection Results** (Confidence: HIGH)
+Stack detection is highly confident in these results.
+
+**Primary Language:** TypeScript
+**Languages Detected:** TypeScript, JavaScript
+**Frameworks:** React (Frontend), Express.js (Backend)
+**Build Tools:** npm, Vite
+**Testing:** Vitest, Playwright
+**Package Manager:** npm
+```
+
+After detection, you can:
+- **Accept** the detected values
+- **Edit** specific categories
+- **Skip** and enter manually
+
+### Skill Activation System
+
+Skills provide context-aware guidance during implementation. They're automatically activated based on your task context:
+
+- **Always-Active Skills**: Core methodology loaded for every task (e.g., Conductor Methodology)
+- **Context-Activated Skills**: Matched based on task keywords, tech stack, and file patterns
+
+#### Activation Scoring
+
+Skills are scored based on multiple factors:
+
+| Match Type | Score |
+|:-----------|:------|
+| Keyword match | +1.0 |
+| File pattern match | +1.5 |
+| Language match | +2.0 |
+| Framework match | +1.5 |
+| Tool match | +1.0 |
+
+Skills with a score >= 1.5 are activated (maximum 5 per task, plus always-active).
+
+#### Skill Announcement
+
+When running `/conductor:implement`, activated skills are announced:
+
+```
+🔧 **Skills Activated for This Track:**
+
+**Always Active:**
+- Conductor Methodology: Core development workflow guidance
+
+**Context-Activated:** (based on track/task matching)
+- React Best Practices (score: 3.5): Component patterns, hooks usage, state management
+```
+
+### Creating Custom Skills
+
+See `/docs/skill-manifest-schema.md` for creating custom skills. Each skill includes:
+
+- **manifest.json**: Metadata and activation rules
+- **SKILL.md**: Guidance content for the AI agent
+
 ## Universal File Resolution Protocol (UFRP)
 
 Conductor uses a flexible file resolution system that allows you to customize your project structure while maintaining compatibility. The system works through `index.md` files that act as navigation indexes:
