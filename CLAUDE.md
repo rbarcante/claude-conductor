@@ -123,21 +123,63 @@ Read `skills/skill-registry.json` to get the list of available skills with their
   "version": "1.0.0",
   "skills": [
     {
-      "id": "conductor-methodology",
       "name": "Conductor Methodology",
-      "path": "skills/conductor-methodology",
+      "version": "1.0.0",
+      "path": "./conductor-methodology",
+      "description": "Core development methodology",
       "activation": {
         "always_active": true,
         "keywords": ["conductor", "track", "plan"],
         "file_patterns": ["conductor/**/*"],
         "tech_stack": {}
+      },
+      "provides": {
+        "guidance": ["conductor-concepts", "track-lifecycle"]
       }
     }
   ]
 }
 ```
 
-### 2. Identify Always-Active Skills
+### 2. Check Project Settings
+
+Before loading skills, check for project-level skill configuration:
+
+1. Read `conductor/settings.json` if it exists
+2. Check the `disabledSkills` array for skills that are disabled
+3. Exclude disabled skills from activation (except always-active skills)
+
+**Settings Structure:**
+```json
+{
+  "version": "1.0.0",
+  "disabledSkills": ["./api-design", "./testing-strategies"]
+}
+```
+
+### 3. Validate Skill Manifests
+
+For each skill in the registry, validate the manifest before processing:
+
+**Required Fields:**
+- `name`: Non-empty string
+- `version`: Valid semver (X.Y.Z)
+- `path`: Valid relative path starting with `./`
+- `description`: Non-empty string
+
+**Validation Rules:**
+1. Skip skills with missing required fields (log warning)
+2. Skip skills where `SKILL.md` file doesn't exist (log warning)
+3. Skip skills with malformed activation rules (log warning)
+4. Continue processing valid skills
+
+**Error Handling:**
+```
+⚠️ Skipping skill '<name>': Missing required field 'version'
+⚠️ Skipping skill '<name>': SKILL.md not found at <path>
+```
+
+### 4. Identify Always-Active Skills
 
 Load all skills with `activation.always_active: true` immediately. These skills provide foundational guidance that applies to all tasks.
 
@@ -145,12 +187,35 @@ Load all skills with `activation.always_active: true` immediately. These skills 
 1. Read the skill's `SKILL.md` file from its path
 2. Add skill guidance to implementation context
 3. Mark skill as loaded (no score needed)
+4. Always-active skills CANNOT be disabled via settings
 
-### 3. Score Remaining Skills
+### 5. Resolve Dependencies
 
-For each non-always-active skill, calculate activation score based on task context.
+Before scoring remaining skills, resolve any dependencies:
 
-**3.1 Keyword Extraction from Task**
+1. For each skill, check its `dependencies` array
+2. If a skill depends on another skill, the dependency must be loaded first
+3. If a dependency is missing or disabled, log warning and skip the dependent skill
+
+**Dependency Resolution Order:**
+1. Build dependency graph from all potentially-activatable skills
+2. Detect circular dependencies (skip all skills in cycle with warning)
+3. Load skills in topological order (dependencies before dependents)
+
+**Example:**
+```
+Skill A depends on [B, C]
+Skill B depends on [C]
+Skill C has no dependencies
+
+Load order: C → B → A
+```
+
+### 6. Score Remaining Skills
+
+For each non-always-active skill (not disabled, dependencies resolved), calculate activation score.
+
+**6.1 Keyword Extraction from Task**
 
 From the current task description:
 1. **Tokenize**: Split into individual words
@@ -158,13 +223,13 @@ From the current task description:
 3. **Filter**: Remove stop words (a, an, the, in, on, for, with, is, are, etc.)
 4. **Match**: Compare against skill's `activation.keywords`
 
-**3.2 File Pattern Matching**
+**6.2 File Pattern Matching**
 
 1. Get list of files to be modified in task (from plan or context)
 2. Match against skill's `activation.file_patterns` globs
 3. Any matching file contributes to score
 
-**3.3 Tech Stack Matching**
+**6.3 Tech Stack Matching**
 
 1. Read project's detected stack from `conductor/tech-stack.md`
 2. Match against skill's `activation.tech_stack` requirements:
@@ -172,7 +237,7 @@ From the current task description:
    - `frameworks`: Array of framework names (e.g., `["react", "nextjs"]`)
    - `tools`: Array of tool names (e.g., `["docker", "kubernetes"]`)
 
-**3.4 Scoring Table**
+**6.4 Scoring Table**
 
 | Match Type | Condition | Score |
 |------------|-----------|-------|
@@ -182,7 +247,7 @@ From the current task description:
 | **Framework match** | Project framework matches skill's tech_stack.frameworks | +1.5 |
 | **Tool match** | Project tool matches skill's tech_stack.tools | +1.0 |
 
-### 4. Activation Decision
+### 7. Activation Decision
 
 | Total Score | Action |
 |-------------|--------|
@@ -195,17 +260,24 @@ From the current task description:
 - Sort by score descending
 - If no skills score >= 1.5, continue with only always-active skills
 
-### 5. Conflict Resolution
+### 8. Skill Loading Priority
 
-When multiple skills could apply:
+When multiple skills could apply, use this priority order:
 
-1. **Always-active first**: Skills with `always_active: true` are loaded before scored skills
-2. **Higher score wins**: Among scored skills, higher scores take priority
-3. **Explicit over implicit**: Skills matching file patterns take priority over keyword-only matches
-4. **Tech stack specificity**: Skills matching both language AND framework score higher than single matches
-5. **Limit enforcement**: If more than 5 scored skills qualify, take top 5 by score
+1. **Always-active skills**: Loaded first, regardless of score
+2. **Dependency order**: Skills load after their dependencies
+3. **Score (descending)**: Higher scoring skills take priority
+4. **Match specificity**:
+   - File pattern matches > Tech stack matches > Keyword matches
+   - Language + Framework match > Single match
+5. **Limit enforcement**: If more than 5 scored skills qualify, take top 5
 
-### 6. Load Skill Context
+**Conflict Resolution:**
+- If two skills provide conflicting guidance, the higher-scoring skill takes precedence
+- If scores are equal, the skill listed first in the registry wins
+- Skills should be designed to complement, not conflict
+
+### 9. Load Skill Context
 
 For each activated skill:
 1. Read the skill's `SKILL.md` file from `<skill_path>/SKILL.md`
@@ -213,7 +285,7 @@ For each activated skill:
 3. Add skill guidance to implementation context
 4. Track which skills are active for the current task
 
-### 7. Skill Announcement Format
+### 10. Skill Announcement Format
 
 When skills are activated, announce at the start of task execution:
 
@@ -223,8 +295,8 @@ When skills are activated, announce at the start of task execution:
 1. **Conductor Methodology** (always active)
    > Core methodology guidance for TDD and verification protocols
 
-2. **React Best Practices** (score: 3.5)
-   > Component patterns, hooks usage, and state management guidance
+2. **TypeScript Best Practices** (score: 3.5)
+   > Type safety, async patterns, and null handling guidance
 
 [Proceed with implementation using activated skills]
 ```
@@ -235,15 +307,33 @@ When skills are activated, announce at the start of task execution:
 - Include brief description from skill manifest
 - Do not announce if only always-active skills are loaded (keep output clean)
 
-### 8. Fallback Behavior
+### 11. Error Handling
 
+**Registry Errors:**
 - **Registry missing**: Log warning, continue without skill loading
+- **Registry malformed**: Log error with details, continue without skills
+
+**Skill Errors:**
 - **Skill file missing**: Log warning, skip skill, continue with others
-- **No matches**: Continue with only always-active skills (no announcement)
 - **Invalid manifest**: Skip skill with warning, continue with others
+- **SKILL.md parse error**: Skip skill with warning, continue with others
+
+**Dependency Errors:**
+- **Missing dependency**: Skip dependent skill with warning
+- **Circular dependency**: Skip all skills in cycle with warning
+- **Disabled dependency**: Skip dependent skill (dependency requirement not met)
+
+**Error Format:**
+```
+⚠️ Skill Loading Warning: <message>
+   Skill: <skill-name>
+   Reason: <detailed reason>
+   Action: Skipping skill, continuing with others
+```
 
 ### Default Paths (Skills)
 - **Skill Registry**: `skills/skill-registry.json`
 - **Skill Directory**: `skills/`
 - **Skill Definition**: `skills/<skill_id>/SKILL.md`
-- **Skill Manifest**: `skills/<skill_id>/manifest.json` (optional, embedded in registry)
+- **Skill Manifest**: `skills/<skill_id>/manifest.json`
+- **Project Settings**: `conductor/settings.json`
