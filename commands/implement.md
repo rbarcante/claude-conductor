@@ -161,6 +161,7 @@ If skill registry is missing or no always-active skills exist, proceed silently 
     b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
     c. **For Each Task, You MUST:**
         i. **Defer to Workflow:** The **Workflow** file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the **Workflow** file you have in your context. Follow its steps for implementation, testing, and committing precisely.
+        ii. **Capture Decisions:** During implementation, invoke the **Decision Capture Protocol** (Section 3.6) when significant decision points are encountered. Record decisions to the track's `decisions.md` file.
 
 ---
 
@@ -281,6 +282,109 @@ When issues are skipped, include in task documentation:
   - Reason: Intentional caching mechanism
   - Reviewed: YYYY-MM-DD
 ```
+
+---
+
+## 3.6 DECISION CAPTURE
+**PROTOCOL: Capture significant implementation decisions.**
+
+This section is invoked during task implementation when non-trivial choices are detected. Follow the **Decision Capture Protocol** (`protocols/decision-capture.md`) for detailed rules.
+
+### Step 1: Detect Decision Points
+
+During task implementation, identify decision points when encountering:
+-   **Technology Selection:** Choosing libraries, frameworks, or tools
+-   **Pattern Choice:** Selecting design patterns or architectural approaches
+-   **API Design:** Defining endpoint structure, response formats
+-   **Data Modeling:** Schema decisions, relationships, normalization
+-   **Error Handling:** Exception strategies, retry policies
+-   **Performance Tradeoffs:** Caching, lazy vs eager loading
+
+### Step 2: Evaluate Significance
+
+A decision is significant and should be captured when:
+-   Multiple reasonable alternatives exist with different tradeoffs
+-   The choice has long-term implications or affects architecture
+-   The decision deviates from standard patterns or conventions
+-   Future maintainers would benefit from understanding the rationale
+
+**Skip capture when:**
+-   The approach is dictated by the spec or tech stack
+-   Only one reasonable option exists
+-   The choice is easily reversible with no downstream impact
+-   The decision follows an established project pattern
+
+### Step 3: Present Decision (if significant)
+
+When a significant decision is detected, present to the user:
+
+```
+---
+**Decision Point: [Category]**
+
+**Context:** [Brief description of the situation]
+
+**Options:**
+A. **[Option Name]** (Recommended)
+   [Description]
+   - Pros: [List]
+   - Cons: [List]
+
+B. **[Option Name]**
+   [Description]
+   - Pros: [List]
+   - Cons: [List]
+
+Select an option (A/B/skip):
+---
+```
+
+### Step 4: Record Decision
+
+If user selects an option (not skip):
+
+1.  **Load decisions.md:** Read `conductor/tracks/<track_id>/decisions.md`
+
+2.  **Determine ADR Number:**
+    -   Find the highest existing ADR number (ADR-001, ADR-002, etc.)
+    -   Increment for the new entry
+    -   If no ADRs exist, start with ADR-001
+
+3.  **Generate ADR Entry:**
+    ```markdown
+    ### ADR-[NNN]: [Decision Title]
+
+    **Date:** [YYYY-MM-DD]
+    **Status:** Accepted
+
+    #### Context
+    [The situation and constraints that led to this decision]
+
+    #### Decision
+    [The choice that was made, stated declaratively]
+
+    #### Consequences
+    **Positive:**
+    - [Benefit 1]
+    - [Benefit 2]
+
+    **Negative:**
+    - [Tradeoff 1]
+    - [Tradeoff 2]
+
+    #### Alternatives Considered
+    - **[Option X]:** [Why not chosen]
+    ```
+
+4.  **Append to decisions.md:**
+    -   Replace the placeholder `_No decisions recorded yet._` if present
+    -   Append the new ADR entry at the end of the Decisions section
+
+5.  **Announce:** "Decision recorded as ADR-[NNN] in decisions.md"
+
+### Step 5: Continue Implementation
+
+After recording (or skipping), continue with the task implementation.
 
 ---
 
