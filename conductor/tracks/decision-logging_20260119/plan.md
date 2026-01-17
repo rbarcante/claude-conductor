@@ -24,11 +24,11 @@
     - [x] Initialize with template content
     - [x] Include track-specific header
 
-- [ ] Task: Update track index template
-    - [ ] Modify track index.md to include decisions.md link
-    - [ ] Update newTrack.md to generate enhanced index
+- [x] Task: Update track index template [645d95a]
+    - [x] Modify track index.md to include decisions.md link
+    - [x] Update newTrack.md to generate enhanced index
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Track Structure Enhancement' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Track Structure Enhancement' (Protocol in workflow.md)
 
 ## Phase 3: Decision Capture Protocol
 
