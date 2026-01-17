@@ -1,0 +1,8 @@
+{
+  "track_id": "testing-framework_20260114",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-14T18:29:00Z",
+  "updated_at": "2026-01-14T18:29:00Z",
+  "description": "Add comprehensive testing framework to the Conductor plugin"
+}
