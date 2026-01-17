@@ -1,0 +1,10 @@
+{
+  "name": "conductor",
+  "version": "0.1.1",
+  "description": "Context-driven development framework that enables structured lifecycle for software projects: Context → Spec & Plan → Implement",
+  "author": {
+    "name": "Ricardo Barcante",
+    "email": "ricardo@barcante.com"
+  },
+  "keywords": ["workflow", "planning", "tdd", "project-management", "context-driven"]
+}
