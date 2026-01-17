@@ -13,11 +13,11 @@
     - [x] Include YAML frontmatter schema (name, severity, detection, file_extensions)
     - [x] Include required sections (Problem, Detection, Solution, Exceptions)
 
-- [ ] Task: Create anti-pattern index
-    - [ ] Write tests for index structure
-    - [ ] Create `/patterns/anti-patterns/index.md`
-    - [ ] Include categorization by severity
-    - [ ] Include links to all anti-patterns
+- [x] Task: Create anti-pattern index `8cf0dba`
+    - [x] Write tests for index structure
+    - [x] Create `/patterns/anti-patterns/index.md`
+    - [x] Include categorization by severity
+    - [x] Include links to all anti-patterns
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Anti-Pattern Library Foundation' (Protocol in workflow.md)
 
