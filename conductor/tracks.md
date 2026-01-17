@@ -14,7 +14,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Add technology detection and awareness capabilities with automatic stack detection, skill registry, and context-aware skill activation**
+- [~] **Track: Add technology detection and awareness capabilities with automatic stack detection, skill registry, and context-aware skill activation**
   *Link: [./conductor/tracks/tech-intelligence_20260119/](./conductor/tracks/tech-intelligence_20260119/)*
 
 ---
