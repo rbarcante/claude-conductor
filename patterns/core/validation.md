@@ -17,9 +17,12 @@ activation:
     - verify
     - constraint
   file_patterns:
-    - "**/valid*.{js,ts,py,go,rs}"
-    - "**/schema*.{js,ts,py,go,rs}"
-    - "**/sanitize*.{js,ts,py,go,rs}"
+    - "**/valid*.{js,ts,py,go,rs,java,kt}"
+    - "**/schema*.{js,ts,py,go,rs,java,kt}"
+    - "**/sanitize*.{js,ts,py,go,rs,java,kt}"
+    - "**/*Validator.java"
+    - "**/*Validation.java"
+    - "**/*DTO.java"
 version: "1.0"
 last_updated: "2026-01-19"
 ---

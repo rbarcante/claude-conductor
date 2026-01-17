@@ -17,8 +17,10 @@ activation:
     - fault
     - failure
   file_patterns:
-    - "**/error*.{js,ts,py,go,rs}"
-    - "**/exception*.{js,ts,py,go,rs}"
+    - "**/error*.{js,ts,py,go,rs,java,kt}"
+    - "**/exception*.{js,ts,py,go,rs,java,kt}"
+    - "**/*Exception.java"
+    - "**/*Error.java"
 version: "1.0"
 last_updated: "2026-01-19"
 ---

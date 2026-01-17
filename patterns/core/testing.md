@@ -23,6 +23,11 @@ activation:
     - "**/*.spec.{js,ts}"
     - "**/test_*.py"
     - "**/*_test.{go,rs}"
+    - "**/*Test.java"
+    - "**/*Tests.java"
+    - "**/Test*.java"
+    - "**/*Spec.java"
+    - "**/*Test.kt"
 version: "1.0"
 last_updated: "2026-01-19"
 ---

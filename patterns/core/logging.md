@@ -18,8 +18,10 @@ activation:
     - audit
     - telemetry
   file_patterns:
-    - "**/log*.{js,ts,py,go,rs}"
-    - "**/logger*.{js,ts,py,go,rs}"
+    - "**/log*.{js,ts,py,go,rs,java,kt}"
+    - "**/logger*.{js,ts,py,go,rs,java,kt}"
+    - "**/*Logger.java"
+    - "**/Log*.java"
 version: "1.0"
 last_updated: "2026-01-19"
 ---

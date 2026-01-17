@@ -17,9 +17,14 @@ activation:
     - dotenv
     - variables
   file_patterns:
-    - "**/config*.{js,ts,py,go,rs,json,yaml,yml}"
+    - "**/config*.{js,ts,py,go,rs,java,kt,json,yaml,yml}"
     - "**/.env*"
-    - "**/settings*.{js,ts,py,go,rs}"
+    - "**/settings*.{js,ts,py,go,rs,java,kt}"
+    - "**/*Config.java"
+    - "**/*Configuration.java"
+    - "**/*Properties.java"
+    - "**/application.properties"
+    - "**/application.yml"
 version: "1.0"
 last_updated: "2026-01-19"
 ---
