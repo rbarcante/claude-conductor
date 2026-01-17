@@ -32,26 +32,26 @@
 
 ## Phase 3: Decision Capture Protocol
 
-- [ ] Task: Design decision identification rules
-    - [ ] Define what constitutes a "significant decision"
-    - [ ] Create decision trigger checklist (tech selection, pattern choice, etc.)
-    - [ ] Define when to prompt vs. when to skip
-    - [ ] Document decision identification rules
+- [x] Task: Design decision identification rules [60ab86d]
+    - [x] Define what constitutes a "significant decision"
+    - [x] Create decision trigger checklist (tech selection, pattern choice, etc.)
+    - [x] Define when to prompt vs. when to skip
+    - [x] Document decision identification rules
 
-- [ ] Task: Create Decision Capture Protocol document
-    - [ ] Write tests for protocol documentation completeness
-    - [ ] Create protocol section in implement.md or separate doc
-    - [ ] Include trigger identification
-    - [ ] Include user prompt format (Context + Options A/B/C)
-    - [ ] Include recording format
+- [x] Task: Create Decision Capture Protocol document [60ab86d]
+    - [x] Write tests for protocol documentation completeness
+    - [x] Create protocol section in implement.md or separate doc
+    - [x] Include trigger identification
+    - [x] Include user prompt format (Context + Options A/B/C)
+    - [x] Include recording format
 
-- [ ] Task: Design decision prompt format
-    - [ ] Create standard template for presenting decisions
-    - [ ] Include context section
-    - [ ] Include alternatives with pros/cons
-    - [ ] Include recommendation with rationale
+- [x] Task: Design decision prompt format [60ab86d]
+    - [x] Create standard template for presenting decisions
+    - [x] Include context section
+    - [x] Include alternatives with pros/cons
+    - [x] Include recommendation with rationale
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Decision Capture Protocol' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Decision Capture Protocol' (Protocol in workflow.md)
 
 ## Phase 4: Implement Command Enhancement
 
