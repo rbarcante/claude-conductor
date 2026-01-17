@@ -35,11 +35,11 @@
     - [x] Define detection: numeric literals outside const/final declarations
     - [x] Set severity: medium
 
-- [ ] Task: Create spaghetti-code anti-pattern
-    - [ ] Write validation tests for content completeness
-    - [ ] Create `/patterns/anti-patterns/core/spaghetti-code.md`
-    - [ ] Define detection: cyclomatic complexity >15, deep nesting >4 levels
-    - [ ] Set severity: high
+- [x] Task: Create spaghetti-code anti-pattern `d3a1625`
+    - [x] Write validation tests for content completeness
+    - [x] Create `/patterns/anti-patterns/core/spaghetti-code.md`
+    - [x] Define detection: cyclomatic complexity >15, deep nesting >4 levels
+    - [x] Set severity: high
 
 - [ ] Task: Create deep-nesting anti-pattern
     - [ ] Write validation tests for content completeness
