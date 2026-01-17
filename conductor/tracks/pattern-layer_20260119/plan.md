@@ -12,10 +12,10 @@
     - [x] Create `/patterns/index.md` with registry format
     - [x] Include sections for core patterns and future stack patterns
 
-- [ ] Task: Create pattern file template
-    - [ ] Write tests to validate pattern file structure (frontmatter, sections)
-    - [ ] Create `/patterns/TEMPLATE.md` documenting the dual-format structure
-    - [ ] Include YAML frontmatter schema, AI Quick Reference format, Human Documentation format, Anti-Patterns format
+- [x] Task: Create pattern file template `67b9e7c`
+    - [x] Write tests to validate pattern file structure (frontmatter, sections)
+    - [x] Create `/patterns/TEMPLATE.md` documenting the dual-format structure
+    - [x] Include YAML frontmatter schema, AI Quick Reference format, Human Documentation format, Anti-Patterns format
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Pattern Infrastructure Setup' (Protocol in workflow.md)
 
