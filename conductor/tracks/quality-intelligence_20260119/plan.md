@@ -2,10 +2,10 @@
 
 ## Phase 1: Anti-Pattern Library Foundation
 
-- [ ] Task: Create anti-pattern directory structure
-    - [ ] Create `/patterns/anti-patterns/` directory
-    - [ ] Create `/patterns/anti-patterns/core/` subdirectory
-    - [ ] Create placeholder subdirectories for future language-specific patterns
+- [x] Task: Create anti-pattern directory structure `125984f`
+    - [x] Create `/patterns/anti-patterns/` directory
+    - [x] Create `/patterns/anti-patterns/core/` subdirectory
+    - [x] Create placeholder subdirectories for future language-specific patterns
 
 - [ ] Task: Create anti-pattern file template
     - [ ] Write tests to validate anti-pattern file structure
