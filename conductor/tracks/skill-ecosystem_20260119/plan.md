@@ -92,7 +92,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Reference Skill - TypeScript Best Practices' (Protocol in workflow.md)
 
-## Phase 5: Reference Skill - API Design
+## Phase 5: Reference Skill - API Design [checkpoint: dde66b6]
 
 - [x] Task: Create api-design skill structure
     - [x] Create `/skills/api-design/` directory
