@@ -350,6 +350,248 @@ cat conductor/tracks/<track_id>/plan.md
 
 ---
 
+## Technology Intelligence Test Scenarios
+
+### Stack Detection Tests
+
+**Scenario: Node.js/TypeScript Project Detection**
+
+**Objective:** Verify stack detection correctly identifies a TypeScript/Node.js project
+
+**Steps:**
+1. Create a test directory with `package.json` containing React and Express dependencies
+2. Add `tsconfig.json` with standard TypeScript configuration
+3. Create several `.ts` and `.tsx` files
+4. Run `/conductor:setup` and observe the stack detection step
+
+**Expected Results:**
+- Confidence: HIGH (score >= 85)
+- Primary Language: TypeScript
+- Languages Detected: TypeScript, JavaScript
+- Frameworks: React (Frontend), Express.js (Backend)
+- Build Tools: npm detected from package-lock.json or npm scripts
+- Detection should be presented with the standard format:
+  ```
+  🔍 **Stack Detection Results** (Confidence: HIGH)
+  ```
+
+---
+
+**Scenario: Python Project Detection**
+
+**Objective:** Verify stack detection correctly identifies a Python Django project
+
+**Steps:**
+1. Create a test directory with `requirements.txt` containing Django and pytest
+2. Add several `.py` files in a typical Django structure (views.py, models.py, etc.)
+3. Run `/conductor:setup` and observe the stack detection step
+
+**Expected Results:**
+- Confidence: HIGH or MEDIUM
+- Primary Language: Python
+- Frameworks: Django (Backend)
+- Testing: pytest detected
+- Standard presentation format displayed
+
+---
+
+**Scenario: Go Project Detection**
+
+**Objective:** Verify stack detection correctly identifies a Go project
+
+**Steps:**
+1. Create a test directory with `go.mod` containing Gin or Echo framework
+2. Add several `.go` files
+3. Run `/conductor:setup` and observe the stack detection step
+
+**Expected Results:**
+- Primary Language: Go
+- Frameworks: Gin or Echo (Backend)
+- Build Tools: Go modules
+- Appropriate confidence level based on available signals
+
+---
+
+**Scenario: Unknown Stack Handling**
+
+**Objective:** Verify graceful handling when stack cannot be confidently detected
+
+**Steps:**
+1. Create an empty directory with only a `README.md` file
+2. Run `/conductor:setup` and observe the stack detection step
+
+**Expected Results:**
+- Confidence: UNCERTAIN (score < 30)
+- Detection message should indicate minimal signals found
+- User should be prompted for manual entry:
+  ```
+  🔍 **Stack Detection Results** (Confidence: UNCERTAIN)
+  Minimal detection signals. Manual specification strongly recommended.
+  ```
+- Fallback to manual tech stack definition in Section 2.3
+
+---
+
+**Scenario: User Acceptance Flow**
+
+**Objective:** Test the user confirmation flow after stack detection
+
+**Steps:**
+1. Run stack detection on a known project type
+2. When prompted, select option A (Accept)
+3. Verify tech-stack.md is populated correctly
+
+**Expected Results:**
+- Detected values should pre-populate tech-stack.md
+- File should include detection metadata comment:
+  ```markdown
+  <!-- Auto-detected by Stack Detection Protocol -->
+  <!-- Confidence: HIGH -->
+  ```
+
+---
+
+**Scenario: User Edit Flow**
+
+**Objective:** Test the user edit flow for correcting detected stack
+
+**Steps:**
+1. Run stack detection on a project
+2. When prompted, select option B (Edit)
+3. Modify one or more detected values
+4. Verify corrections are applied
+
+**Expected Results:**
+- Each category should be presented for verification
+- User corrections should override detected values
+- Final tech-stack.md should reflect user modifications
+
+---
+
+### Skill Activation Tests
+
+**Scenario: Always-Active Skill Loading**
+
+**Objective:** Verify Conductor Methodology skill is always loaded
+
+**Steps:**
+1. Start implementation on any track: `/conductor:implement`
+2. Observe the skill activation announcement
+
+**Expected Results:**
+- Conductor Methodology skill should be listed as "always active"
+- Announcement format:
+  ```
+  🔧 **Skills Activated:** Conductor Methodology (always active)
+  ```
+- No score displayed for always-active skills
+
+---
+
+**Scenario: Context-Based Skill Activation**
+
+**Objective:** Test skill activation based on task keywords
+
+**Steps:**
+1. Add a new skill to skill-registry.json with keywords `["authentication", "login"]`
+2. Create a track with description containing "authentication"
+3. Run `/conductor:implement`
+4. Observe skill activation
+
+**Expected Results:**
+- New skill should be activated with a score displayed
+- Announcement format should include:
+  ```
+  🔧 **Skills Activated for This Track:**
+
+  **Always Active:**
+  - Conductor Methodology: Core development workflow guidance
+
+  **Context-Activated:** (based on track/task matching)
+  - [Skill Name] (score: X.X): [Brief description]
+  ```
+
+---
+
+**Scenario: Tech Stack Skill Matching**
+
+**Objective:** Test skill activation based on project tech stack
+
+**Steps:**
+1. Set up a project with TypeScript/React in tech-stack.md
+2. Add a skill with `tech_stack.languages: ["typescript"]` and `tech_stack.frameworks: ["react"]`
+3. Run `/conductor:implement`
+
+**Expected Results:**
+- Skill should activate with high score due to tech stack match
+- Language match: +2.0 points
+- Framework match: +1.5 points
+- Score should be >= 3.0 for high confidence activation
+
+---
+
+**Scenario: File Pattern Skill Matching**
+
+**Objective:** Test skill activation based on file patterns
+
+**Steps:**
+1. Create a track that modifies files matching `conductor/**/*`
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Conductor Methodology skill should match via file pattern
+- File pattern contributes +1.5 to score
+- Skill activates based on file pattern match
+
+---
+
+**Scenario: Maximum Skill Limit**
+
+**Objective:** Verify maximum 5 skills (beyond always-active) are loaded
+
+**Steps:**
+1. Add 7+ skills to skill-registry.json with overlapping activation rules
+2. Create a task that matches all skills
+3. Run `/conductor:implement`
+
+**Expected Results:**
+- Maximum 5 scored skills should be activated
+- Skills should be sorted by score descending
+- Highest scoring skills should be selected
+- Always-active skills are not counted toward the limit
+
+---
+
+**Scenario: Skill Registry Missing**
+
+**Objective:** Test graceful handling when skill registry doesn't exist
+
+**Steps:**
+1. Rename or remove `skills/skill-registry.json`
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Implementation should proceed without errors
+- No skill activation announcement should appear
+- Warning should be logged internally but not block execution
+
+---
+
+**Scenario: Skill File Missing**
+
+**Objective:** Test handling when a registered skill's SKILL.md is missing
+
+**Steps:**
+1. Add a skill entry to registry pointing to non-existent path
+2. Run `/conductor:implement`
+
+**Expected Results:**
+- Warning should be logged for missing skill
+- Other skills should still load correctly
+- Implementation should proceed
+
+---
+
 ## Edge Cases to Test
 
 ### Edge Case 1: Empty Tracks File
@@ -419,6 +661,19 @@ After testing, verify:
 - [ ] `/conductor:patterns search` finds relevant patterns
 - [ ] `/conductor:patterns show` displays pattern content
 - [ ] No patterns silently skipped (no noise)
+- [ ] Stack detection works for Node.js/TypeScript projects
+- [ ] Stack detection works for Python projects
+- [ ] Stack detection works for Go projects
+- [ ] Unknown stack handled gracefully with manual fallback
+- [ ] User can accept auto-detected stack
+- [ ] User can edit auto-detected stack
+- [ ] Always-active skills load on every implementation
+- [ ] Context-activated skills match on keywords
+- [ ] Tech stack matching contributes to skill scores
+- [ ] File pattern matching contributes to skill scores
+- [ ] Maximum skill limit (5) enforced
+- [ ] Missing skill registry handled gracefully
+- [ ] Missing skill files handled gracefully
 
 ---
 
