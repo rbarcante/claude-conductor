@@ -1,0 +1,11 @@
+{
+  "name": "Conductor Methodology",
+  "version": "1.0.0",
+  "description": "Core Conductor development methodology and context-driven principles",
+  "activation": {
+    "always_active": true
+  },
+  "provides": {
+    "guidance": ["conductor-concepts", "context-driven-development", "track-lifecycle"]
+  }
+}
