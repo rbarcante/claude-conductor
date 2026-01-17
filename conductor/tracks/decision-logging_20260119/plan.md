@@ -18,11 +18,11 @@
 
 ## Phase 2: Track Structure Enhancement
 
-- [ ] Task: Modify newTrack.md to create decisions.md
-    - [ ] Write tests for newTrack.md structure changes
-    - [ ] Add decisions.md creation step to Section 2.4
-    - [ ] Initialize with template content
-    - [ ] Include track-specific header
+- [x] Task: Modify newTrack.md to create decisions.md [645d95a]
+    - [x] Write tests for newTrack.md structure changes
+    - [x] Add decisions.md creation step to Section 2.4
+    - [x] Initialize with template content
+    - [x] Include track-specific header
 
 - [ ] Task: Update track index template
     - [ ] Modify track index.md to include decisions.md link
