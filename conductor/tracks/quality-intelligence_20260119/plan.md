@@ -47,11 +47,11 @@
     - [x] Define detection: nesting depth >4 levels
     - [x] Set severity: medium
 
-- [ ] Task: Create mutable-defaults anti-pattern
-    - [ ] Write validation tests for content completeness
-    - [ ] Create `/patterns/anti-patterns/core/mutable-defaults.md`
-    - [ ] Define detection: mutable default arguments (list, dict in Python; objects in JS)
-    - [ ] Set severity: high
+- [x] Task: Create mutable-defaults anti-pattern `9b95cca`
+    - [x] Write validation tests for content completeness
+    - [x] Create `/patterns/anti-patterns/core/mutable-defaults.md`
+    - [x] Define detection: mutable default arguments (list, dict in Python; objects in JS)
+    - [x] Set severity: high
 
 - [ ] Task: Update anti-pattern index
     - [ ] Add all 5 core anti-patterns to index
