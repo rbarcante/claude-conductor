@@ -2,7 +2,7 @@
 
 ## Phase 1: Decision Template Creation
 
-- [~] Task: Design ADR template structure
+- [x] Task: Design ADR template structure [f44ff2f]
     - [x] Research ADR format best practices
     - [x] Define required sections (Context, Decision, Consequences)
     - [x] Define optional sections (Alternatives, Status)
