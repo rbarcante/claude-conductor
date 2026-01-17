@@ -68,17 +68,17 @@
 
 ## Phase 4: Implement Command Enhancement
 
-- [x] Task: Add pattern surfacing step to implement.md
+- [x] Task: Add pattern surfacing step to implement.md `0d4fc37`
     - [x] Write tests to validate implement.md structure changes
     - [x] Add new section "Surface Relevant Patterns" between context loading and task execution
     - [x] Include keyword extraction from current task
     - [x] Include pattern matching using resolution protocol
     - [x] Include user prompt for pattern acknowledgment (apply/skip)
 
-- [ ] Task: Define pattern surfacing output format
-    - [ ] Create standard announcement format for matched patterns
-    - [ ] Include pattern name, path, and brief description
-    - [ ] Include skip option for user
+- [x] Task: Define pattern surfacing output format `0d4fc37`
+    - [x] Create standard announcement format for matched patterns
+    - [x] Include pattern name, path, and brief description
+    - [x] Include skip option for user
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md)
 
