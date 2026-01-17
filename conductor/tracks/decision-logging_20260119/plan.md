@@ -85,7 +85,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 5: Git Notes Enhancement' (Protocol in workflow.md)
 
-## Phase 6: Integration and Documentation
+## Phase 6: Integration and Documentation [checkpoint: 901b506]
 
 - [x] Task: End-to-end integration testing [5fe9fea]
     - [x] Test newTrack creates decisions.md correctly
@@ -103,4 +103,4 @@
     - [x] Include ADR format explanation
     - [x] Include example decision entry
 
-- [~] Task: Conductor - User Manual Verification 'Phase 6: Integration and Documentation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 6: Integration and Documentation' (Protocol in workflow.md)
