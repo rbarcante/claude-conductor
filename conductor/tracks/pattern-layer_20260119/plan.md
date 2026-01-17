@@ -7,10 +7,10 @@
     - [x] Create `/patterns/core/` subdirectory
     - [x] Create placeholder `/patterns/stack/` subdirectory for future expansion
 
-- [ ] Task: Create pattern registry index
-    - [ ] Write tests to validate index.md structure and links
-    - [ ] Create `/patterns/index.md` with registry format
-    - [ ] Include sections for core patterns and future stack patterns
+- [x] Task: Create pattern registry index `0e0a23e`
+    - [x] Write tests to validate index.md structure and links
+    - [x] Create `/patterns/index.md` with registry format
+    - [x] Include sections for core patterns and future stack patterns
 
 - [ ] Task: Create pattern file template
     - [ ] Write tests to validate pattern file structure (frontmatter, sections)
