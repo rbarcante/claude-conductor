@@ -23,28 +23,28 @@
 
 ## Phase 2: Skills Management Command
 
-- [ ] Task: Create skills command file
-    - [ ] Write tests for command file structure
-    - [ ] Create `/commands/skills.md` with proper frontmatter
-    - [ ] Define command protocol structure
+- [x] Task: Create skills command file
+    - [x] Write tests for command file structure
+    - [x] Create `/commands/skills.md` with proper frontmatter
+    - [x] Define command protocol structure
 
-- [ ] Task: Implement list subcommand
-    - [ ] Document protocol to scan skills/ directory
-    - [ ] Parse manifest.json for each skill
-    - [ ] Display table with name, version, status, description
+- [x] Task: Implement list subcommand
+    - [x] Document protocol to scan skills/ directory
+    - [x] Parse manifest.json for each skill
+    - [x] Display table with name, version, status, description
 
-- [ ] Task: Implement info subcommand
-    - [ ] Document protocol to read specific skill's manifest
-    - [ ] Display all manifest fields
-    - [ ] Show patterns/templates provided
-    - [ ] Show activation rules
+- [x] Task: Implement info subcommand
+    - [x] Document protocol to read specific skill's manifest
+    - [x] Display all manifest fields
+    - [x] Show patterns/templates provided
+    - [x] Show activation rules
 
-- [ ] Task: Implement enable/disable subcommands
-    - [ ] Define conductor settings file format (conductor/settings.json)
-    - [ ] Document protocol to update settings
-    - [ ] Handle skill not found errors
+- [x] Task: Implement enable/disable subcommands
+    - [x] Define conductor settings file format (conductor/settings.json)
+    - [x] Document protocol to update settings
+    - [x] Handle skill not found errors
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Skills Management Command' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Skills Management Command' (Protocol in workflow.md)
 
 ## Phase 3: Skill Loading Protocol Enhancement
 
