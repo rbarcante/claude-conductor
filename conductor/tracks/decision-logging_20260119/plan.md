@@ -55,19 +55,19 @@
 
 ## Phase 4: Implement Command Enhancement
 
-- [ ] Task: Add decision capture to implement.md
-    - [ ] Write tests for implement.md structure changes
-    - [ ] Add decision capture invocation points during implementation
-    - [ ] Include decision prompting logic
-    - [ ] Include decision recording to decisions.md
+- [x] Task: Add decision capture to implement.md [918724f]
+    - [x] Write tests for implement.md structure changes
+    - [x] Add decision capture invocation points during implementation
+    - [x] Include decision prompting logic
+    - [x] Include decision recording to decisions.md
 
-- [ ] Task: Implement decision recording logic
-    - [ ] Define ADR entry format
-    - [ ] Define append mechanism to decisions.md
-    - [ ] Include timestamp and status
-    - [ ] Generate decision ID/title
+- [x] Task: Implement decision recording logic [918724f]
+    - [x] Define ADR entry format
+    - [x] Define append mechanism to decisions.md
+    - [x] Include timestamp and status
+    - [x] Generate decision ID/title
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Implement Command Enhancement' (Protocol in workflow.md)
 
 ## Phase 5: Git Notes Enhancement
 
