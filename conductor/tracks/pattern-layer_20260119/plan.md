@@ -21,10 +21,10 @@
 
 ## Phase 2: Core Pattern Library
 
-- [ ] Task: Create error-handling pattern
-    - [ ] Write validation tests for pattern content completeness
-    - [ ] Create `/patterns/core/error-handling.md` with full dual-format structure
-    - [ ] Include activation keywords: error, exception, catch, throw, try, handle
+- [x] Task: Create error-handling pattern `f0750aa`
+    - [x] Write validation tests for pattern content completeness
+    - [x] Create `/patterns/core/error-handling.md` with full dual-format structure
+    - [x] Include activation keywords: error, exception, catch, throw, try, handle
 
 - [ ] Task: Create logging pattern
     - [ ] Write validation tests for pattern content completeness
