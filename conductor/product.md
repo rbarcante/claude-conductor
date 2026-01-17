@@ -104,6 +104,14 @@ Rollback with precision:
 - Revert individual tasks
 - Analyzes git history to identify relevant commits
 
+### Pattern Reference Layer (`/conductor:patterns`)
+Apply best practices consistently:
+- Reusable dual-format patterns (AI Quick Reference + Human Documentation)
+- Automatic pattern surfacing during implementation based on task keywords
+- Core patterns: Error Handling, Logging, Configuration, Validation, Testing
+- Extensible with custom patterns in `patterns/core/` and `patterns/stack/`
+- Browse, search, and display patterns on demand
+
 ## Differentiation
 
 Conductor differs from other AI coding tools in several key ways:
