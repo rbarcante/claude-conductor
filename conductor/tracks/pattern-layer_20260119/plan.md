@@ -49,7 +49,7 @@
 - [x] Task: Update pattern registry index `0e0a23e`
     - [x] Update `/patterns/index.md` to include all 5 core patterns with descriptions
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Core Pattern Library' (Protocol in workflow.md)
 
 ## Phase 3: Pattern Resolution Protocol
 
