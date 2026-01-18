@@ -35,12 +35,12 @@
     - [x] Add annotation-based null safety examples
     - [x] Add defensive coding patterns
 
-- [~] Task: Create concurrency pattern
-    - [ ] Create `concurrency.md` with CompletableFuture examples
-    - [ ] Add virtual threads migration patterns
-    - [ ] Add thread-safe collection patterns
+- [x] Task: Create concurrency pattern [53319f3]
+    - [x] Create `concurrency.md` with CompletableFuture examples
+    - [x] Add virtual threads migration patterns
+    - [x] Add thread-safe collection patterns
 
-- [ ] Task: Create modern-features pattern
+- [~] Task: Create modern-features pattern
     - [ ] Create `modern-features.md` with record patterns
     - [ ] Add sealed class hierarchy examples
     - [ ] Add pattern matching examples
