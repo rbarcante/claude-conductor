@@ -64,10 +64,10 @@
     - [x] Update any "proceed to next section" language
     - [x] Verify section numbering is consistent
 
-- [ ] Task: Add example scenarios to documentation
-    - [ ] Add example for feature track branch creation
-    - [ ] Add example for bugfix track branch creation
-    - [ ] Add example for worktree creation
-    - [ ] Add example for continuing on existing branch
+- [x] Task: Add example scenarios to documentation [6f4963c]
+    - [x] Add example for feature track branch creation
+    - [x] Add example for bugfix track branch creation
+    - [x] Add example for worktree creation
+    - [x] Add example for continuing on existing branch
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
