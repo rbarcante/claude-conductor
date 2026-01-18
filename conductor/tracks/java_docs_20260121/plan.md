@@ -40,12 +40,12 @@
     - [x] Add virtual threads migration patterns
     - [x] Add thread-safe collection patterns
 
-- [~] Task: Create modern-features pattern
-    - [ ] Create `modern-features.md` with record patterns
-    - [ ] Add sealed class hierarchy examples
-    - [ ] Add pattern matching examples
+- [x] Task: Create modern-features pattern [e065001]
+    - [x] Create `modern-features.md` with record patterns
+    - [x] Add sealed class hierarchy examples
+    - [x] Add pattern matching examples
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Java Skill Patterns' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Java Skill Patterns' (Protocol in workflow.md)
 
 ## Phase 3: Java Snippets
 
