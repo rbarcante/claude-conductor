@@ -199,7 +199,24 @@ This section ensures track work is properly isolated from the main codebase by r
     -   If user selects "Type your own": Prompt for custom branch name, then execute git checkout -b
 
 4.  **Execute Git Operations:**
-    <!-- Implementation details in Step 4 task -->
+    Based on the user's selection, execute the appropriate git command.
+
+    **For branch creation:**
+    ```bash
+    git checkout -b <branch_name>
+    ```
+
+    **For worktree creation:**
+    ```bash
+    git worktree add <worktree_path> -b <branch_name>
+    ```
+    -   The worktree command creates both a new directory and a new branch.
+    -   After creating a worktree, inform the user: "Worktree created at `<path>`. To work in it, open a new terminal and navigate to that directory."
+
+    **Verification:**
+    -   After executing the git command, verify success by running `git branch --show-current`.
+    -   If the current branch matches the expected branch name, proceed to Section 2.5.
+    -   If the command fails, proceed to Step 5 (Error Handling).
 
 5.  **Handle Errors:**
     <!-- Implementation details in Step 5 task -->
