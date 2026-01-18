@@ -10,19 +10,19 @@ Fix the path format mismatch in `newtrack.py` where the `register` command gener
 
 ## Phase 1: Fix and Verification
 
-- [ ] Task: Write failing test for newtrack register path format
-    - [ ] Create test that verifies register generates `./conductor/tracks/` format
-    - [ ] Run test and confirm it fails
+- [x] Task: Write failing test for newtrack register path format [1bacd9e]
+    - [x] Create test that verifies register generates `./conductor/tracks/` format
+    - [x] Run test and confirm it fails
 
-- [ ] Task: Fix path format in newtrack.py
-    - [ ] Update `_create_track_entry()` at line 493 to use `./conductor/tracks/{track_id}/`
-    - [ ] Run tests and confirm they pass
+- [x] Task: Fix path format in newtrack.py [1bacd9e]
+    - [x] Update `_create_track_entry()` at line 493 to use `./conductor/tracks/{track_id}/`
+    - [x] Run tests and confirm they pass
 
-- [ ] Task: Verify fix with integration test
-    - [ ] Test full flow: register track, then update-status
-    - [ ] Confirm no errors
+- [x] Task: Verify fix with integration test [1bacd9e]
+    - [x] Test full flow: register track, then update-status
+    - [x] Confirm no errors
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Fix and Verification' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Fix and Verification' (Protocol in workflow.md)
 
 ---
 
