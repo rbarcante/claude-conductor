@@ -49,14 +49,14 @@
 
 ## Phase 3: Java Snippets
 
-- [~] Task: Create API Client snippet
-    - [ ] Create `snippets/java/` directory
-    - [ ] Create `api-client.java` with HttpClient implementation
-    - [ ] Add retry logic with exponential backoff
-    - [ ] Add structured error handling
-    - [ ] Add AI header comment block
+- [x] Task: Create API Client snippet [dcb98eb]
+    - [x] Create `snippets/java/` directory
+    - [x] Create `api-client.java` with HttpClient implementation
+    - [x] Add retry logic with exponential backoff
+    - [x] Add structured error handling
+    - [x] Add AI header comment block
 
-- [ ] Task: Create Error Handler snippet
+- [~] Task: Create Error Handler snippet
     - [ ] Create `error-handler.java` with custom exception hierarchy
     - [ ] Add error codes enum
     - [ ] Add context/details support
