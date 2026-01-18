@@ -138,25 +138,25 @@
 
 ## Phase 5: Snippet Command
 
-- [ ] Task: Create snippet command file
-    - [ ] Write tests for command file structure
-    - [ ] Create `/commands/snippet.md` with proper frontmatter
-    - [ ] Define command argument format
+- [x] Task: Create snippet command file `048022b`
+    - [x] Write tests for command file structure
+    - [x] Create `/commands/snippet.md` with proper frontmatter
+    - [x] Define command argument format
 
-- [ ] Task: Implement list subcommand
-    - [ ] Document protocol to read snippets/index.md
-    - [ ] Format output by category
-    - [ ] Include snippet descriptions
+- [x] Task: Implement list subcommand `048022b`
+    - [x] Document protocol to read snippets/index.md
+    - [x] Format output by category
+    - [x] Include snippet descriptions
 
-- [ ] Task: Implement search subcommand
-    - [ ] Document protocol to grep snippets/ for keywords
-    - [ ] Rank results by relevance
-    - [ ] Display matching snippets with context
+- [x] Task: Implement search subcommand `048022b`
+    - [x] Document protocol to grep snippets/ for keywords
+    - [x] Rank results by relevance
+    - [x] Display matching snippets with context
 
-- [ ] Task: Implement show subcommand
-    - [ ] Document protocol to read and display specific snippet
-    - [ ] Include usage notes from comments
-    - [ ] Offer to insert into context
+- [x] Task: Implement show subcommand `048022b`
+    - [x] Document protocol to read and display specific snippet
+    - [x] Include usage notes from comments
+    - [x] Offer to insert into context
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: Snippet Command' (Protocol in workflow.md)
 
