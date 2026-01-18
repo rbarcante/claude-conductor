@@ -9,7 +9,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Implement Git Isolation Protocol Section
+## Phase 2: Implement Git Isolation Protocol Section [checkpoint: c643dd7]
 
 - [x] Task: Create Section 2.1 GIT ISOLATION SETUP structure [c76e29a]
     - [x] Insert new section between 2.0 TRACK SELECTION and 2.5 SKILL ACTIVATION
