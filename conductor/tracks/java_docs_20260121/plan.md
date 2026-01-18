@@ -84,12 +84,12 @@
 
 ## Phase 5: Registry Updates and Final Integration
 
-- [~] Task: Update skill registry
-    - [ ] Read current `skills/skill-registry.json`
-    - [ ] Add java-best-practices skill entry
-    - [ ] Validate JSON structure
+- [x] Task: Update skill registry [d7b72a6]
+    - [x] Read current `skills/skill-registry.json`
+    - [x] Add java-best-practices skill entry
+    - [x] Validate JSON structure
 
-- [ ] Task: Update snippets index
+- [~] Task: Update snippets index
     - [ ] Read current `snippets/index.md`
     - [ ] Add Java section with all 3 snippets
     - [ ] Maintain consistent table format
