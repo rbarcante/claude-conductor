@@ -35,6 +35,7 @@ This protocol integrates with the Conductor Python CLI for token-efficient opera
 | Parse coverage | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-coverage --format FORMAT --path PATH` | Coverage metrics |
 | Get next ADR number | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement next-adr-number --path ADR_PATH` | Next number, padded |
 | Match patterns | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement match-patterns KEYWORD1 KEYWORD2` | Scored pattern matches |
+| Suggest branch name | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-branch TRACK_ID` | Branch name, prefix, worktree path |
 
 ### CLI Usage Guidelines
 
@@ -56,6 +57,7 @@ If CLI commands fail or are unavailable, use these manual alternatives:
 | Next ADR number | List files in decisions dir matching `NNNN-*.md` pattern |
 | Match patterns | Read `patterns/index.md` and match keywords manually |
 | Archive track | Create `conductor/archive/` and use `mv` command |
+| Suggest branch | Read `metadata.json` for track type, apply prefix mapping from Section 2.1 |
 
 ---
 
@@ -138,7 +140,23 @@ This section ensures track work is properly isolated from the main codebase by r
         -   If match found, set `branch_matches_track = true`
 
 2.  **Generate Branch Name Suggestion:**
-    -   Read the track's `metadata.json` to get the track type.
+    -   **Via CLI (preferred):** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-branch <track_id>`
+        -   The CLI returns:
+            ```json
+            {
+              "success": true,
+              "data": {
+                "track_id": "dark-mode-toggle_20260122",
+                "track_type": "feature",
+                "branch_prefix": "feature/",
+                "branch_name": "feature/dark-mode-toggle",
+                "worktree_path": "../project-dark-mode-toggle",
+                "current_branch": "main"
+              }
+            }
+            ```
+        -   **If CLI fails:** Fall back to manual generation below.
+    -   **Manual generation:** Read the track's `metadata.json` to get the track type.
     -   **Map track type to branch prefix:**
 
         | Track Type | Branch Prefix |
