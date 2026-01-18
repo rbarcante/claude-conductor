@@ -46,8 +46,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [~] **Track: Integrate Python CLI into respective command protocols**
   *Link: [./conductor/tracks/cli_integration_20260121/](./conductor/tracks/cli_integration_20260121/)*
-
----
-
-- [x] **Track: Git Branch/Worktree Integration for Implement Command**
-  *Link: [./conductor/tracks/git-branch-worktree-integration_20260122/](./conductor/tracks/git-branch-worktree-integration_20260122/)*
