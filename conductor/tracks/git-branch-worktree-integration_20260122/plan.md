@@ -2,10 +2,10 @@
 
 ## Phase 1: Update Command Configuration
 
-- [ ] Task: Add AskUserQuestion to allowed-tools in implement.md frontmatter
-    - [ ] Read the frontmatter section of implement.md
-    - [ ] Add `- AskUserQuestion` to the allowed-tools list
-    - [ ] Verify the YAML frontmatter remains valid
+- [x] Task: Add AskUserQuestion to allowed-tools in implement.md frontmatter [37172b4]
+    - [x] Read the frontmatter section of implement.md
+    - [x] Add `- AskUserQuestion` to the allowed-tools list
+    - [x] Verify the YAML frontmatter remains valid
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
