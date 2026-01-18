@@ -1,0 +1,19 @@
+{
+  "$schema": "../manifest-schema.json",
+  "name": "java-best-practices",
+  "version": "1.0.0",
+  "description": "Type safety, concurrency patterns, and modern Java features guidance for Java 17+ development",
+  "author": "Conductor Team",
+  "activation": {
+    "keywords": ["java", "optional", "completablefuture", "record", "sealed", "virtual thread", "spring", "jakarta"],
+    "file_patterns": ["**/*.java", "**/pom.xml", "**/build.gradle", "**/build.gradle.kts"],
+    "tech_stack": {
+      "languages": ["Java"]
+    }
+  },
+  "provides": {
+    "guidance": ["type-safety", "concurrency", "modern-features", "null-handling"],
+    "patterns": ["type-safety", "concurrency", "modern-features"]
+  },
+  "dependencies": []
+}
