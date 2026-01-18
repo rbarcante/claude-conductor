@@ -44,10 +44,10 @@
     - [x] Include Go-specific rules
     - [x] Keep existing detailed content
 
-- [ ] Task: Enhance general.md with AI section
-    - [ ] Add AI Quick Reference section at top
-    - [ ] Include universal coding principles
-    - [ ] Keep existing detailed content
+- [x] Task: Enhance general.md with AI section `328706e`
+    - [x] Add AI Quick Reference section at top
+    - [x] Include universal coding principles
+    - [x] Keep existing detailed content
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Code Styleguide Enhancement' (Protocol in workflow.md)
 
