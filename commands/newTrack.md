@@ -120,6 +120,123 @@ If any CLI command fails:
 
 ---
 
+## AskUserQuestion Tool Protocol
+
+**PROTOCOL: Use the AskUserQuestion tool for all interactive user prompts.**
+
+All questions to the user during track creation MUST be asked using the `AskUserQuestion` tool. This provides a structured, consistent user experience with clickable options.
+
+### Tool Structure
+
+```json
+{
+  "questions": [
+    {
+      "question": "The complete question text ending with ?",
+      "header": "Short label",  // Max 12 characters
+      "options": [
+        {"label": "Option label", "description": "What this option means"},
+        {"label": "Another option", "description": "Explanation of this choice"}
+      ],
+      "multiSelect": false  // true if user can select multiple options
+    }
+  ]
+}
+```
+
+### Key Rules
+
+1. **Header Constraint:** Maximum 12 characters (e.g., "Interaction", "Data", "Scope")
+2. **Options Constraint:** Minimum 2, maximum 4 options per question
+3. **multiSelect:** Set to `true` for "Additive" questions where multiple selections are valid; `false` for "Exclusive Choice" questions
+4. **Sequential Questions:** Ask one question at a time. Wait for user response before asking the next question
+5. **"Other" Option:** Users can always select "Other" to provide custom text input - do NOT add this as an explicit option
+6. **Recommendations:** When recommending an option, add "(Recommended)" to the label and make it the first option
+
+### Question Type Mapping
+
+| Question Type | multiSelect | Example Use Case |
+|--------------|-------------|------------------|
+| **Additive** (multiple valid answers) | `true` | "Which capabilities should this feature include?" |
+| **Exclusive Choice** (single answer) | `false` | "How should users interact with this feature?" |
+| **Approval** (approve/change) | `false` | "Does this specification capture the requirements?" |
+
+### Standard Option Patterns for newTrack
+
+**Approval Questions (Spec/Plan Review):**
+```json
+{
+  "question": "Does this specification accurately capture the requirements?",
+  "header": "Review",
+  "options": [
+    {"label": "Approve", "description": "The document is correct, proceed to next step"},
+    {"label": "Suggest changes", "description": "I want to modify some parts"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Feature Interaction Type (Exclusive):**
+```json
+{
+  "question": "How will users primarily interact with this feature?",
+  "header": "Interaction",
+  "options": [
+    {"label": "UI component", "description": "Visual interface element (button, form, page)"},
+    {"label": "API endpoint", "description": "Backend service or REST/GraphQL endpoint"},
+    {"label": "CLI command", "description": "Command-line interface operation"},
+    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Feature Capabilities (Additive):**
+```json
+{
+  "question": "Which capabilities should this feature include?",
+  "header": "Capabilities",
+  "options": [
+    {"label": "Create/Add", "description": "Ability to create new items"},
+    {"label": "Read/View", "description": "Ability to view existing items"},
+    {"label": "Update/Edit", "description": "Ability to modify existing items"},
+    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+  ],
+  "multiSelect": true
+}
+```
+
+**Bug Reproduction (Additive):**
+```json
+{
+  "question": "Which details are available for this bug?",
+  "header": "Bug Info",
+  "options": [
+    {"label": "Steps to reproduce", "description": "I can provide exact reproduction steps"},
+    {"label": "Error message", "description": "I have the error message or stack trace"},
+    {"label": "Expected behavior", "description": "I know what should happen instead"},
+    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+  ],
+  "multiSelect": true
+}
+```
+
+### Auto-Generate Option
+
+For interactive specification and plan generation, always include an auto-generate option as the last choice:
+
+```json
+{"label": "Auto-generate", "description": "Infer from context and generate the document"}
+```
+
+When user selects this option:
+1. Stop asking questions immediately
+2. Use gathered answers and project context to infer remaining details
+3. Generate the complete document (spec or plan)
+4. Present for review using an Approval question
+
+---
+
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
@@ -153,49 +270,143 @@ If any CLI command fails:
 1.  **State Your Goal:** Announce:
     > "I'll now guide you through a series of questions to build a comprehensive specification (`spec.md`) for this track."
 
-2.  **Questioning Phase:** Ask a series of questions to gather details for the `spec.md`. Tailor questions based on the track type (Feature or Other).
-    *   **CRITICAL:** You MUST ask these questions sequentially (one by one). Do not ask multiple questions in a single turn. Wait for the user's response after each question.
+2.  **Questioning Phase:** Ask a series of questions to gather details for the `spec.md`. Tailor questions based on the track type (Feature or Other). **All questions MUST use the AskUserQuestion tool** as defined in the **AskUserQuestion Tool Protocol** section above.
+
     *   **General Guidelines:**
+        *   **CRITICAL:** You MUST ask questions sequentially (one by one) using the AskUserQuestion tool. Do not ask multiple questions in a single turn. Wait for the user's response after each question.
         *   Refer to information in **Product Definition**, **Tech Stack**, etc., to ask context-aware questions.
-        *   Provide a brief explanation and clear examples for each question.
-        *   **Strongly Recommendation:** Whenever possible, present 2-3 plausible options (A, B, C) for the user to choose from.
-        *   **Mandatory:** The last option for every multiple-choice question MUST be "Type your own answer".
-
-        *   **1. Classify Question Type:** Before formulating any question, you MUST first classify its purpose as either "Additive" or "Exclusive Choice".
-            *   Use **Additive** for brainstorming and defining scope (e.g., users, goals, features, project guidelines). These questions allow for multiple answers.
-            *   Use **Exclusive Choice** for foundational, singular commitments (e.g., selecting a primary technology, a specific workflow rule). These questions require a single answer.
-
-        *   **2. Formulate the Question:** Based on the classification, you MUST adhere to the following:
-            *   **Strongly Recommended:** Whenever possible, present 2-3 plausible options (A, B, C) for the user to choose from.
-            *   **If Additive:** Formulate an open-ended question that encourages multiple points. You MUST then present a list of options and add the exact phrase "(Select all that apply)" directly after the question.
-            *   **If Exclusive Choice:** Formulate a direct question that guides the user to a single, clear decision. You MUST NOT add "(Select all that apply)".
-
-        *   **3. Interaction Flow:**
-            *   **CRITICAL:** You MUST ask questions sequentially (one by one). Do not ask multiple questions in a single turn. Wait for the user's response after each question.
-            *   The last option for every multiple-choice question MUST be "Type your own answer".
-            *   Confirm your understanding by summarizing before moving on to the next question or section..
+        *   Before formulating each question, classify its purpose:
+            *   **Additive** (`multiSelect: true`): For scope definition (capabilities, features, requirements)
+            *   **Exclusive Choice** (`multiSelect: false`): For singular decisions (interaction type, primary approach)
+        *   **Always include "Auto-generate" as the last option** - when selected, stop asking questions and generate the spec from gathered context.
+        *   Follow the key rules from the AskUserQuestion Tool Protocol (header max 12 chars, 2-4 options).
 
     *   **If FEATURE:**
         *   **Ask 3-5 relevant questions** to clarify the feature request.
-        *   Examples include clarifying questions about the feature, how it should be implemented, interactions, inputs/outputs, etc.
-        *   Tailor the questions to the specific feature request (e.g., if the user didn't specify the UI, ask about it; if they didn't specify the logic, ask about it).
+        *   Tailor questions to what's missing from the description (UI, logic, data flow, etc.).
+
+        **Example: Interaction Type Question (Exclusive):**
+        ```json
+        {
+          "questions": [{
+            "question": "How will users primarily interact with this feature?",
+            "header": "Interaction",
+            "options": [
+              {"label": "UI component", "description": "Visual interface element (button, form, page)"},
+              {"label": "API endpoint", "description": "Backend service or REST/GraphQL endpoint"},
+              {"label": "CLI command", "description": "Command-line interface operation"},
+              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+            ],
+            "multiSelect": false
+          }]
+        }
+        ```
+
+        **Example: Capability Selection Question (Additive):**
+        ```json
+        {
+          "questions": [{
+            "question": "Which capabilities should this feature include?",
+            "header": "Capabilities",
+            "options": [
+              {"label": "Create/Add", "description": "Ability to create new items"},
+              {"label": "Read/View", "description": "Ability to view existing items"},
+              {"label": "Update/Edit", "description": "Ability to modify existing items"},
+              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
+
+        **Example: Data/Input Question (Additive):**
+        ```json
+        {
+          "questions": [{
+            "question": "What data or inputs does this feature need to handle?",
+            "header": "Data",
+            "options": [
+              {"label": "User input", "description": "Form fields, text entry, selections"},
+              {"label": "External API", "description": "Data from third-party services"},
+              {"label": "Database", "description": "Stored records and relationships"},
+              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
 
     *   **If SOMETHING ELSE (Bug, Chore, etc.):**
         *   **Ask 2-3 relevant questions** to obtain necessary details.
-        *   Examples include reproduction steps for bugs, specific scope for chores, or success criteria.
-        *   Tailor the questions to the specific request.
 
-3.  **Draft `spec.md`:** Once sufficient information is gathered, draft the content for the track's `spec.md` file, including sections like Overview, Functional Requirements, Non-Functional Requirements (if any), Acceptance Criteria, and Out of Scope.
+        **Example: Bug Information Question (Additive):**
+        ```json
+        {
+          "questions": [{
+            "question": "Which details are available for this bug?",
+            "header": "Bug Info",
+            "options": [
+              {"label": "Steps to reproduce", "description": "I can provide exact reproduction steps"},
+              {"label": "Error message", "description": "I have the error message or stack trace"},
+              {"label": "Expected behavior", "description": "I know what should happen instead"},
+              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
 
-4.  **User Confirmation:** Present the drafted `spec.md` content to the user for review and approval.
-    > "I've drafted the specification for this track. Please review the following:"
+        **Example: Scope/Success Criteria Question (Additive):**
+        ```json
+        {
+          "questions": [{
+            "question": "What defines success for this task?",
+            "header": "Success",
+            "options": [
+              {"label": "Specific files changed", "description": "I know exactly which files need modification"},
+              {"label": "Test passes", "description": "Existing or new tests should pass"},
+              {"label": "Behavior change", "description": "Observable change in application behavior"},
+              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
+
+    *   **Auto-Generate Behavior:** If the user selects "Auto-generate" at any point:
+        1. Stop asking questions immediately
+        2. Use all gathered answers plus project context (**Product Definition**, **Tech Stack**) to infer remaining details
+        3. Generate the complete `spec.md` document
+        4. Present for review using the Approval pattern (step 4)
+
+3.  **Draft `spec.md`:** Once sufficient information is gathered (or auto-generate selected), draft the content for the track's `spec.md` file, including sections like Overview, Functional Requirements, Non-Functional Requirements (if any), Acceptance Criteria, and Out of Scope.
+
+4.  **User Confirmation:** Present the drafted `spec.md` content to the user and use the AskUserQuestion tool for approval:
+
+    > "I've drafted the specification for this track. Please review:"
     >
     > ```markdown
     > [Drafted spec.md content here]
     > ```
-    >
-    > "Does this accurately capture the requirements? Please suggest any changes or confirm."
-    Await user feedback and revise the `spec.md` content until confirmed.
+
+    **Use AskUserQuestion for approval:**
+    ```json
+    {
+      "questions": [{
+        "question": "Does this specification accurately capture the requirements?",
+        "header": "Review",
+        "options": [
+          {"label": "Approve", "description": "The specification is correct, proceed to plan generation"},
+          {"label": "Suggest changes", "description": "I want to modify some parts before proceeding"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+
+    **Handle Response:**
+    *   **If "Approve":** Proceed to Section 2.3 (Interactive Plan Generation)
+    *   **If "Suggest changes":** Ask the user what changes they want, revise the spec, and present for approval again
 
 ### 2.3 Interactive Plan Generation (`plan.md`)
 
@@ -212,15 +423,32 @@ If any CLI command fails:
         - Sub-task: `    - [ ] ...`
     *   **CRITICAL: Inject Phase Completion Tasks.** Determine if a "Phase Completion Verification and Checkpointing Protocol" is defined in the **Workflow**. If this protocol exists, then for each **Phase** that you generate in `plan.md`, you MUST append a final meta-task to that phase. The format for this meta-task is: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
 
-3.  **User Confirmation:** Present the drafted `plan.md` to the user for review and approval.
-    > "I've drafted the implementation plan. Please review the following:"
+3.  **User Confirmation:** Present the drafted `plan.md` to the user and use the AskUserQuestion tool for approval:
+
+    > "I've drafted the implementation plan. Please review:"
     >
     > ```markdown
     > [Drafted plan.md content here]
     > ```
-    >
-    > "Does this plan accurately reflect the implementation steps? Please suggest any changes or confirm."
-    Await user feedback and revise the `plan.md` content until confirmed.
+
+    **Use AskUserQuestion for approval:**
+    ```json
+    {
+      "questions": [{
+        "question": "Does this plan accurately reflect the implementation steps?",
+        "header": "Review",
+        "options": [
+          {"label": "Approve", "description": "The plan is correct, proceed to create the track"},
+          {"label": "Suggest changes", "description": "I want to modify some parts before proceeding"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+
+    **Handle Response:**
+    *   **If "Approve":** Proceed to Section 2.4 (Create and Register Track)
+    *   **If "Suggest changes":** Ask the user what changes they want, revise the plan, and present for approval again
 
 ### 2.4 Create and Register Track
 
