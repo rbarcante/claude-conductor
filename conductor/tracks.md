@@ -52,5 +52,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Update newTrack.md to use AskUserQuestion tool**
   *Link: [update-newtrack-use-askuserquestion_20260122](./conductor/tracks/update-newtrack-use-askuserquestion_20260122/)*
-- [x] **Track: Apache-2.0 License Compliance**
-  *Link: [apache-license-compliance_20260122](./tracks/apache-license-compliance_20260122/)*
