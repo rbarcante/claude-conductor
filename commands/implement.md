@@ -138,7 +138,23 @@ This section ensures track work is properly isolated from the main codebase by r
         -   If match found, set `branch_matches_track = true`
 
 2.  **Generate Branch Name Suggestion:**
-    <!-- Implementation details in Step 2 task -->
+    -   Read the track's `metadata.json` to get the track type.
+    -   **Map track type to branch prefix:**
+
+        | Track Type | Branch Prefix |
+        |------------|---------------|
+        | `feature` | `feature/` |
+        | `bugfix` | `fix/` |
+        | `bug` | `fix/` |
+        | `refactor` | `refactor/` |
+        | `docs` | `docs/` |
+        | `chore` | `chore/` |
+        | (other) | `feature/` |
+
+    -   **Generate suggested branch name:** `<prefix><track_shortname>`
+        -   Extract shortname: Remove date suffix from track_id (e.g., `dark-mode-toggle` from `dark-mode-toggle_20260122`)
+    -   **Generate suggested worktree path:** `../<project_name>-<track_shortname>`
+        -   Get project name from current directory name
 
 3.  **Present Options to User:**
     <!-- Implementation details in Step 3 task -->
