@@ -2,12 +2,12 @@
 
 ## Phase 1: Java Best Practices Skill Structure
 
-- [ ] Task: Create skill directory and manifest
-    - [ ] Create `skills/java-best-practices/` directory
-    - [ ] Create `manifest.json` with activation rules (keywords, file_patterns, tech_stack)
-    - [ ] Create `README.md` with skill overview
+- [x] Task: Create skill directory and manifest [2fc558e]
+    - [x] Create `skills/java-best-practices/` directory
+    - [x] Create `manifest.json` with activation rules (keywords, file_patterns, tech_stack)
+    - [x] Create `README.md` with skill overview
 
-- [ ] Task: Create SKILL.md core content
+- [~] Task: Create SKILL.md core content
     - [ ] Add YAML frontmatter (name, description, version)
     - [ ] Write Core Principles section
     - [ ] Write Type Safety section (Optional usage, @Nullable/@NonNull, defensive coding)
