@@ -41,6 +41,14 @@ Each snippet includes:
 | [config-loader.py](./python/config-loader.py) | Pydantic-based configuration with validation | Configuration, Validation |
 | [async-patterns.py](./python/async-patterns.py) | Async/await patterns with error handling | Error Handling, Resilience |
 
+### Java
+
+| Snippet | Description | Pattern |
+|---------|-------------|---------|
+| [api-client.java](./java/api-client.java) | Type-safe HTTP client using HttpClient (Java 11+) | Error Handling, Configuration |
+| [error-handler.java](./java/error-handler.java) | Custom exception hierarchy with error codes | Error Handling |
+| [dependency-injection.java](./java/dependency-injection.java) | Spring/Jakarta DI patterns with configuration | Configuration |
+
 ### Patterns
 
 | Snippet | Description | Language |
@@ -81,6 +89,15 @@ USE: When you need [specific use case]
 REQUIRES: [dependencies, e.g., "httpx>=0.24", "pydantic>=2.0"]
 PATTERN: [related patterns, e.g., "Error Handling", "Configuration"]
 """
+```
+
+### Java
+```java
+/**
+ * USE: When you need [specific use case]
+ * REQUIRES: [dependencies, e.g., "Java 17+", "Spring Boot 3.x"]
+ * PATTERN: [related patterns, e.g., "Error Handling", "Configuration"]
+ */
 ```
 
 ### Markdown (Pattern snippets)
