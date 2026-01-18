@@ -1,5 +1,32 @@
 # Google TypeScript Style Guide Summary
 
+## AI Quick Reference
+
+### Language Rules
+- Use `const` by default, `let` when reassignment needed, never `var`
+- Named exports only: `export { MyClass }` (no default exports)
+- Single quotes for strings, template literals for interpolation
+- Always use `===` and `!==` for equality
+- End all statements with semicolons explicitly
+- ES6 modules only (`import`/`export`), no `namespace`
+
+### Type Patterns
+- Prefer interfaces for object shapes over type aliases
+- Use `T[]` for simple arrays, `Array<T>` for complex unions
+- Optional params (`?`) over `| undefined`
+- Use `unknown` over `any` when type is uncertain
+- Rely on inference for simple types, be explicit for complex
+
+### Avoid
+- `any` type without explicit justification comment
+- Type assertions (`as`) and non-null assertions (`!`)
+- `#private` fields (use `private` modifier instead)
+- `const enum` (use plain `enum`)
+- Wrapper objects (`new String()`, `new Boolean()`, `new Number()`)
+- `_` prefix/suffix for identifiers
+
+---
+
 This document summarizes key rules and best practices from the Google TypeScript Style Guide, which is enforced by the `gts` tool.
 
 ## 1. Language Features
