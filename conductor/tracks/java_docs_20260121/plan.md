@@ -89,12 +89,12 @@
     - [x] Add java-best-practices skill entry
     - [x] Validate JSON structure
 
-- [~] Task: Update snippets index
-    - [ ] Read current `snippets/index.md`
-    - [ ] Add Java section with all 3 snippets
-    - [ ] Maintain consistent table format
+- [x] Task: Update snippets index [44364e0]
+    - [x] Read current `snippets/index.md`
+    - [x] Add Java section with all 3 snippets
+    - [x] Maintain consistent table format
 
-- [ ] Task: Final validation
+- [~] Task: Final validation
     - [ ] Verify all files exist in correct locations
     - [ ] Verify manifest.json schema compliance
     - [ ] Verify skill-registry.json is valid JSON
