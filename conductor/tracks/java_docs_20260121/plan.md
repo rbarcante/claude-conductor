@@ -29,13 +29,13 @@
 
 ## Phase 2: Java Skill Patterns
 
-- [ ] Task: Create type-safety pattern
-    - [ ] Create `skills/java-best-practices/patterns/` directory
-    - [ ] Create `type-safety.md` with Optional best practices
-    - [ ] Add annotation-based null safety examples
-    - [ ] Add defensive coding patterns
+- [x] Task: Create type-safety pattern [482b2c1]
+    - [x] Create `skills/java-best-practices/patterns/` directory
+    - [x] Create `type-safety.md` with Optional best practices
+    - [x] Add annotation-based null safety examples
+    - [x] Add defensive coding patterns
 
-- [ ] Task: Create concurrency pattern
+- [~] Task: Create concurrency pattern
     - [ ] Create `concurrency.md` with CompletableFuture examples
     - [ ] Add virtual threads migration patterns
     - [ ] Add thread-safe collection patterns
