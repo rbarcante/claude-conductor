@@ -219,7 +219,22 @@ This section ensures track work is properly isolated from the main codebase by r
     -   If the command fails, proceed to Step 5 (Error Handling).
 
 5.  **Handle Errors:**
-    <!-- Implementation details in Step 5 task -->
+    If git operations fail, provide clear error messages and recovery options.
+
+    **Common Error Scenarios:**
+
+    | Error | Cause | Recovery |
+    |-------|-------|----------|
+    | `error: Your local changes would be overwritten` | Uncommitted changes in working tree | Announce: "You have uncommitted changes. Please commit or stash them before creating a new branch." HALT. |
+    | `fatal: A branch named '<name>' already exists` | Branch name already in use | Announce: "Branch `<name>` already exists. Would you like to switch to it or choose a different name?" Re-prompt with options. |
+    | `fatal: '<path>' already exists` | Worktree path exists | Announce: "Directory `<path>` already exists. Choose a different location or remove the existing directory." Re-prompt with options. |
+    | `fatal: not a git repository` | Not in a git repository | Announce: "This directory is not a git repository. Please initialize git first: `git init`" HALT. |
+
+    **Fallback Option:**
+    If git operations consistently fail, offer to skip branch isolation:
+    -   Announce: "Git branch creation failed. You may continue on the current branch, but this is not recommended for track isolation."
+    -   Use AskUserQuestion to ask: "Continue on current branch despite the error? (Not recommended)"
+    -   If user confirms, proceed to Section 2.5 with a warning note in the track's implementation log.
 
 ---
 
