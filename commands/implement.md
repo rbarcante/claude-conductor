@@ -10,6 +10,7 @@ allowed-tools:
   - Glob
   - Grep
   - TodoWrite
+  - AskUserQuestion
 ---
 
 ## 1.0 SYSTEM DIRECTIVE
