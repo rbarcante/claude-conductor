@@ -1,5 +1,30 @@
 # General Code Style Principles
 
+## AI Quick Reference
+
+### Core Principles
+- Readability over cleverness (code is read more than written)
+- Consistency with existing codebase patterns
+- Single responsibility per function/class
+- Fail fast with clear error messages
+- Explicit over implicit behavior
+
+### Code Patterns
+- Extract repeated code into named functions (DRY)
+- Prefer composition over inheritance
+- Use meaningful names that reveal intent
+- Keep functions small (<20 lines guideline)
+- Return early to reduce nesting
+
+### Avoid
+- Magic numbers/strings (use named constants)
+- Deep nesting (>3 levels)
+- Side effects in functions that appear pure
+- Commented-out code (use version control)
+- Over-engineering for hypothetical future needs
+
+---
+
 This document outlines general coding principles that apply across all languages and frameworks used in this project.
 
 ## Readability
