@@ -120,6 +120,8 @@ If CLI commands fail or are unavailable, use these manual alternatives:
 
 5.  **Handle No Selection:** If no track is selected, inform the user and await further instructions.
 
+6.  **Continue:** After a track is selected, proceed to **Section 2.1 GIT ISOLATION SETUP** to create or switch to an isolated git branch.
+
 ---
 
 ## 2.1 GIT ISOLATION SETUP
@@ -308,6 +310,8 @@ If no additional skills are activated beyond always-active:
 ```
 
 If skill registry is missing or no always-active skills exist, proceed silently without announcement.
+
+6.  **Continue:** After skill activation, proceed to **Section 3.0 TRACK IMPLEMENTATION**.
 
 ---
 
