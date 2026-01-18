@@ -20,15 +20,144 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
 
 ---
 
+## CLI Operations
+
+**PROTOCOL: Token-efficient CLI commands for mechanical operations.**
+
+The Python CLI provides token-efficient alternatives for mechanical tasks during project setup. Use these commands when performing deterministic operations like project detection, directory scaffolding, state management, and template copying.
+
+### Available Subcommands
+
+| Subcommand | Purpose | Output Format |
+|------------|---------|---------------|
+| `setup detect` | Auto-detect project type and tech stack | JSON |
+| `setup scaffold` | Create conductor directory structure | JSON |
+| `setup state --get` | Get current setup state | JSON |
+| `setup state --set STEP` | Record setup progress step | JSON |
+| `setup copy-templates --languages LANG1 LANG2` | Copy code styleguides for specified languages | JSON |
+
+### Usage Examples
+
+**Project Detection (Brownfield/Greenfield):**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect
+```
+
+Expected output:
+```json
+{
+  "project_type": "brownfield",
+  "languages": ["typescript", "python"],
+  "frameworks": ["react", "fastapi"],
+  "ecosystems": ["npm", "pip"],
+  "indicators": {
+    "has_git": true,
+    "has_package_json": true,
+    "has_src_directory": true
+  }
+}
+```
+
+**Directory Scaffolding:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold
+```
+
+Expected output:
+```json
+{
+  "success": true,
+  "created": [
+    "conductor/",
+    "conductor/tracks/",
+    "conductor/product.md",
+    "conductor/tech-stack.md",
+    "conductor/workflow.md"
+  ]
+}
+```
+
+**Get Setup State:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get
+```
+
+Expected output:
+```json
+{
+  "last_successful_step": "2.3_tech_stack"
+}
+```
+
+**Set Setup State:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"
+```
+
+Expected output:
+```json
+{
+  "success": true,
+  "last_successful_step": "2.4_code_styleguides"
+}
+```
+
+**Copy Code Styleguides:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages typescript python
+```
+
+Expected output:
+```json
+{
+  "success": true,
+  "copied": [
+    "conductor/code_styleguides/typescript.md",
+    "conductor/code_styleguides/python.md"
+  ]
+}
+```
+
+### When to Use CLI vs Direct Tool Calls
+
+| Operation | Use CLI | Use Direct Tool Calls |
+|-----------|---------|----------------------|
+| Detect project type (brownfield/greenfield) | ✓ | |
+| Auto-detect tech stack | ✓ | |
+| Create conductor directory structure | ✓ | |
+| Get/set setup state | ✓ | |
+| Copy code styleguide templates | ✓ | |
+| Interactive user dialogue | | ✓ |
+| Generate custom document content | | ✓ |
+| Read and analyze project files | | ✓ |
+| Write product.md, product-guidelines.md content | | ✓ |
+
+### Fallback Instructions
+
+If the CLI command fails or is unavailable:
+1. Announce: "CLI operation failed. Falling back to direct tool calls."
+2. For `setup detect`: Manually check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/` directories
+3. For `setup scaffold`: Manually execute `mkdir -p conductor/tracks` and write template files
+4. For `setup state --get`: Manually read `conductor/setup_state.json`
+5. For `setup state --set`: Manually write to `conductor/setup_state.json`
+6. For `setup copy-templates`: Manually copy from `${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/`
+7. Continue with the protocol
+
+---
+
 ## 1.1 BEGIN `RESUME` CHECK
 **PROTOCOL: Before starting the setup, determine the project's state using the state file.**
 
-1.  **Read State File:** Check for the existence of `conductor/setup_state.json`.
-    - If it does not exist, this is a new project setup. Proceed directly to Step 1.2.
-    - If it exists, read its content.
+1.  **Read State File:** Use the CLI to check setup state:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get
+    ```
+    - If the command fails or returns an error indicating no state file exists, this is a new project setup. Proceed directly to Step 1.2.
+    - If it returns valid JSON, read the `last_successful_step` value.
+    - **Fallback:** If CLI is unavailable, check for the existence of `conductor/setup_state.json` directly. If it does not exist, this is a new project setup. Proceed directly to Step 1.2. If it exists, read its content.
 
 2.  **Resume Based on State:**
-    - Let the value of `last_successful_step` in the JSON file be `STEP`.
+    - Let the value of `last_successful_step` in the JSON response be `STEP`.
     - Based on the value of `STEP`, jump to the **next logical section**:
 
     - If `STEP` is "2.1_product_guide", announce "Resuming setup: The Product Guide (`product.md`) is already complete. Next, we will create the Product Guidelines." and proceed to **Section 2.2**.
@@ -62,20 +191,31 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
 
 ### 2.0 Project Inception
 1.  **Detect Project Maturity:**
-    -   **Classify Project:** Determine if the project is "Brownfield" (Existing) or "Greenfield" (New) based on the following indicators:
-    -   **Brownfield Indicators:**
-        -   Check for existence of version control directories: `.git`, `.svn`, or `.hg`.
-        -   If a `.git` directory exists, execute `git status --porcelain`. If the output is not empty, classify as "Brownfield" (dirty repository).
-        -   Check for dependency manifests: `package.json`, `pom.xml`, `requirements.txt`, `go.mod`.
-        -   Check for source code directories: `src/`, `app/`, `lib/` containing code files.
-        -   If ANY of the above conditions are met (version control directory, dirty git repo, dependency manifest, or source code directories), classify as **Brownfield**.
-    -   **Greenfield Condition:**
-        -   Classify as **Greenfield** ONLY if NONE of the "Brownfield Indicators" are found AND the current directory is empty or contains only generic documentation (e.g., a single `README.md` file) without functional code or dependencies.
+    -   **Use CLI for Detection:** Execute the CLI command to auto-detect project type:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect
+        ```
+    -   **Parse CLI Output:** The CLI returns a JSON object with:
+        - `project_type`: "brownfield" or "greenfield"
+        - `languages`: Array of detected programming languages
+        - `frameworks`: Array of detected frameworks
+        - `ecosystems`: Array of detected package ecosystems (npm, pip, etc.)
+        - `indicators`: Object with detection signals (has_git, has_package_json, etc.)
+    -   **Store Detection Results:** Store the full CLI output for use in Section 2.0.1 (Automatic Stack Detection).
+    -   **Fallback - Manual Classification:** If CLI is unavailable, classify manually:
+        -   **Brownfield Indicators:**
+            -   Check for existence of version control directories: `.git`, `.svn`, or `.hg`.
+            -   If a `.git` directory exists, execute `git status --porcelain`. If the output is not empty, classify as "Brownfield" (dirty repository).
+            -   Check for dependency manifests: `package.json`, `pom.xml`, `requirements.txt`, `go.mod`.
+            -   Check for source code directories: `src/`, `app/`, `lib/` containing code files.
+            -   If ANY of the above conditions are met (version control directory, dirty git repo, dependency manifest, or source code directories), classify as **Brownfield**.
+        -   **Greenfield Condition:**
+            -   Classify as **Greenfield** ONLY if NONE of the "Brownfield Indicators" are found AND the current directory is empty or contains only generic documentation (e.g., a single `README.md` file) without functional code or dependencies.
 
 2.  **Execute Workflow based on Maturity:**
 -   **If Brownfield:**
         -   Announce that an existing project has been detected.
-        -   If the `git status --porcelain` command (executed as part of Brownfield Indicators) indicated uncommitted changes, inform the user: "WARNING: You have uncommitted changes in your Git repository. Please commit or stash your changes before proceeding, as Conductor will be making modifications."
+        -   If the CLI output's `indicators.has_uncommitted_changes` is true (or if `git status --porcelain` executed manually indicated uncommitted changes), inform the user: "WARNING: You have uncommitted changes in your Git repository. Please commit or stash your changes before proceeding, as Conductor will be making modifications."
         -   **Begin Brownfield Project Initialization Protocol:**
             -   **1.0 Pre-analysis Confirmation:**
                 1.  **Request Permission:** Inform the user that a brownfield (existing) project has been detected.
@@ -119,21 +259,29 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
     -   **Ask the user the following question and wait for their response before proceeding to the next step:** "What do you want to build?"
     -   **CRITICAL: You MUST NOT execute any tool calls until the user has provided a response.**
     -   **Upon receiving the user's response:**
-        -   Execute `mkdir -p conductor`.
-        -   **Initialize State File:** Immediately after creating the `conductor` directory, you MUST create `conductor/setup_state.json` with the exact content:
+        -   **Use CLI for Scaffolding:** Execute the CLI command to create the conductor directory structure:
+            ```bash
+            python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold
+            ```
+        -   **Fallback:** If CLI is unavailable, manually execute `mkdir -p conductor/tracks`.
+        -   **Initialize State File:** Use the CLI to initialize the state file:
+            ```bash
+            python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set ""
+            ```
+        -   **Fallback:** If CLI is unavailable, manually create `conductor/setup_state.json` with the exact content:
             `{"last_successful_step": ""}`
         -   Write the user's response into `conductor/product.md` under a header named `# Initial Concept`.
 
 5.  **Continue:** Immediately proceed to the next section.
 
 ### 2.0.1 Automatic Stack Detection (Brownfield Only)
-**PROTOCOL: For brownfield projects, automatically detect the technology stack using the Stack Detection Protocol.**
+**PROTOCOL: For brownfield projects, automatically detect the technology stack using the CLI or Stack Detection Protocol.**
 
 **Skip Condition:** This section applies ONLY to brownfield projects. For greenfield projects, skip directly to Section 2.1.
 
-1.  **Invoke Stack Detection Protocol:**
-    -   Execute the Stack Detection Protocol defined in `$CLAUDE_PLUGIN_ROOT/protocols/stack-detection.md`.
-    -   Follow all steps in the protocol:
+1.  **Retrieve Stack Detection Results:**
+    -   **If CLI was used in Section 2.0:** The detection results are already available from the `setup detect` command output. Use the stored `languages`, `frameworks`, and `ecosystems` arrays.
+    -   **If CLI was not used:** Execute the Stack Detection Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/stack-detection.md`. Follow all steps in the protocol:
         a. Scan for manifest files (package.json, pom.xml, requirements.txt, etc.)
         b. Analyze file extensions to determine language distribution
         c. Detect frameworks from dependency declarations
@@ -281,7 +429,11 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
     > Please respond with A or B."
     - **Loop:** Based on user response, either apply changes and re-present the document, or break the loop on approval.
 5.  **Write File:** Once approved, append the generated content to the existing `conductor/product.md` file, preserving the `# Initial Concept` section.
-6.  **Commit State:** Upon successful creation of the file, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+6.  **Commit State:** Upon successful creation of the file, use the CLI to record progress:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.1_product_guide"
+    ```
+    **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
     `{"last_successful_step": "2.1_product_guide"}`
 7.  **Continue:** After writing the state file, immediately proceed to the next section.
 
@@ -331,7 +483,11 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
     > Please respond with A or B."
     - **Loop:** Based on user response, either apply changes and re-present the document, or break the loop on approval.
 5.  **Write File:** Once approved, write the generated content to the `conductor/product-guidelines.md` file.
-6.  **Commit State:** Upon successful creation of the file, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+6.  **Commit State:** Upon successful creation of the file, use the CLI to record progress:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.2_product_guidelines"
+    ```
+    **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
     `{"last_successful_step": "2.2_product_guidelines"}`
 7.  **Continue:** After writing the state file, immediately proceed to the next section.
 
@@ -413,19 +569,23 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
         <!-- Confidence: [HIGH/MEDIUM/LOW/UNCERTAIN] -->
         <!-- Detection timestamp: [ISO 8601 timestamp] -->
         ```
-7.  **Commit State:** Upon successful creation of the file, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+7.  **Commit State:** Upon successful creation of the file, use the CLI to record progress:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.3_tech_stack"
+    ```
+    **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
     `{"last_successful_step": "2.3_tech_stack"}`
 8.  **Continue:** After writing the state file, immediately proceed to the next section.
 
 ### 2.4 Select Guides (Interactive)
 
-**PROTOCOL REFERENCE:** This section applies the AI Template Generation Protocol defined in `$CLAUDE_PLUGIN_ROOT/protocols/ai-template-generation.md`. All styleguides include AI Quick Reference sections optimized for AI consumption.
+**PROTOCOL REFERENCE:** This section applies the AI Template Generation Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/ai-template-generation.md`. All styleguides include AI Quick Reference sections optimized for AI consumption.
 
 1.  **Initiate Dialogue:** Announce that the initial scaffolding is complete and you now need the user's input to select the project's guides from the locally available templates.
     > "The styleguide templates include AI Quick Reference sections at the top for rapid AI consumption, followed by detailed human documentation."
 
 2.  **Select Code Style Guides:**
-    -   List the available style guides by checking the plugin's templates directory at `$CLAUDE_PLUGIN_ROOT/templates/code_styleguides/`.
+    -   List the available style guides by checking the plugin's templates directory at `${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/`.
     -   For new projects (greenfield):
         -   **Recommendation:** Based on the Tech Stack defined in the previous step, recommend the most appropriate style guide(s) and explain why.
         -   Ask the user how they would like to proceed:
@@ -440,7 +600,15 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             - Ask the user for a simple confirmation to proceed with options like:
                     A) Yes, I want to proceed with the suggested code style guides.
                     B) No, I want to add more code style guides.
-    -   **Action:** Construct and execute a command to create the directory and copy all selected files. For example: `mkdir -p conductor/code_styleguides && cp $CLAUDE_PLUGIN_ROOT/templates/code_styleguides/python.md $CLAUDE_PLUGIN_ROOT/templates/code_styleguides/javascript.md conductor/code_styleguides/`
+    -   **Action - Use CLI for Template Copying:** Once the user has confirmed their selection, use the CLI to copy the styleguide templates:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages <lang1> <lang2> ...
+        ```
+        For example, if user selected Python and TypeScript:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages python typescript
+        ```
+    -   **Fallback:** If CLI is unavailable, manually construct and execute a command to create the directory and copy all selected files. For example: `mkdir -p conductor/code_styleguides && cp ${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/python.md ${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/javascript.md conductor/code_styleguides/`
 
 3.  **Verify AI-Enhanced Content:**
     -   After copying, verify each styleguide contains:
@@ -450,12 +618,16 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
         -   `### Avoid` section
     -   **Announce:** For each copied styleguide, announce: "Copied AI-enhanced styleguide: [styleguide-name].md (includes AI Quick Reference section)"
 
-4.  **Commit State:** Upon successful completion of the copy command, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+4.  **Commit State:** Upon successful completion of the copy command, use the CLI to record progress:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"
+    ```
+    **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
         `{"last_successful_step": "2.4_code_styleguides"}`
 
 ### 2.5 Select Workflow (Interactive)
 1.  **Copy Initial Workflow:**
-    -   Copy `$CLAUDE_PLUGIN_ROOT/templates/workflow.md` to `conductor/workflow.md`.
+    -   Copy `${CLAUDE_PLUGIN_ROOT}/templates/workflow.md` to `conductor/workflow.md`.
 2.  **Customize Workflow:**
     -   Ask the user: "Do you want to use the default workflow or customize it?"
         The default workflow includes:
@@ -475,7 +647,11 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             -   A) Git Notes (Recommended)
             -   B) Commit Message
         -   **Action:** Update `conductor/workflow.md` based on the user's responses.
-        -   **Commit State:** After the `workflow.md` file is successfully written or updated, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+        -   **Commit State:** After the `workflow.md` file is successfully written or updated, use the CLI to record progress:
+            ```bash
+            python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5_workflow"
+            ```
+            **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
             `{"last_successful_step": "2.5_workflow"}`
 
 ### 2.6 Finalization
@@ -602,7 +778,11 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
             - [Metadata](./metadata.json)
             ```
 
-    d. **Commit State:** After all track artifacts have been successfully written, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+    d. **Commit State:** After all track artifacts have been successfully written, use the CLI to record progress:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "3.3_initial_track_generated"
+        ```
+        **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
        `{"last_successful_step": "3.3_initial_track_generated"}`
 
     e. **Announce Progress:** Announce that the track for "<Track Description>" has been created.

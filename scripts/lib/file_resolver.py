@@ -54,9 +54,17 @@ class FileResolver:
         'snippet_directory': 'snippets',
     }
 
-    def __init__(self, project_root: Path):
-        """Initialize resolver with project root."""
+    def __init__(self, project_root: Path, plugin_root: Optional[Path] = None):
+        """
+        Initialize resolver with project root and optional plugin root.
+
+        Args:
+            project_root: Root directory of the user's project (conductor/ files)
+            plugin_root: Root directory of the plugin (skills/, patterns/, snippets/)
+                        If not provided, defaults to project_root for backward compatibility
+        """
         self.project_root = Path(project_root).resolve()
+        self.plugin_root = Path(plugin_root).resolve() if plugin_root else self.project_root
 
     def resolve_project_file(self, file_key: str) -> Optional[Path]:
         """
@@ -78,15 +86,16 @@ class FileResolver:
                     return resolved
 
         # Fall back to default path
+        # Project files use project_root, plugin files (patterns, skills, snippets) use plugin_root
         default_path = None
         if file_key in self.PROJECT_DEFAULTS:
             default_path = self.project_root / self.PROJECT_DEFAULTS[file_key]
         elif file_key in self.PATTERN_DEFAULTS:
-            default_path = self.project_root / self.PATTERN_DEFAULTS[file_key]
+            default_path = self.plugin_root / self.PATTERN_DEFAULTS[file_key]
         elif file_key in self.SKILL_DEFAULTS:
-            default_path = self.project_root / self.SKILL_DEFAULTS[file_key]
+            default_path = self.plugin_root / self.SKILL_DEFAULTS[file_key]
         elif file_key in self.SNIPPET_DEFAULTS:
-            default_path = self.project_root / self.SNIPPET_DEFAULTS[file_key]
+            default_path = self.plugin_root / self.SNIPPET_DEFAULTS[file_key]
 
         if default_path and default_path.exists():
             return default_path
@@ -194,6 +203,7 @@ class FileResolver:
         Resolve a pattern file path.
 
         Checks core/ first, then stack/ as fallback.
+        Patterns are plugin files, so use plugin_root.
 
         Args:
             pattern_name: Pattern name (without .md extension)
@@ -206,14 +216,14 @@ class FileResolver:
         if not name.endswith('.md'):
             name = f"{name}.md"
 
-        # Try core patterns first
-        core_dir = self.project_root / self.PATTERN_DEFAULTS['core_patterns']
+        # Try core patterns first (plugin files use plugin_root)
+        core_dir = self.plugin_root / self.PATTERN_DEFAULTS['core_patterns']
         core_path = core_dir / name
         if core_path.exists():
             return core_path
 
         # Try stack patterns as fallback
-        stack_dir = self.project_root / self.PATTERN_DEFAULTS['stack_patterns']
+        stack_dir = self.plugin_root / self.PATTERN_DEFAULTS['stack_patterns']
         stack_path = stack_dir / name
         if stack_path.exists():
             return stack_path
@@ -224,13 +234,15 @@ class FileResolver:
         """
         Resolve a skill directory path.
 
+        Skills are plugin files, so use plugin_root.
+
         Args:
             skill_name: Skill name
 
         Returns:
             Path to skill directory or None
         """
-        skills_dir = self.project_root / self.SKILL_DEFAULTS['skill_directory']
+        skills_dir = self.plugin_root / self.SKILL_DEFAULTS['skill_directory']
         skill_dir = skills_dir / skill_name
         if skill_dir.exists():
             return skill_dir
@@ -241,6 +253,8 @@ class FileResolver:
         """
         Resolve a snippet file path.
 
+        Snippets are plugin files, so use plugin_root.
+
         Args:
             snippet_name: Snippet name (with or without extension)
             language: Optional language hint for disambiguation
@@ -248,7 +262,7 @@ class FileResolver:
         Returns:
             Path to snippet file or None
         """
-        snippets_dir = self.project_root / self.SNIPPET_DEFAULTS['snippet_directory']
+        snippets_dir = self.plugin_root / self.SNIPPET_DEFAULTS['snippet_directory']
         if not snippets_dir.exists():
             return None
 

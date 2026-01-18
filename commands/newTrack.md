@@ -16,6 +16,110 @@ You are an AI agent assistant for the Conductor spec-driven development framewor
 
 CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
+---
+
+## CLI Operations
+
+**PROTOCOL: Token-efficient CLI commands for mechanical operations.**
+
+The Python CLI provides scriptable operations that reduce token usage by offloading mechanical tasks (ID generation, file scaffolding, registry updates) to deterministic Python code.
+
+### Available Subcommands
+
+| Subcommand | Purpose | Output Format |
+|------------|---------|---------------|
+| `generate-id DESCRIPTION` | Generate track ID from description | JSON: `{track_id, shortname, date, description}` |
+| `scaffold TRACK_ID --type TYPE --description DESC` | Create track directory structure with template files | JSON: `{track_id, track_dir, created_files, metadata}` |
+| `register TRACK_ID --description DESC` | Register track in conductor/tracks.md | JSON: `{track_id, tracks_file, entry}` |
+
+### Usage Examples
+
+**Generate Track ID:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "Add dark mode toggle"
+```
+Output:
+```json
+{
+  "success": true,
+  "data": {
+    "track_id": "dark-mode-toggle_20260121",
+    "shortname": "dark-mode-toggle",
+    "date": "20260121",
+    "description": "Add dark mode toggle"
+  }
+}
+```
+
+**Scaffold Track Directory:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold dark-mode-toggle_20260121 --type feature --description "Add dark mode toggle"
+```
+Output:
+```json
+{
+  "success": true,
+  "data": {
+    "track_id": "dark-mode-toggle_20260121",
+    "track_type": "feature",
+    "track_dir": "conductor/tracks/dark-mode-toggle_20260121",
+    "created_files": [
+      "conductor/tracks/dark-mode-toggle_20260121/index.md",
+      "conductor/tracks/dark-mode-toggle_20260121/metadata.json",
+      "conductor/tracks/dark-mode-toggle_20260121/spec.md",
+      "conductor/tracks/dark-mode-toggle_20260121/plan.md",
+      "conductor/tracks/dark-mode-toggle_20260121/decisions.md"
+    ]
+  }
+}
+```
+
+**Register Track:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register dark-mode-toggle_20260121 --description "Add dark mode toggle"
+```
+
+### Track Types
+
+Valid track types for `--type`:
+- `feature` (default) - New functionality
+- `bugfix` - Bug fixes
+- `refactor` - Code refactoring
+- `docs` - Documentation changes
+- `chore` - Maintenance tasks
+
+### When to Use CLI vs Direct Tool Calls
+
+| Operation | Use CLI | Use Direct Tool Calls |
+|-----------|---------|----------------------|
+| Generate track ID | Yes - `generate-id` | No |
+| Create directory structure | Yes - `scaffold` | Fallback only |
+| Write template files (index, metadata, decisions) | Yes - `scaffold` | Fallback only |
+| Write spec.md with generated content | No | Yes - use Write tool to overwrite template |
+| Write plan.md with generated content | No | Yes - use Write tool to overwrite template |
+| Register track in tracks.md | Yes - `register` | Fallback only |
+| Interactive spec/plan generation | N/A | LLM generates content through conversation |
+
+### Fallback Instructions
+
+If any CLI command fails:
+
+1. **For `generate-id` failure:** Generate manually using format `shortname_YYYYMMDD`:
+   - Extract 3-4 key words from description (skip stop words)
+   - Join with hyphens, lowercase
+   - Append underscore and today's date (YYYYMMDD)
+
+2. **For `scaffold` failure:** Create files manually using Write tool:
+   - Create directory: `conductor/tracks/<track_id>/`
+   - Create `index.md`, `metadata.json`, `spec.md`, `plan.md`, `decisions.md`
+   - Follow the content structures defined in Section 2.4
+
+3. **For `register` failure:** Use Edit tool on `conductor/tracks.md`:
+   - Find "## Active Tracks" section
+   - Append entry: `- [ ] **Track: <description>**\n  *Link: [<track_id>](./tracks/<track_id>/)*`
+
+---
+
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
@@ -120,56 +224,116 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ### 2.4 Create and Register Track
 
-1.  **Generate Track ID:**
-    *   Create a unique track ID in the format `shortname_YYYYMMDD` based on the track description.
-    *   For example, if the description is "Add dark mode toggle", the ID might be `darkmode_20260113`.
+**PROTOCOL: Use CLI commands for mechanical operations. Fall back to direct tool calls only if CLI fails.**
 
-2.  **Create Track Directory and Files:**
-    *   Create the directory: `conductor/tracks/<track_id>/`
-    *   Write the confirmed `spec.md` to `conductor/tracks/<track_id>/spec.md`
-    *   Write the confirmed `plan.md` to `conductor/tracks/<track_id>/plan.md`
-    *   Create `metadata.json` with the following structure:
-        ```json
-        {
-          "track_id": "<track_id>",
-          "type": "<feature|bug|chore>",
-          "status": "new",
-          "created_at": "<ISO timestamp>",
-          "updated_at": "<ISO timestamp>",
-          "description": "<track description>"
-        }
-        ```
-    *   **Create `decisions.md` for decision logging:**
-        *   Read the template from `$CLAUDE_PLUGIN_ROOT/templates/decisions.md`
-        *   Replace the header with a track-specific header:
-            ```markdown
-            # Decisions Log: <Track Description>
-            ```
-        *   Write to `conductor/tracks/<track_id>/decisions.md`
-    *   Write `index.md` with the following content:
-        ```markdown
-        # Track <track_id> Context
+#### Step 1: Generate Track ID (CLI)
 
-        - [Specification](./spec.md)
-        - [Implementation Plan](./plan.md)
-        - [Decisions Log](./decisions.md)
-        - [Metadata](./metadata.json)
-        ```
+Execute the CLI command to generate a unique track ID:
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "<track description>"
+```
 
-3.  **Update Tracks File:**
-    *   Read the current `conductor/tracks.md` file.
-    *   Append a new entry for this track in the format:
-        ```markdown
-        ---
+Parse the JSON response to extract:
+- `track_id`: The generated identifier (format: `shortname_YYYYMMDD`)
+- `shortname`: The base name derived from description
+- `date`: Today's date (YYYYMMDD)
 
-        - [ ] **Track: <Track Description>**
-          *Link: [./conductor/tracks/<track_id>/](./conductor/tracks/<track_id>/)*
-        ```
-    *   Write the updated content back to `conductor/tracks.md`.
+**Fallback:** If CLI fails, manually create ID:
+- Extract 3-4 significant words from description (skip stop words like "a", "the", "and")
+- Join with hyphens, convert to lowercase
+- Append `_` and today's date in YYYYMMDD format
+- Example: "Add dark mode toggle" -> `dark-mode-toggle_20260121`
 
-4.  **Commit Changes:**
-    *   Stage all the new files: `conductor/tracks/<track_id>/spec.md`, `conductor/tracks/<track_id>/plan.md`, `conductor/tracks/<track_id>/decisions.md`, `conductor/tracks/<track_id>/metadata.json`, `conductor/tracks/<track_id>/index.md`, and `conductor/tracks.md`.
-    *   Commit with the message: `conductor(track): Create track '<track description>'`
+#### Step 2: Scaffold Track Directory (CLI)
 
-5.  **Final Announcement:**
-    *   Announce: "Track '<track description>' has been created successfully. You can now begin implementation with `/conductor:implement` or review the plan at `conductor/tracks/<track_id>/plan.md`."
+Execute the CLI command to create directory structure and template files:
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold <track_id> --type <track_type> --description "<track description>"
+```
+
+Where `<track_type>` is one of: `feature`, `bugfix`, `refactor`, `docs`, `chore`
+
+This creates:
+- `conductor/tracks/<track_id>/index.md` - Track context links
+- `conductor/tracks/<track_id>/metadata.json` - Track metadata
+- `conductor/tracks/<track_id>/spec.md` - Template (will be overwritten)
+- `conductor/tracks/<track_id>/plan.md` - Template (will be overwritten)
+- `conductor/tracks/<track_id>/decisions.md` - ADR log
+
+**Fallback:** If CLI fails, manually create using Write tool:
+
+1. Create `conductor/tracks/<track_id>/index.md`:
+   ```markdown
+   # Track: <track description>
+
+   > Track ID: `<track_id>`
+
+   ## Contents
+
+   - [Specification](./spec.md) - Requirements and acceptance criteria
+   - [Implementation Plan](./plan.md) - Task breakdown and progress
+   - [Decisions](./decisions.md) - Architecture Decision Records (ADRs)
+   - [Metadata](./metadata.json) - Track metadata and status
+   ```
+
+2. Create `conductor/tracks/<track_id>/metadata.json`:
+   ```json
+   {
+     "track_id": "<track_id>",
+     "type": "<feature|bugfix|refactor|docs|chore>",
+     "status": "new",
+     "created_at": "<ISO timestamp>",
+     "updated_at": "<ISO timestamp>",
+     "description": "<track description>"
+   }
+   ```
+
+3. Create `conductor/tracks/<track_id>/decisions.md`:
+   - Read template from `${CLAUDE_PLUGIN_ROOT}/templates/decisions.md` if available
+   - Otherwise create with header: `# Decisions Log: <Track Description>`
+
+#### Step 3: Write Generated Content
+
+Use the Write tool to overwrite the template files with the user-confirmed content:
+
+1. Write the confirmed `spec.md` content to `conductor/tracks/<track_id>/spec.md`
+2. Write the confirmed `plan.md` content to `conductor/tracks/<track_id>/plan.md`
+
+**Note:** The CLI scaffold creates templates; this step replaces them with the actual generated content from Sections 2.2 and 2.3.
+
+#### Step 4: Register Track (CLI)
+
+Execute the CLI command to register the track in the tracks registry:
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <track_id> --description "<track description>"
+```
+
+This appends the track entry to `conductor/tracks.md` in the Active Tracks section.
+
+**Fallback:** If CLI fails, manually edit `conductor/tracks.md`:
+1. Read current content
+2. Find "## Active Tracks" section
+3. Append entry:
+   ```markdown
+   - [ ] **Track: <Track Description>**
+     *Link: [<track_id>](./tracks/<track_id>/)*
+   ```
+4. Write updated content back
+
+#### Step 5: Commit Changes
+
+Stage all the new files and commit:
+```bash
+git add conductor/tracks/<track_id>/spec.md \
+        conductor/tracks/<track_id>/plan.md \
+        conductor/tracks/<track_id>/decisions.md \
+        conductor/tracks/<track_id>/metadata.json \
+        conductor/tracks/<track_id>/index.md \
+        conductor/tracks.md && \
+git commit -m "conductor(track): Create track '<track description>'"
+```
+
+#### Step 6: Final Announcement
+
+Announce successful creation:
+> "Track '<track description>' has been created successfully. You can now begin implementation with `/conductor:implement` or review the plan at `conductor/tracks/<track_id>/plan.md`."

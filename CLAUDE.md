@@ -55,7 +55,7 @@ From the current task description:
 
 ### 2. Pattern Matching
 
-For each pattern in `patterns/index.md`:
+For each pattern in `${CLAUDE_PLUGIN_ROOT}/patterns/index.md`:
 1. Read the pattern's `activation.keywords` from YAML frontmatter
 2. Read the pattern's `activation.file_patterns` from YAML frontmatter
 3. Calculate match score:
@@ -88,7 +88,7 @@ When patterns match (score >= 1.0), announce:
 ```
 📚 **Relevant Patterns Detected:**
 
-1. **[Pattern Name]** (patterns/core/<name>.md)
+1. **[Pattern Name]** (${CLAUDE_PLUGIN_ROOT}/patterns/core/<name>.md)
    > <Pattern's one-line description from header>
 
 [Apply patterns? (Y)es / (S)kip / (V)iew first]
@@ -102,10 +102,10 @@ When patterns match (score >= 1.0), announce:
 - **User skips patterns**: Proceed without applying patterns
 
 ### Default Paths (Patterns)
-- **Pattern Registry**: `patterns/index.md`
-- **Core Patterns**: `patterns/core/`
-- **Stack Patterns**: `patterns/stack/` (future)
-- **Pattern Template**: `patterns/TEMPLATE.md`
+- **Pattern Registry**: `${CLAUDE_PLUGIN_ROOT}/patterns/index.md`
+- **Core Patterns**: `${CLAUDE_PLUGIN_ROOT}/patterns/core/`
+- **Stack Patterns**: `${CLAUDE_PLUGIN_ROOT}/patterns/stack/` (future)
+- **Pattern Template**: `${CLAUDE_PLUGIN_ROOT}/patterns/TEMPLATE.md`
 
 ## Skill Loading Protocol
 
@@ -115,7 +115,7 @@ When beginning a task, follow this protocol to identify and load relevant skills
 
 ### 1. Load Skill Registry
 
-Read `skills/skill-registry.json` to get the list of available skills with their manifests.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json` to get the list of available skills with their manifests.
 
 **Registry Structure:**
 ```json
@@ -332,8 +332,8 @@ When skills are activated, announce at the start of task execution:
 ```
 
 ### Default Paths (Skills)
-- **Skill Registry**: `skills/skill-registry.json`
-- **Skill Directory**: `skills/`
-- **Skill Definition**: `skills/<skill_id>/SKILL.md`
-- **Skill Manifest**: `skills/<skill_id>/manifest.json`
-- **Project Settings**: `conductor/settings.json`
+- **Skill Registry**: `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json`
+- **Skill Directory**: `${CLAUDE_PLUGIN_ROOT}/skills/`
+- **Skill Definition**: `${CLAUDE_PLUGIN_ROOT}/skills/<skill_id>/SKILL.md`
+- **Skill Manifest**: `${CLAUDE_PLUGIN_ROOT}/skills/<skill_id>/manifest.json`
+- **Project Settings**: `conductor/settings.json` (project file, not plugin file)

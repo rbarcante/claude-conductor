@@ -19,19 +19,20 @@ from lib.formatters import Formatters
 def handle(args) -> Dict[str, Any]:
     """Handle patterns subcommands."""
     project_root = args.project_root
+    plugin_root = getattr(args, 'plugin_root', None)
 
     if args.subcommand == 'list':
-        return list_patterns(project_root)
+        return list_patterns(plugin_root or project_root)
     elif args.subcommand == 'show':
         # Check for --ai-only flag
         if getattr(args, 'ai_only', False):
-            return ai_only(project_root, args.name)
-        return show_pattern(project_root, args.name)
+            return ai_only(plugin_root or project_root, args.name)
+        return show_pattern(plugin_root or project_root, args.name)
     elif args.subcommand == 'search':
-        return search_patterns(project_root, args.query)
+        return search_patterns(plugin_root or project_root, args.query)
     else:
         # Default to list
-        return list_patterns(project_root)
+        return list_patterns(plugin_root or project_root)
 
 
 def list_patterns(project_root: Path) -> Dict[str, Any]:

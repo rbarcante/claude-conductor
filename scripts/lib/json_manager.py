@@ -13,9 +13,17 @@ from datetime import datetime
 class JsonManager:
     """Manages JSON file operations with safe read/write."""
 
-    def __init__(self, project_root: Path):
-        """Initialize with project root."""
+    def __init__(self, project_root: Path, plugin_root: Optional[Path] = None):
+        """
+        Initialize with project root and optional plugin root.
+
+        Args:
+            project_root: Root directory of the user's project (conductor/ files)
+            plugin_root: Root directory of the plugin (skills/ files)
+                        If not provided, defaults to project_root for backward compatibility
+        """
         self.project_root = Path(project_root).resolve()
+        self.plugin_root = Path(plugin_root).resolve() if plugin_root else self.project_root
 
     def read(self, path: Path) -> Optional[Dict[str, Any]]:
         """
@@ -63,12 +71,32 @@ class JsonManager:
             return False
 
     def read_skill_registry(self) -> Optional[Dict[str, Any]]:
-        """Read the skill registry file."""
-        return self.read(Path('skills/skill-registry.json'))
+        """Read the skill registry file (from plugin root)."""
+        return self._read_plugin_file(Path('skills/skill-registry.json'))
 
     def read_skill_manifest(self, skill_name: str) -> Optional[Dict[str, Any]]:
-        """Read a skill's manifest.json file."""
-        return self.read(Path(f'skills/{skill_name}/manifest.json'))
+        """Read a skill's manifest.json file (from plugin root)."""
+        return self._read_plugin_file(Path(f'skills/{skill_name}/manifest.json'))
+
+    def _read_plugin_file(self, path: Path) -> Optional[Dict[str, Any]]:
+        """
+        Read a JSON file from the plugin root.
+
+        Args:
+            path: Path relative to plugin root
+
+        Returns:
+            Parsed JSON as dict or None if file doesn't exist
+        """
+        full_path = self.plugin_root / path
+        if not full_path.exists():
+            return None
+
+        try:
+            with open(full_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return None
 
     def read_settings(self) -> Dict[str, Any]:
         """

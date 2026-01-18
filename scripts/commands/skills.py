@@ -18,31 +18,37 @@ from lib.formatters import Formatters
 def handle(args) -> Dict[str, Any]:
     """Handle skills subcommands."""
     project_root = args.project_root
+    plugin_root = getattr(args, 'plugin_root', None)
 
     if args.subcommand == 'list':
-        return list_skills(project_root, show_disabled=args.show_disabled)
+        return list_skills(project_root, plugin_root, show_disabled=args.show_disabled)
     elif args.subcommand == 'info':
-        return skill_info(project_root, args.name)
+        return skill_info(project_root, plugin_root, args.name)
     elif args.subcommand == 'enable':
-        return enable_skill(project_root, args.name)
+        return enable_skill(project_root, plugin_root, args.name)
     elif args.subcommand == 'disable':
-        return disable_skill(project_root, args.name)
+        return disable_skill(project_root, plugin_root, args.name)
     else:
         # Default to list
-        return list_skills(project_root, show_disabled=False)
+        return list_skills(project_root, plugin_root, show_disabled=False)
 
 
-def list_skills(project_root: Path, show_disabled: bool = False) -> Dict[str, Any]:
+def list_skills(project_root: Path, plugin_root: Path = None, show_disabled: bool = False) -> Dict[str, Any]:
     """
     List all available skills.
+
+    Args:
+        project_root: Project root directory (for settings)
+        plugin_root: Plugin root directory (for skills registry)
+        show_disabled: Include disabled skills in output
 
     Returns JSON with:
     - skills: List of skill info dicts
     - disabled_skills: List of disabled skill names
     - summary: Count summary
     """
-    json_mgr = JsonManager(project_root)
-    resolver = FileResolver(project_root)
+    json_mgr = JsonManager(project_root, plugin_root)
+    resolver = FileResolver(project_root, plugin_root)
 
     # Read registry
     registry = json_mgr.read_skill_registry()
@@ -124,14 +130,19 @@ def list_skills(project_root: Path, show_disabled: bool = False) -> Dict[str, An
     }
 
 
-def skill_info(project_root: Path, name: str) -> Dict[str, Any]:
+def skill_info(project_root: Path, plugin_root: Path, name: str) -> Dict[str, Any]:
     """
     Get detailed information about a skill.
 
+    Args:
+        project_root: Project root directory (for settings)
+        plugin_root: Plugin root directory (for skills registry)
+        name: Skill name to get info for
+
     Returns JSON with full skill data including manifest and SKILL.md content preview.
     """
-    json_mgr = JsonManager(project_root)
-    resolver = FileResolver(project_root)
+    json_mgr = JsonManager(project_root, plugin_root)
+    resolver = FileResolver(project_root, plugin_root)
 
     # Find skill in registry
     registry = json_mgr.read_skill_registry()
@@ -196,13 +207,18 @@ def skill_info(project_root: Path, name: str) -> Dict[str, Any]:
     }
 
 
-def enable_skill(project_root: Path, name: str) -> Dict[str, Any]:
+def enable_skill(project_root: Path, plugin_root: Path, name: str) -> Dict[str, Any]:
     """
     Enable a skill by removing from disabledSkills.
 
+    Args:
+        project_root: Project root directory (for settings)
+        plugin_root: Plugin root directory (for skills registry)
+        name: Skill name to enable
+
     Returns updated settings.
     """
-    json_mgr = JsonManager(project_root)
+    json_mgr = JsonManager(project_root, plugin_root)
 
     # Verify skill exists
     registry = json_mgr.read_skill_registry()
@@ -244,13 +260,18 @@ def enable_skill(project_root: Path, name: str) -> Dict[str, Any]:
     }
 
 
-def disable_skill(project_root: Path, name: str) -> Dict[str, Any]:
+def disable_skill(project_root: Path, plugin_root: Path, name: str) -> Dict[str, Any]:
     """
     Disable a skill by adding to disabledSkills.
 
+    Args:
+        project_root: Project root directory (for settings)
+        plugin_root: Plugin root directory (for skills registry)
+        name: Skill name to disable
+
     Returns updated settings. Note: always_active skills cannot be disabled.
     """
-    json_mgr = JsonManager(project_root)
+    json_mgr = JsonManager(project_root, plugin_root)
 
     # Verify skill exists and check if always_active
     registry = json_mgr.read_skill_registry()

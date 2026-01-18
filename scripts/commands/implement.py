@@ -27,6 +27,7 @@ from lib.formatters import Formatters
 def handle(args) -> Dict[str, Any]:
     """Handle implement subcommands."""
     project_root = args.project_root
+    plugin_root = getattr(args, 'plugin_root', None)
 
     if args.subcommand == 'parse-tracks':
         return parse_tracks(project_root)
@@ -44,7 +45,7 @@ def handle(args) -> Dict[str, Any]:
         adr_path = getattr(args, 'path', 'docs/decisions')
         return next_adr_number(project_root, adr_path)
     elif args.subcommand == 'match-patterns':
-        return match_patterns(project_root, args.keywords)
+        return match_patterns(plugin_root or project_root, args.keywords)
     else:
         return {
             'success': False,

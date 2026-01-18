@@ -37,19 +37,23 @@ for lang, exts in LANGUAGE_EXTENSIONS.items():
 def handle(args) -> Dict[str, Any]:
     """Handle snippets subcommands."""
     project_root = args.project_root
+    plugin_root = getattr(args, 'plugin_root', None)
+
+    # Snippets are plugin files, so use plugin_root when available
+    snippets_root = plugin_root or project_root
 
     if args.subcommand == 'list':
-        return list_snippets(project_root)
+        return list_snippets(snippets_root)
     elif args.subcommand == 'show':
         language = getattr(args, 'language', None)
-        return show_snippet(project_root, args.name, language)
+        return show_snippet(snippets_root, args.name, language)
     elif args.subcommand == 'search':
-        return search_snippets(project_root, args.query)
+        return search_snippets(snippets_root, args.query)
     elif args.subcommand == 'detect_language':
         return detect_language(args.filename)
     else:
         # Default to list
-        return list_snippets(project_root)
+        return list_snippets(snippets_root)
 
 
 def list_snippets(project_root: Path) -> Dict[str, Any]:

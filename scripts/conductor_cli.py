@@ -22,11 +22,13 @@ Commands:
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 # Add lib to path for imports
 SCRIPT_DIR = Path(__file__).parent
+PLUGIN_ROOT = SCRIPT_DIR.parent  # conductor_cli.py is in scripts/, plugin root is parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from commands import skills, status, patterns, snippets, newtrack, setup, revert, implement
@@ -45,6 +47,16 @@ def create_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path.cwd(),
         help='Project root directory (default: current directory)'
+    )
+
+    # Plugin root: where plugin files (skills, patterns, snippets) are located
+    # Defaults to: 1) CLAUDE_PLUGIN_ROOT env var, 2) parent of scripts/ directory
+    default_plugin_root = Path(os.environ.get('CLAUDE_PLUGIN_ROOT', str(PLUGIN_ROOT)))
+    parser.add_argument(
+        '--plugin-root',
+        type=Path,
+        default=default_plugin_root,
+        help='Plugin root directory for skills/patterns/snippets (default: CLAUDE_PLUGIN_ROOT or auto-detected)'
     )
 
     parser.add_argument(

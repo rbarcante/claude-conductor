@@ -24,6 +24,36 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
+## CLI Operations
+
+**PROTOCOL: Use the Python CLI for token-efficient operations.**
+
+The Conductor CLI provides optimized commands for revert operations. These commands handle complex Git operations and data parsing with minimal token usage.
+
+**CLI Location:** `${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py`
+
+**Available Revert Subcommands:**
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `revert parse-registry` | Parse tracks registry for menu display | JSON with tracks organized by status (in_progress, completed) |
+| `revert find-commits TRACK_ID` | Find all commits related to a track | JSON array of commits with sha, message, is_merge, has_plan_update |
+| `revert plan-updates SHA` | Find plan.md files changed in a commit | JSON array of plan file paths |
+| `revert build-list TARGET` | Build reverse chronological commit list | JSON array of SHAs to revert (handles track_id, single SHA, or range) |
+| `revert execute SHA1 SHA2 ... [--dry-run]` | Execute git revert sequence | Status output with success/failure details |
+
+**Invocation Pattern:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert <subcommand> [args]
+```
+
+**FALLBACK PROTOCOL:** If any CLI command fails (non-zero exit code, missing script, or Python error):
+1. Log the error message for debugging
+2. Fall back to the manual Git/file parsing approach described in each section
+3. Continue the operation using native tools (Read, Bash with git commands, Grep)
+
+---
+
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
@@ -55,8 +85,23 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         3.  If "yes", establish this as the `target_intent` and proceed to Phase 2. If "no", ask clarifying questions to find the correct item to revert.
 
     *   **PATH B: Guided Selection Menu**
-        1.  **Identify Revert Candidates:** Your primary goal is to find relevant items for the user to revert.
-            *   **Scan All Plans:** You MUST read the **Tracks Registry** and every track's **Implementation Plan** (resolved via **Universal File Resolution Protocol** using the track's index file).
+        1.  **Identify Revert Candidates (CLI-Assisted):**
+            *   **Primary Method - Use CLI:**
+                ```bash
+                python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert parse-registry
+                ```
+                This returns a JSON object with tracks organized by status:
+                ```json
+                {
+                  "in_progress": [
+                    {"track_id": "...", "description": "...", "phases": [...], "tasks": [...]}
+                  ],
+                  "completed": [
+                    {"track_id": "...", "description": "...", "completed_at": "..."}
+                  ]
+                }
+                ```
+            *   **Fallback Method - Manual Scan:** If CLI fails, read the **Tracks Registry** and every track's **Implementation Plan** (resolved via **Universal File Resolution Protocol**).
             *   **Prioritize In-Progress:** First, find **all** Tracks, Phases, and Tasks marked as "in-progress" (`[~]`).
             *   **Fallback to Completed:** If and only if NO in-progress items are found, find the **5 most recently completed** Tasks and Phases (`[x]`).
         2.  **Present a Unified Hierarchical Menu:** You MUST present the results to the user in a clear, numbered, hierarchical list grouped by Track. The introductory text MUST change based on the context.
@@ -93,12 +138,31 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## 3.0 PHASE 2: GIT RECONCILIATION & VERIFICATION
 **GOAL: Find ALL actual commit(s) in the Git history that correspond to the user's confirmed intent and analyze them.**
 
-1.  **Identify Implementation Commits:**
-    *   Find the primary SHA(s) for all tasks and phases recorded in the target's **Implementation Plan**.
+1.  **Identify Implementation Commits (CLI-Assisted):**
+    *   **Primary Method - Use CLI:**
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert find-commits <TRACK_ID>
+        ```
+        This returns a JSON array of commits:
+        ```json
+        [
+          {"sha": "abc1234", "message": "feat(ui): Create login form", "is_merge": false, "has_plan_update": false},
+          {"sha": "def5678", "message": "conductor(plan): Mark task complete", "is_merge": false, "has_plan_update": true}
+        ]
+        ```
+    *   **Fallback Method - Manual Search:** Find the primary SHA(s) for all tasks and phases recorded in the target's **Implementation Plan**.
     *   **Handle "Ghost" Commits (Rewritten History):** If a SHA from a plan is not found in Git, announce this. Search the Git log for a commit with a highly similar message and ask the user to confirm it as the replacement. If not confirmed, halt.
 
-2.  **Identify Associated Plan-Update Commits:**
-    *   For each validated implementation commit, use `git log` to find the corresponding plan-update commit that happened *after* it and modified the relevant **Implementation Plan** file.
+2.  **Identify Associated Plan-Update Commits (CLI-Assisted):**
+    *   **Primary Method - Use CLI:** For each implementation commit SHA:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert plan-updates <SHA>
+        ```
+        This returns plan files modified in that commit:
+        ```json
+        ["conductor/tracks/track_id/plan.md"]
+        ```
+    *   **Fallback Method - Manual Search:** Use `git log` to find the corresponding plan-update commit that happened *after* it and modified the relevant **Implementation Plan** file.
 
 3.  **Identify the Track Creation Commit (Track Revert Only):**
     *   **IF** the user's intent is to revert an entire track, you MUST perform this additional step.
@@ -106,8 +170,21 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
         *   Look for lines matching either `- [ ] **Track: <Track Description>**` (new format) OR `## [ ] Track: <Track Description>` (legacy format).
     *   Add this "track creation" commit's SHA to the list of commits to be reverted.
 
-4.  **Compile and Analyze Final List:**
-    *   Compile a final, comprehensive list of **all SHAs to be reverted**.
+4.  **Compile and Analyze Final List (CLI-Assisted):**
+    *   **Primary Method - Use CLI:**
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert build-list <TARGET>
+        ```
+        Where `<TARGET>` can be:
+        - A track ID (e.g., `track_20251208_user_profile`)
+        - A single SHA (e.g., `abc1234`)
+        - A range (e.g., `abc1234..def5678`)
+
+        This returns a JSON array of SHAs in reverse chronological order:
+        ```json
+        ["ghi9012", "def5678", "abc1234"]
+        ```
+    *   **Fallback Method - Manual Compilation:** Compile a final, comprehensive list of **all SHAs to be reverted** manually.
     *   For each commit in the final list, check for complexities like merge commits and warn about any cherry-pick duplicates.
 
 ---
@@ -136,11 +213,21 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 2.  **Wait for Confirmation:** You MUST wait for the user's explicit confirmation before proceeding.
 
-3.  **Execute Revert:**
+3.  **Execute Revert (CLI-Assisted):**
     *   **If user confirms (yes):**
-        a. For each commit SHA in the final list (in reverse chronological order), execute `git revert <SHA>`.
-        b. Handle any merge conflicts that arise and inform the user.
-        c. After all reverts are complete, announce success and provide a summary of the changes.
+        a.  **Dry Run First - Use CLI:**
+            ```bash
+            python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert execute <SHA1> <SHA2> ... --dry-run
+            ```
+            This simulates the revert without making changes and reports any potential conflicts.
+        b.  **Execute Revert - Use CLI:**
+            ```bash
+            python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert execute <SHA1> <SHA2> ...
+            ```
+            This executes `git revert` for each commit in the provided order.
+        c.  **Fallback Method - Manual Execution:** If CLI fails, for each commit SHA in the final list (in reverse chronological order), execute `git revert <SHA>` directly.
+        d.  Handle any merge conflicts that arise and inform the user.
+        e.  After all reverts are complete, announce success and provide a summary of the changes.
     *   **If user denies (no):**
         a. Announce: "Revert cancelled. No changes have been made."
         b. Halt the process.
