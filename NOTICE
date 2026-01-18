@@ -1,0 +1,29 @@
+NOTICE
+
+Conductor Plugin for Claude Code
+Copyright 2026 Claude Code Contributors
+
+This product is derived from the Conductor Extension for Gemini CLI project.
+
+Original Project:
+  Name: Conductor Extension for Gemini CLI
+  Repository: https://github.com/gemini-cli-extensions/conductor
+  License: Apache License 2.0
+
+Original Copyright:
+  Copyright (c) 2025 Contributors to Conductor Extension for Gemini CLI
+
+Modifications:
+This is a derivative work based on the Conductor Extension for Gemini CLI project,
+originally released under the Apache License 2.0. Significant modifications and
+adaptations have been made to create a Claude Code plugin that implements context-driven
+development methodology.
+
+Key changes include:
+  - Adaptation from Gemini CLI to Claude Code plugin architecture
+  - Integration with Claude Code's plugin system and MCP protocols
+  - Extended functionality for context-driven development workflow
+  - Addition of pattern reference layer and skill ecosystem
+  - Enhanced workflow automation and decision capture systems
+
+The original Apache License 2.0 has been retained in the LICENSE file of this project.
