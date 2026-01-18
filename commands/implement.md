@@ -256,6 +256,56 @@ This section ensures track work is properly isolated from the main codebase by r
     -   Use AskUserQuestion to ask: "Continue on current branch despite the error? (Not recommended)"
     -   If user confirms, proceed to Section 2.5 with a warning note in the track's implementation log.
 
+### Example Scenarios
+
+**Example 1: Feature track branch creation**
+```
+Track: dark-mode-toggle_20260122 (type: feature)
+Current branch: main
+
+→ Agent suggests: "Create branch 'feature/dark-mode-toggle' (Recommended)"
+→ User selects option 1
+→ Agent executes: git checkout -b feature/dark-mode-toggle
+→ Agent verifies: git branch --show-current returns "feature/dark-mode-toggle"
+→ Proceeds to Section 2.5
+```
+
+**Example 2: Bugfix track branch creation**
+```
+Track: login-validation_20260122 (type: bugfix)
+Current branch: develop
+
+→ Agent suggests: "Create branch 'fix/login-validation' (Recommended)"
+→ User selects option 1
+→ Agent executes: git checkout -b fix/login-validation
+→ Proceeds to Section 2.5
+```
+
+**Example 3: Worktree creation**
+```
+Track: api-refactor_20260122 (type: refactor)
+Current branch: main
+Project directory: /home/user/myproject
+
+→ Agent presents options including worktree
+→ User selects: "Create worktree at '../myproject-api-refactor'"
+→ Agent executes: git worktree add ../myproject-api-refactor -b refactor/api-refactor
+→ Agent announces: "Worktree created. Navigate to ../myproject-api-refactor to work in it."
+→ Proceeds to Section 2.5
+```
+
+**Example 4: Continuing on existing branch**
+```
+Track: dark-mode-toggle_20260122 (type: feature)
+Current branch: feature/dark-mode-toggle
+
+→ Agent detects branch matches track shortname
+→ Agent asks: "You're already on branch 'feature/dark-mode-toggle'. Continue?"
+→ User selects: "Continue on current branch (Recommended)"
+→ No git operations needed
+→ Proceeds to Section 2.5
+```
+
 ---
 
 ## 2.5 SKILL ACTIVATION
