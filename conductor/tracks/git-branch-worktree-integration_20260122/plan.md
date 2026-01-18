@@ -50,10 +50,10 @@
 
 ## Phase 3: Add CLI Support for Branch Operations
 
-- [ ] Task: Add CLI command reference for branch operations
-    - [ ] Add entry to CLI Command Reference table for branch suggestion
-    - [ ] Document JSON output format for branch suggestions
-    - [ ] Add fallback instructions for CLI failures
+- [x] Task: Add CLI command reference for branch operations [f184dcb]
+    - [x] Add entry to CLI Command Reference table for branch suggestion
+    - [x] Document JSON output format for branch suggestions
+    - [x] Add fallback instructions for CLI failures
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
