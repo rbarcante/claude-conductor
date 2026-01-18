@@ -22,11 +22,11 @@
     - [x] Add logic to detect if on main/master vs feature branch
     - [x] Add pattern matching logic for track-related branch names
 
-- [ ] Task: Implement Step 2 - Branch Name Generation
-    - [ ] Document reading track type from metadata.json
-    - [ ] Define prefix mapping table (feature→feature/, bugfix→fix/, etc.)
-    - [ ] Document branch name format: `<prefix><track_shortname>`
-    - [ ] Add worktree path generation logic
+- [x] Task: Implement Step 2 - Branch Name Generation [5e4bb70]
+    - [x] Document reading track type from metadata.json
+    - [x] Define prefix mapping table (feature→feature/, bugfix→fix/, etc.)
+    - [x] Document branch name format: `<prefix><track_shortname>`
+    - [x] Add worktree path generation logic
 
 - [ ] Task: Implement Step 3 - AskUserQuestion Integration
     - [ ] Document the AskUserQuestion tool call structure
