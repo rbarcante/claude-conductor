@@ -56,13 +56,13 @@
     - [x] Add structured error handling
     - [x] Add AI header comment block
 
-- [~] Task: Create Error Handler snippet
-    - [ ] Create `error-handler.java` with custom exception hierarchy
-    - [ ] Add error codes enum
-    - [ ] Add context/details support
-    - [ ] Add AI header comment block
+- [x] Task: Create Error Handler snippet [bb20195]
+    - [x] Create `error-handler.java` with custom exception hierarchy
+    - [x] Add error codes enum
+    - [x] Add context/details support
+    - [x] Add AI header comment block
 
-- [ ] Task: Create Dependency Injection snippet
+- [~] Task: Create Dependency Injection snippet
     - [ ] Create `dependency-injection.java` with Spring/Jakarta examples
     - [ ] Add configuration class patterns
     - [ ] Add constructor injection examples
