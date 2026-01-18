@@ -314,7 +314,7 @@ Current branch: feature/dark-mode-toggle
 This section activates skills that provide domain-specific guidance for the selected track. Follow the **Skill Loading Protocol** defined in CLAUDE.md for detailed scoring rules.
 
 1.  **Load Skill Registry:**
-    -   Read `skills/skill-registry.json` to get available skills
+    -   Read `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json` to get available skills
     -   If registry doesn't exist, skip skill activation silently and proceed to Track Implementation
 
 2.  **Load Always-Active Skills:**
