@@ -16,11 +16,11 @@
     - [x] Add section header and protocol description
     - [x] Define the step-by-step protocol structure
 
-- [ ] Task: Implement Step 1 - Current Branch Detection
-    - [ ] Document the git command to get current branch (`git branch --show-current`)
-    - [ ] Document the git command to get current commit/status
-    - [ ] Add logic to detect if on main/master vs feature branch
-    - [ ] Add pattern matching logic for track-related branch names
+- [x] Task: Implement Step 1 - Current Branch Detection [c752bd9]
+    - [x] Document the git command to get current branch (`git branch --show-current`)
+    - [x] Document the git command to get current commit/status
+    - [x] Add logic to detect if on main/master vs feature branch
+    - [x] Add pattern matching logic for track-related branch names
 
 - [ ] Task: Implement Step 2 - Branch Name Generation
     - [ ] Document reading track type from metadata.json
