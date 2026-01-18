@@ -95,44 +95,44 @@
 
 ## Phase 4: Snippet Library - Python & Patterns
 
-- [ ] Task: Create Python snippet - api-client.py
-    - [ ] Create complete HTTP client with requests or httpx
-    - [ ] Include error handling
-    - [ ] Include retry logic
+- [x] Task: Create Python snippet - api-client.py `dc65bb9`
+    - [x] Create complete HTTP client with requests or httpx
+    - [x] Include error handling
+    - [x] Include retry logic
 
-- [ ] Task: Create Python snippet - error-handler.py
-    - [ ] Create custom exception hierarchy
-    - [ ] Include error context
-    - [ ] Include logging
+- [x] Task: Create Python snippet - error-handler.py `dc65bb9`
+    - [x] Create custom exception hierarchy
+    - [x] Include error context
+    - [x] Include logging
 
-- [ ] Task: Create Python snippet - dependency-injection.py
-    - [ ] Create DI container example
-    - [ ] Include registration and resolution
-    - [ ] Include lifecycle management
+- [x] Task: Create Python snippet - dependency-injection.py `dc65bb9`
+    - [x] Create DI container example
+    - [x] Include registration and resolution
+    - [x] Include lifecycle management
 
-- [ ] Task: Create Python snippet - config-loader.py
-    - [ ] Create config loading with pydantic
-    - [ ] Include environment variables
-    - [ ] Include validation
+- [x] Task: Create Python snippet - config-loader.py `dc65bb9`
+    - [x] Create config loading with pydantic
+    - [x] Include environment variables
+    - [x] Include validation
 
-- [ ] Task: Create Python snippet - async-patterns.py
-    - [ ] Create async/await patterns
-    - [ ] Include concurrent operations
-    - [ ] Include error handling
+- [x] Task: Create Python snippet - async-patterns.py `dc65bb9`
+    - [x] Create async/await patterns
+    - [x] Include concurrent operations
+    - [x] Include error handling
 
-- [ ] Task: Create pattern snippet - repository-pattern.md
-    - [ ] Document repository pattern with code
-    - [ ] Include interface and implementation
-    - [ ] Include usage example
+- [x] Task: Create pattern snippet - repository-pattern.md `dc65bb9`
+    - [x] Document repository pattern with code
+    - [x] Include interface and implementation
+    - [x] Include usage example
 
-- [ ] Task: Create pattern snippet - factory-pattern.md
-    - [ ] Document factory pattern with code
-    - [ ] Include multiple factory types
-    - [ ] Include usage example
+- [x] Task: Create pattern snippet - factory-pattern.md `dc65bb9`
+    - [x] Document factory pattern with code
+    - [x] Include multiple factory types
+    - [x] Include usage example
 
-- [ ] Task: Update snippet index
-    - [ ] Add all snippets to index
-    - [ ] Organize by language and category
+- [x] Task: Update snippet index `024e811`
+    - [x] Add all snippets to index
+    - [x] Organize by language and category
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Snippet Library - Python & Patterns' (Protocol in workflow.md)
 
