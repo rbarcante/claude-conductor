@@ -29,10 +29,10 @@
     - [x] Include 20-30 key rules in structured format
     - [x] Keep existing detailed content
 
-- [ ] Task: Enhance python.md with AI section
-    - [ ] Add AI Quick Reference section at top
-    - [ ] Include Python-specific rules
-    - [ ] Keep existing detailed content
+- [x] Task: Enhance python.md with AI section `61c8050`
+    - [x] Add AI Quick Reference section at top
+    - [x] Include Python-specific rules
+    - [x] Keep existing detailed content
 
 - [ ] Task: Enhance javascript.md with AI section
     - [ ] Add AI Quick Reference section at top
