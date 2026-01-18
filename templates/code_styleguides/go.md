@@ -1,5 +1,31 @@
 # Effective Go Style Guide Summary
 
+## AI Quick Reference
+
+### Language Rules
+- Always format with `gofmt` (non-negotiable)
+- Return `(value, error)` tuple for fallible operations
+- Use `defer` for cleanup (file close, mutex unlock)
+- Check errors explicitly, never discard with `_`
+- Use `for...range` for iteration over slices, maps, channels
+- Use `make()` for slices, maps, channels; `new()` for pointers
+
+### Type Patterns
+- `MixedCaps` for exported names (public), `mixedCaps` for unexported (private)
+- No `Get` prefix for getters: `Owner()` not `GetOwner()`
+- Interface names: method + `-er` suffix (`Reader`, `Writer`)
+- Package names: short, single-word, lowercase
+- Small interfaces preferred (single-method is ideal)
+
+### Avoid
+- Discarding errors with blank identifier `_`
+- Using `panic` in libraries (reserved for truly unrecoverable)
+- Underscores in names (use MixedCaps instead)
+- Communicating by sharing memory (share by communicating via channels)
+- Complex nested control flow (prefer early returns)
+
+---
+
 This document summarizes key rules and best practices from the official "Effective Go" guide for writing idiomatic Go code.
 
 ## 1. Formatting
