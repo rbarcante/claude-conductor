@@ -408,6 +408,233 @@ public <T> CompletableFuture<T> withRetry(
 }
 ```
 
+## Modern Java Features
+
+### Records (Java 17+)
+
+```java
+// Good - immutable data carrier with automatic equals, hashCode, toString
+public record User(String id, String name, String email) {}
+
+// Good - compact constructor for validation
+public record User(String id, String name, String email) {
+    public User {
+        Objects.requireNonNull(id, "id cannot be null");
+        Objects.requireNonNull(name, "name cannot be null");
+        if (email != null && !email.contains("@")) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+    }
+}
+
+// Good - add computed properties
+public record Rectangle(double width, double height) {
+    public double area() {
+        return width * height;
+    }
+
+    public double perimeter() {
+        return 2 * (width + height);
+    }
+}
+
+// Good - static factory methods
+public record Point(int x, int y) {
+    public static Point origin() {
+        return new Point(0, 0);
+    }
+
+    public static Point of(int x, int y) {
+        return new Point(x, y);
+    }
+}
+```
+
+### When to Use Records
+
+```java
+// Good use cases for records:
+// 1. DTOs (Data Transfer Objects)
+public record UserDTO(String id, String name, String email) {}
+
+// 2. Value objects
+public record Money(BigDecimal amount, Currency currency) {}
+
+// 3. API responses
+public record ApiResponse<T>(T data, int status, String message) {}
+
+// 4. Configuration objects
+public record DatabaseConfig(String host, int port, String database) {}
+
+// 5. Compound map keys
+public record CacheKey(String userId, String resourceType) {}
+
+// Bad use cases - don't use records when:
+// - You need mutable state
+// - You need inheritance
+// - You need custom equals/hashCode that differs from all fields
+```
+
+### Sealed Classes (Java 17+)
+
+```java
+// Good - restrict inheritance hierarchy
+public sealed interface Shape
+    permits Circle, Rectangle, Triangle {
+
+    double area();
+}
+
+public record Circle(double radius) implements Shape {
+    @Override
+    public double area() {
+        return Math.PI * radius * radius;
+    }
+}
+
+public record Rectangle(double width, double height) implements Shape {
+    @Override
+    public double area() {
+        return width * height;
+    }
+}
+
+public record Triangle(double base, double height) implements Shape {
+    @Override
+    public double area() {
+        return 0.5 * base * height;
+    }
+}
+```
+
+### Sealed Classes for Result Types
+
+```java
+// Good - algebraic data type pattern
+public sealed interface Result<T>
+    permits Result.Success, Result.Failure {
+
+    record Success<T>(T value) implements Result<T> {}
+    record Failure<T>(String error, Throwable cause) implements Result<T> {
+        public Failure(String error) {
+            this(error, null);
+        }
+    }
+
+    default T getOrThrow() {
+        return switch (this) {
+            case Success<T> s -> s.value();
+            case Failure<T> f -> throw new RuntimeException(f.error(), f.cause());
+        };
+    }
+
+    default T getOrElse(T defaultValue) {
+        return switch (this) {
+            case Success<T> s -> s.value();
+            case Failure<T> f -> defaultValue;
+        };
+    }
+}
+```
+
+### Pattern Matching for instanceof (Java 17+)
+
+```java
+// Good - pattern matching eliminates cast
+public String describe(Object obj) {
+    if (obj instanceof String s) {
+        return "String of length " + s.length();
+    }
+    if (obj instanceof Integer i) {
+        return "Integer: " + i;
+    }
+    if (obj instanceof List<?> list && !list.isEmpty()) {
+        return "Non-empty list with " + list.size() + " elements";
+    }
+    return "Unknown: " + obj;
+}
+
+// Bad - old style with explicit cast
+public String describeOld(Object obj) {
+    if (obj instanceof String) {
+        String s = (String) obj;  // Redundant cast
+        return "String of length " + s.length();
+    }
+    // ...
+}
+```
+
+### Pattern Matching in Switch (Java 21+)
+
+```java
+// Good - exhaustive pattern matching
+public double calculateArea(Shape shape) {
+    return switch (shape) {
+        case Circle c -> Math.PI * c.radius() * c.radius();
+        case Rectangle r -> r.width() * r.height();
+        case Triangle t -> 0.5 * t.base() * t.height();
+    };
+}
+
+// Good - with guards
+public String categorize(Shape shape) {
+    return switch (shape) {
+        case Circle c when c.radius() > 100 -> "Large circle";
+        case Circle c -> "Small circle";
+        case Rectangle r when r.width() == r.height() -> "Square";
+        case Rectangle r -> "Rectangle";
+        case Triangle t -> "Triangle";
+    };
+}
+
+// Good - null handling in switch (Java 21+)
+public String process(String input) {
+    return switch (input) {
+        case null -> "Input is null";
+        case String s when s.isBlank() -> "Input is blank";
+        case String s -> "Input: " + s;
+    };
+}
+```
+
+### Switch Expressions (Java 17+)
+
+```java
+// Good - switch as expression
+public String getDayType(DayOfWeek day) {
+    return switch (day) {
+        case MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> "Weekday";
+        case SATURDAY, SUNDAY -> "Weekend";
+    };
+}
+
+// Good - with yield for complex cases
+public int calculate(Operation op, int a, int b) {
+    return switch (op) {
+        case ADD -> a + b;
+        case SUBTRACT -> a - b;
+        case MULTIPLY -> a * b;
+        case DIVIDE -> {
+            if (b == 0) {
+                throw new ArithmeticException("Division by zero");
+            }
+            yield a / b;
+        }
+    };
+}
+```
+
+## Quick Reference: Modern Features Checklist
+
+- [ ] Use records for immutable data carriers (DTOs, value objects)
+- [ ] Add validation in compact constructors
+- [ ] Use sealed classes to restrict type hierarchies
+- [ ] Combine sealed interfaces with records for algebraic data types
+- [ ] Use pattern matching with instanceof to avoid explicit casts
+- [ ] Use switch expressions instead of switch statements
+- [ ] Leverage exhaustive pattern matching with sealed types
+- [ ] Use guards in switch patterns for conditional matching
+
 ## Quick Reference: Concurrency Checklist
 
 - [ ] Use `CompletableFuture` for async operations, not raw threads
