@@ -1,5 +1,33 @@
 # Google JavaScript Style Guide Summary
 
+## AI Quick Reference
+
+### Language Rules
+- Use `const` by default, `let` when reassignment needed, never `var`
+- Named exports only: `export { MyClass }` (no default exports)
+- Single quotes for strings, template literals for multiline/interpolation
+- Always use `===` and `!==` for equality
+- End all statements with semicolons explicitly
+- Braces required for all control structures (even single-line)
+- +2 spaces indentation, max 80 characters per line
+
+### Type Patterns
+- `UpperCamelCase` for classes
+- `lowerCamelCase` for methods, functions, variables
+- `CONSTANT_CASE` for constants
+- Use JSDoc for type annotations: `/** @param {string} name */`
+- Prefer arrow functions for nested functions (preserves `this`)
+
+### Avoid
+- `var` declarations
+- Default exports
+- `eval()` and `Function(...string)`
+- Modifying builtin prototypes (`Array.prototype.foo = ...`)
+- Relying on Automatic Semicolon Insertion
+- `with` keyword
+
+---
+
 This document summarizes key rules and best practices from the Google JavaScript Style Guide.
 
 ## 1. Source File Basics
