@@ -120,6 +120,28 @@ If CLI commands fail or are unavailable, use these manual alternatives:
 
 ---
 
+## 2.1 GIT ISOLATION SETUP
+**PROTOCOL: Create or switch to an isolated git branch/worktree for track implementation.**
+
+This section ensures track work is properly isolated from the main codebase by requiring a dedicated git branch or worktree before implementation begins.
+
+1.  **Detect Current Branch:**
+    <!-- Implementation details in Step 1 task -->
+
+2.  **Generate Branch Name Suggestion:**
+    <!-- Implementation details in Step 2 task -->
+
+3.  **Present Options to User:**
+    <!-- Implementation details in Step 3 task -->
+
+4.  **Execute Git Operations:**
+    <!-- Implementation details in Step 4 task -->
+
+5.  **Handle Errors:**
+    <!-- Implementation details in Step 5 task -->
+
+---
+
 ## 2.5 SKILL ACTIVATION
 **PROTOCOL: Load relevant skills before implementation begins.**
 
