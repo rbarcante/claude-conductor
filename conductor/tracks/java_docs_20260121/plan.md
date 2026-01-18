@@ -7,13 +7,13 @@
     - [x] Create `manifest.json` with activation rules (keywords, file_patterns, tech_stack)
     - [x] Create `README.md` with skill overview
 
-- [~] Task: Create SKILL.md core content
-    - [ ] Add YAML frontmatter (name, description, version)
-    - [ ] Write Core Principles section
-    - [ ] Write Type Safety section (Optional usage, @Nullable/@NonNull, defensive coding)
-    - [ ] Write Null Handling section (Optional patterns, orElse/orElseThrow, map/flatMap)
+- [x] Task: Create SKILL.md core content [2cd5a27]
+    - [x] Add YAML frontmatter (name, description, version)
+    - [x] Write Core Principles section
+    - [x] Write Type Safety section (Optional usage, @Nullable/@NonNull, defensive coding)
+    - [x] Write Null Handling section (Optional patterns, orElse/orElseThrow, map/flatMap)
 
-- [ ] Task: Create SKILL.md concurrency content
+- [~] Task: Create SKILL.md concurrency content
     - [ ] Write CompletableFuture patterns section
     - [ ] Write Virtual Threads section (Java 21)
     - [ ] Write ExecutorService and thread safety section
