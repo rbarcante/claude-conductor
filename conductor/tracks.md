@@ -41,3 +41,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Update skills to match the expected name format of skills "lower-case-name"**
   *Link: [./conductor/tracks/skill-names_20260121/](./conductor/tracks/skill-names_20260121/)*
+
+---
+
+- [ ] **Track: Create Java-specific documentation (skills, patterns, snippets, styleguide)**
+  *Link: [./conductor/tracks/java_docs_20260121/](./conductor/tracks/java_docs_20260121/)*
