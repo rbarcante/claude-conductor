@@ -4,11 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Add comprehensive testing framework to the Conductor plugin**
-  *Link: [./conductor/tracks/testing-framework_20260114/](./conductor/tracks/testing-framework_20260114/)*
-
----
-
 - [x] **Track: Add Pattern Reference Layer with contextual pattern storage, retrieval, and automatic surfacing during implementation**
   *Link: [./conductor/tracks/pattern-layer_20260119/](./conductor/tracks/pattern-layer_20260119/)*
 
@@ -49,5 +44,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Integrate Python CLI into respective command protocols**
+- [~] **Track: Integrate Python CLI into respective command protocols**
   *Link: [./conductor/tracks/cli_integration_20260121/](./conductor/tracks/cli_integration_20260121/)*
