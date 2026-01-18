@@ -157,7 +157,46 @@ This section ensures track work is properly isolated from the main codebase by r
         -   Get project name from current directory name
 
 3.  **Present Options to User:**
-    <!-- Implementation details in Step 3 task -->
+    Use the `AskUserQuestion` tool to present branch options based on the detection results.
+
+    **Scenario A: Already on a matching branch** (when `branch_matches_track = true`)
+
+    ```json
+    {
+      "questions": [{
+        "question": "You're already on branch '<current_branch>' which matches this track. How would you like to proceed?",
+        "header": "Branch",
+        "options": [
+          {"label": "Continue on current branch (Recommended)", "description": "Keep working on the existing branch"},
+          {"label": "Create new branch", "description": "Create a fresh branch for this track"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+
+    **Scenario B: On main/master/develop or unrelated branch**
+
+    ```json
+    {
+      "questions": [{
+        "question": "How would you like to isolate your work for this track?",
+        "header": "Branch",
+        "options": [
+          {"label": "Create branch '<suggested_branch>' (Recommended)", "description": "Create a new feature branch from current HEAD"},
+          {"label": "Create worktree at '<suggested_worktree_path>'", "description": "Create a separate working directory with its own branch"},
+          {"label": "Type your own branch name", "description": "Specify a custom branch name"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+
+    **Handle User Response:**
+    -   If user selects "Continue on current branch": Proceed to Section 2.5 without git operations
+    -   If user selects "Create branch": Execute git checkout -b with suggested name
+    -   If user selects "Create worktree": Execute git worktree add
+    -   If user selects "Type your own": Prompt for custom branch name, then execute git checkout -b
 
 4.  **Execute Git Operations:**
     <!-- Implementation details in Step 4 task -->
