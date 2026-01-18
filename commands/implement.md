@@ -126,7 +126,16 @@ If CLI commands fail or are unavailable, use these manual alternatives:
 This section ensures track work is properly isolated from the main codebase by requiring a dedicated git branch or worktree before implementation begins.
 
 1.  **Detect Current Branch:**
-    <!-- Implementation details in Step 1 task -->
+    -   Get the current branch name: `git branch --show-current`
+    -   Get the current repository status: `git status --porcelain`
+    -   **Determine Branch State:**
+        -   If on `main`, `master`, or `develop`: User is on a protected branch and should create a new feature branch.
+        -   If on a branch matching the pattern `<prefix>/<track_shortname>` where prefix is `feature/`, `fix/`, `refactor/`, `docs/`, or `chore/`: User may already be on a suitable branch for this track.
+        -   Otherwise: User is on an unrelated branch.
+    -   **Check for Matching Branch:**
+        -   Extract the track's shortname from `track_id` (e.g., `dark-mode-toggle` from `dark-mode-toggle_20260122`)
+        -   Check if current branch name contains the track shortname
+        -   If match found, set `branch_matches_track = true`
 
 2.  **Generate Branch Name Suggestion:**
     <!-- Implementation details in Step 2 task -->
