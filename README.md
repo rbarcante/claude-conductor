@@ -590,6 +590,20 @@ Commands automatically resolve file paths using these index files with fallback 
 
 For more details, see [CLAUDE.md](CLAUDE.md).
 
+## Attribution
+
+**Conductor Plugin for Claude Code** is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0.
+
+The original Conductor project provided the foundational context-driven development methodology. This plugin adapts and extends that methodology for use with Claude Code, including:
+
+- Integration with Claude Code's plugin architecture and MCP protocols
+- Extension of the context-driven workflow with pattern reference layers
+- Addition of a comprehensive skill ecosystem for domain-specific guidance
+- Enhanced quality intelligence and decision logging capabilities
+- Comprehensive tooling for spec-driven development
+
+The substantial modifications and additions made to create this Claude Code plugin represent a significant derivative work while maintaining compatibility with the original Apache 2.0 license philosophy.
+
 ## License
 
 Apache License 2.0
