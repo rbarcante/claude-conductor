@@ -13,13 +13,13 @@
     - [x] Write Type Safety section (Optional usage, @Nullable/@NonNull, defensive coding)
     - [x] Write Null Handling section (Optional patterns, orElse/orElseThrow, map/flatMap)
 
-- [~] Task: Create SKILL.md concurrency content
-    - [ ] Write CompletableFuture patterns section
-    - [ ] Write Virtual Threads section (Java 21)
-    - [ ] Write ExecutorService and thread safety section
-    - [ ] Write async error handling patterns
+- [x] Task: Create SKILL.md concurrency content [1900bd1]
+    - [x] Write CompletableFuture patterns section
+    - [x] Write Virtual Threads section (Java 21)
+    - [x] Write ExecutorService and thread safety section
+    - [x] Write async error handling patterns
 
-- [ ] Task: Create SKILL.md modern features content
+- [~] Task: Create SKILL.md modern features content
     - [ ] Write Records section with examples
     - [ ] Write Sealed Classes section with examples
     - [ ] Write Pattern Matching section (instanceof, switch expressions)
