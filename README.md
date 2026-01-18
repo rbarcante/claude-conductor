@@ -18,6 +18,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
+- **AI-Optimized Templates**: Dual-format patterns and styleguides with AI Quick Reference sections, plus a searchable snippet library.
 - **Skill Ecosystem**: Extensible skill plugin architecture with reference skills for TypeScript, API Design, and Testing that provide domain-specific guidance.
 - **Quality Intelligence**: Automated anti-pattern detection and coverage analysis with actionable test suggestions during implementation.
 - **Decision Logging**: Architecture Decision Record (ADR) logging that captures the "why" behind implementation choices for self-documenting codebases.
@@ -123,6 +124,7 @@ During implementation, you can also:
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
 | `/conductor:patterns` | Browse and search the Pattern Reference Layer. | Reads `patterns/index.md` |
 | `/conductor:skills` | Manage and explore Conductor skills (list, info, enable, disable). | Reads/writes `skills/skill-registry.json`, `conductor/settings.json` |
+| `/conductor:snippet` | Browse, search, and display code snippets from the Snippet Library. | Reads `snippets/index.md` |
 
 ## Pattern Reference Layer
 
@@ -176,6 +178,93 @@ Create new patterns in `patterns/core/` or `patterns/stack/` using the template 
 - **AI Quick Reference**: Concise guidance for the AI agent
 - **Human Documentation**: Detailed explanations and examples
 - **Anti-Patterns**: Common mistakes to avoid
+
+## AI-Optimized Templates
+
+Conductor includes AI-optimized templates that follow a **Dual-Format Standard** - every template contains both a concise AI Quick Reference section and detailed human documentation.
+
+### Dual-Format Standard
+
+All patterns, styleguides, and documentation follow this structure:
+
+```markdown
+# Document Title
+
+## AI Quick Reference
+[Structured, scannable content - max 30-50 lines]
+[Tables, bullet lists, minimal code examples]
+
+---
+
+## Human Documentation
+[Detailed explanations, examples, rationale]
+```
+
+This design ensures:
+- **Fast AI parsing**: Key rules immediately accessible at the top
+- **Complete documentation**: Detailed explanations for human readers
+- **Consistent structure**: Predictable format across all templates
+
+### AI-Enhanced Styleguides
+
+All code styleguides in `templates/code_styleguides/` include AI Quick Reference sections (max 30 lines) with:
+
+| Section | Purpose |
+|:--------|:--------|
+| **Language Rules** | Core syntax and conventions (6-10 items) |
+| **Type Patterns** | Type system best practices (5-8 items) |
+| **Avoid** | Anti-patterns and common mistakes (4-6 items) |
+
+Available styleguides: TypeScript, Python, JavaScript, Go, General
+
+### Snippet Library
+
+Conductor includes a reusable code snippet library with AI-optimized headers:
+
+```bash
+# List all snippets
+/conductor:snippet list
+
+# Search snippets by keyword
+/conductor:snippet search api client
+
+# View a specific snippet
+/conductor:snippet show api-client.ts
+```
+
+#### Snippet Categories
+
+| Category | Contents |
+|:---------|:---------|
+| **TypeScript** | api-client, error-handler, type-guard, async-wrapper, config-loader |
+| **Python** | api-client, error-handler, dependency-injection, config-loader, async-patterns |
+| **Patterns** | repository-pattern, factory-pattern |
+
+#### Snippet AI Headers
+
+Each snippet includes an AI header with:
+- **USE**: When to use this snippet
+- **REQUIRES**: Dependencies and prerequisites
+- **PATTERN**: Related patterns
+
+Example (TypeScript):
+```typescript
+/**
+ * USE: When building a type-safe HTTP client for API communication
+ * REQUIRES: TypeScript 4.5+
+ * PATTERN: Error Handling, Configuration
+ */
+```
+
+### AI Template Generation Protocol
+
+The generation protocol ensures consistent AI-optimized content during setup. When running `/conductor:setup`:
+
+1. Styleguides are copied with AI Quick Reference sections intact
+2. Each copied file is verified for AI-enhanced content
+3. Announcements confirm AI sections are present
+
+See `protocols/ai-template-generation.md` for the complete protocol specification.
 
 ## Technology Intelligence
 

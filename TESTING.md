@@ -1073,6 +1073,164 @@ Each ADR entry contains:
 
 ---
 
+## AI-Optimized Templates Test Scenarios
+
+### Test 30: Snippet Command - List
+
+**Objective:** Test `/conductor:snippet list` command
+
+**Steps:**
+1. Run `/conductor:snippet` or `/conductor:snippet list`
+
+**Expected Results:**
+- Table of all available snippets displayed by category
+- Shows TypeScript, Python, and Pattern snippets
+- Each entry shows: Snippet name, Description, Pattern
+- Total count displayed (should be 12+ snippets)
+- Tip for using show command included
+
+---
+
+### Test 31: Snippet Command - Search
+
+**Objective:** Test `/conductor:snippet search` command
+
+**Steps:**
+1. Run `/conductor:snippet search api`
+2. Run `/conductor:snippet search error`
+3. Run `/conductor:snippet search nonexistent`
+
+**Expected Results:**
+- Search "api" should return api-client.ts and api-client.py with high relevance
+- Search "error" should return error-handler.ts, error-handler.py
+- Search "nonexistent" should return "No snippets found" message
+- Results should show relevance ranking (High/Medium/Low)
+
+---
+
+### Test 32: Snippet Command - Show
+
+**Objective:** Test `/conductor:snippet show` command
+
+**Steps:**
+1. Run `/conductor:snippet show api-client.ts`
+2. Run `/conductor:snippet show config-loader.py`
+3. Run `/conductor:snippet show repository-pattern.md`
+4. Run `/conductor:snippet show nonexistent-snippet`
+
+**Expected Results:**
+- Show displays full snippet content with syntax highlighting
+- AI header (USE, REQUIRES, PATTERN) prominently displayed
+- CUSTOMIZE markers highlighted
+- "Snippet Not Found" shows suggestions for similar snippets
+
+---
+
+### Test 33: Snippet AI Headers
+
+**Objective:** Verify all snippets have proper AI headers
+
+**Steps:**
+1. Check TypeScript snippets for JSDoc headers:
+   ```bash
+   grep -l "USE:" snippets/typescript/*.ts
+   ```
+2. Check Python snippets for docstring headers:
+   ```bash
+   grep -l "USE:" snippets/python/*.py
+   ```
+3. Check Pattern snippets for YAML frontmatter:
+   ```bash
+   grep -l "^use:" snippets/patterns/*.md
+   ```
+
+**Expected Results:**
+- All TypeScript snippets have `/** USE: ... */` header
+- All Python snippets have `""" USE: ... """` header
+- All Pattern snippets have YAML frontmatter with `use:` field
+- Each header includes USE, REQUIRES, and PATTERN fields
+
+---
+
+### Test 34: Styleguide AI Quick Reference
+
+**Objective:** Verify styleguides have AI Quick Reference sections
+
+**Steps:**
+1. Check each styleguide in `templates/code_styleguides/`:
+   ```bash
+   grep -l "## AI Quick Reference" templates/code_styleguides/*.md
+   ```
+2. Verify each has required subsections:
+   - `### Language Rules`
+   - `### Type Patterns` (for typed languages)
+   - `### Avoid`
+
+**Expected Results:**
+- All 5 styleguides (typescript, python, javascript, go, general) have AI Quick Reference
+- Each AI Quick Reference is ≤30 lines
+- Subsections contain actionable, concrete rules
+
+---
+
+### Test 35: Dual-Format Patterns
+
+**Objective:** Verify patterns follow dual-format structure
+
+**Steps:**
+1. Check each pattern in `patterns/core/`:
+   ```bash
+   grep -l "## AI Quick Reference" patterns/core/*.md
+   ```
+2. Verify each has required sections:
+   - `### When to Apply`
+   - `### Core Principles`
+   - `### Quick Implementation Checklist`
+   - `### Code Pattern`
+   - `### Key Decisions`
+
+**Expected Results:**
+- All 5 core patterns have AI Quick Reference section
+- Each AI Quick Reference is ≤50 lines
+- Human Documentation section follows after separator
+
+---
+
+### Test 36: Setup with AI-Enhanced Styleguides
+
+**Objective:** Verify setup command copies AI-enhanced styleguides
+
+**Steps:**
+1. Run `/conductor:setup` on a new project
+2. Select styleguides during Section 2.4
+3. Check copied styleguides
+
+**Expected Results:**
+- Announcement mentions "AI Quick Reference section" for each styleguide
+- Copied styleguides retain AI Quick Reference sections
+- Verification step confirms AI-enhanced content
+
+---
+
+### Test 37: AI Template Generation Protocol
+
+**Objective:** Verify AI Template Generation Protocol exists and is referenced
+
+**Steps:**
+1. Check protocol file exists:
+   ```bash
+   cat protocols/ai-template-generation.md | head -20
+   ```
+2. Verify setup.md references the protocol
+
+**Expected Results:**
+- Protocol file exists with version, purpose, scope
+- Defines Dual-Format Standard
+- Defines AI Quick Reference requirements
+- setup.md Section 2.4 references the protocol
+
+---
+
 ## Validation Checklist
 
 After testing, verify:
@@ -1139,6 +1297,16 @@ After testing, verify:
 - [ ] Skill patterns follow Pattern Template format
 - [ ] Invalid skills handled gracefully with warnings
 - [ ] `docs/skill-development.md` provides clear guidance
+- [ ] `/conductor:snippet list` shows all snippets by category
+- [ ] `/conductor:snippet search` finds relevant snippets
+- [ ] `/conductor:snippet show` displays snippet with AI header
+- [ ] All TypeScript snippets have JSDoc AI headers
+- [ ] All Python snippets have docstring AI headers
+- [ ] All Pattern snippets have YAML frontmatter
+- [ ] All styleguides have AI Quick Reference sections (≤30 lines)
+- [ ] All patterns have AI Quick Reference sections (≤50 lines)
+- [ ] Setup copies AI-enhanced styleguides with announcements
+- [ ] AI Template Generation Protocol documented
 
 ---
 
