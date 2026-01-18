@@ -36,3 +36,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Create AI-optimized dual-format patterns, enhance styleguides, build snippet library with search and insertion command**
   *Link: [./conductor/tracks/ai-templates_20260119/](./conductor/tracks/ai-templates_20260119/)*
+
+---
+
+- [ ] **Track: Update skills to match the expected name format of skills "lower-case-name"**
+  *Link: [./conductor/tracks/skill-names_20260121/](./conductor/tracks/skill-names_20260121/)*

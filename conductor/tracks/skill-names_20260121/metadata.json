@@ -1,0 +1,8 @@
+{
+  "track_id": "skill-names_20260121",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-01-21T00:00:00Z",
+  "updated_at": "2026-01-21T00:00:00Z",
+  "description": "update the skills to match the expected name format of skills \"lower-case-name\""
+}
