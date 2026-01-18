@@ -47,7 +47,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Java Skill Patterns' (Protocol in workflow.md)
 
-## Phase 3: Java Snippets
+## Phase 3: Java Snippets [checkpoint: 506b619]
 
 - [x] Task: Create API Client snippet [dcb98eb]
     - [x] Create `snippets/java/` directory
@@ -68,11 +68,11 @@
     - [x] Add constructor injection examples
     - [x] Add AI header comment block
 
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Java Snippets' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Java Snippets' (Protocol in workflow.md)
 
 ## Phase 4: Java Code Styleguide
 
-- [ ] Task: Create Java styleguide
+- [~] Task: Create Java styleguide
     - [ ] Create `templates/code_styleguides/java.md`
     - [ ] Add AI Quick Reference section
     - [ ] Add Language Rules section (formatting, imports, exceptions)
