@@ -32,6 +32,8 @@ last_updated: "YYYY-MM-DD"
   - Use structured, scannable format
   - Focus on actionable guidance
   - Include code snippets where helpful
+
+  See docs/dual-format-standard.md for complete specification.
 -->
 
 ### When to Apply
