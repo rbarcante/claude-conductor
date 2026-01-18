@@ -418,7 +418,12 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
 8.  **Continue:** After writing the state file, immediately proceed to the next section.
 
 ### 2.4 Select Guides (Interactive)
+
+**PROTOCOL REFERENCE:** This section applies the AI Template Generation Protocol defined in `$CLAUDE_PLUGIN_ROOT/protocols/ai-template-generation.md`. All styleguides include AI Quick Reference sections optimized for AI consumption.
+
 1.  **Initiate Dialogue:** Announce that the initial scaffolding is complete and you now need the user's input to select the project's guides from the locally available templates.
+    > "The styleguide templates include AI Quick Reference sections at the top for rapid AI consumption, followed by detailed human documentation."
+
 2.  **Select Code Style Guides:**
     -   List the available style guides by checking the plugin's templates directory at `$CLAUDE_PLUGIN_ROOT/templates/code_styleguides/`.
     -   For new projects (greenfield):
@@ -436,7 +441,16 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
                     A) Yes, I want to proceed with the suggested code style guides.
                     B) No, I want to add more code style guides.
     -   **Action:** Construct and execute a command to create the directory and copy all selected files. For example: `mkdir -p conductor/code_styleguides && cp $CLAUDE_PLUGIN_ROOT/templates/code_styleguides/python.md $CLAUDE_PLUGIN_ROOT/templates/code_styleguides/javascript.md conductor/code_styleguides/`
-    -   **Commit State:** Upon successful completion of the copy command, you MUST immediately write to `conductor/setup_state.json` with the exact content:
+
+3.  **Verify AI-Enhanced Content:**
+    -   After copying, verify each styleguide contains:
+        -   `## AI Quick Reference` header
+        -   `### Language Rules` section
+        -   `### Type Patterns` section (for typed languages)
+        -   `### Avoid` section
+    -   **Announce:** For each copied styleguide, announce: "Copied AI-enhanced styleguide: [styleguide-name].md (includes AI Quick Reference section)"
+
+4.  **Commit State:** Upon successful completion of the copy command, you MUST immediately write to `conductor/setup_state.json` with the exact content:
         `{"last_successful_step": "2.4_code_styleguides"}`
 
 ### 2.5 Select Workflow (Interactive)
