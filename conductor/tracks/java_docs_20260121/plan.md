@@ -62,13 +62,13 @@
     - [x] Add context/details support
     - [x] Add AI header comment block
 
-- [~] Task: Create Dependency Injection snippet
-    - [ ] Create `dependency-injection.java` with Spring/Jakarta examples
-    - [ ] Add configuration class patterns
-    - [ ] Add constructor injection examples
-    - [ ] Add AI header comment block
+- [x] Task: Create Dependency Injection snippet [3f4e558]
+    - [x] Create `dependency-injection.java` with Spring/Jakarta examples
+    - [x] Add configuration class patterns
+    - [x] Add constructor injection examples
+    - [x] Add AI header comment block
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Java Snippets' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Java Snippets' (Protocol in workflow.md)
 
 ## Phase 4: Java Code Styleguide
 
