@@ -27,7 +27,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Java Best Practices Skill Structure' (Protocol in workflow.md)
 
-## Phase 2: Java Skill Patterns
+## Phase 2: Java Skill Patterns [checkpoint: 6bfb7c4]
 
 - [x] Task: Create type-safety pattern [482b2c1]
     - [x] Create `skills/java-best-practices/patterns/` directory
@@ -45,11 +45,11 @@
     - [x] Add sealed class hierarchy examples
     - [x] Add pattern matching examples
 
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Java Skill Patterns' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Java Skill Patterns' (Protocol in workflow.md)
 
 ## Phase 3: Java Snippets
 
-- [ ] Task: Create API Client snippet
+- [~] Task: Create API Client snippet
     - [ ] Create `snippets/java/` directory
     - [ ] Create `api-client.java` with HttpClient implementation
     - [ ] Add retry logic with exponential backoff
