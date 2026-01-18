@@ -1,8 +1,8 @@
 {
   "track_id": "fix-cli-implement-update_20260122",
   "type": "bugfix",
-  "status": "new",
+  "status": "in-progress",
   "created_at": "2026-01-22T14:57:57.672880Z",
-  "updated_at": "2026-01-22T14:57:57.672880Z",
+  "updated_at": "2026-01-22T15:01:11.963112Z",
   "description": "Fix CLI implement update-status track detection"
 }

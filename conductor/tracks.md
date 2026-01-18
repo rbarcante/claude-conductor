@@ -49,5 +49,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ## Active Tracks
 
-- [ ] **Track: Fix CLI implement update-status track detection**
-  *Link: [fix-cli-implement-update_20260122](./tracks/fix-cli-implement-update_20260122/)*
+- [~] **Track: Fix CLI implement update-status track detection**
+  *Link: [fix-cli-implement-update_20260122](./conductor/tracks/fix-cli-implement-update_20260122/)*
