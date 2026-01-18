@@ -7,7 +7,7 @@
     - [x] Add `- AskUserQuestion` to the allowed-tools list
     - [x] Verify the YAML frontmatter remains valid
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Implement Git Isolation Protocol Section
 
