@@ -57,7 +57,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
-## Phase 4: Documentation and Testing
+## Phase 4: Documentation and Testing [checkpoint: e6b44f8]
 
 - [x] Task: Update section cross-references [6cb003c]
     - [x] Ensure Section 3.0 references the new git isolation step
