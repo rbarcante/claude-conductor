@@ -1,6 +1,6 @@
 # Implementation Plan: Git Branch/Worktree Integration for Implement Command
 
-## Phase 1: Update Command Configuration
+## Phase 1: Update Command Configuration [checkpoint: 5ac679f]
 
 - [x] Task: Add AskUserQuestion to allowed-tools in implement.md frontmatter [37172b4]
     - [x] Read the frontmatter section of implement.md
