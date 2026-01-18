@@ -14,7 +14,7 @@
       "type": "string",
       "description": "Human-readable skill name",
       "minLength": 1,
-      "examples": ["TypeScript Best Practices", "API Design"]
+      "examples": ["typescript-best-practices", "api-design"]
     },
     "version": {
       "type": "string",
@@ -147,7 +147,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "name": "TypeScript Best Practices",
+      "name": "typescript-best-practices",
       "version": "1.0.0",
       "description": "Best practices and patterns for TypeScript development",
       "activation": {
@@ -163,7 +163,7 @@
       }
     },
     {
-      "name": "Conductor Methodology",
+      "name": "conductor-methodology",
       "version": "1.0.0",
       "description": "Core Conductor development methodology",
       "activation": {

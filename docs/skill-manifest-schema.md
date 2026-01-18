@@ -32,7 +32,7 @@ The skill manifest system enables:
 - **Type**: `string`
 - **Required**: Yes
 - **Description**: Human-readable skill name
-- **Example**: `"Conductor Methodology"`
+- **Example**: `"conductor-methodology"`
 
 ### `version`
 - **Type**: `string` (Semantic Version)

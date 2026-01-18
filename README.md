@@ -19,7 +19,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
 - **AI-Optimized Templates**: Dual-format patterns and styleguides with AI Quick Reference sections, plus a searchable snippet library.
-- **Skill Ecosystem**: Extensible skill plugin architecture with reference skills for TypeScript, API Design, and Testing that provide domain-specific guidance.
+- **Skill Ecosystem**: Extensible skill plugin architecture with reference skills for typescript-best-practices, api-design, and testing-strategies that provide domain-specific guidance.
 - **Quality Intelligence**: Automated anti-pattern detection and coverage analysis with actionable test suggestions during implementation.
 - **Decision Logging**: Architecture Decision Record (ADR) logging that captures the "why" behind implementation choices for self-documenting codebases.
 
@@ -308,7 +308,7 @@ After detection, you can:
 
 Skills provide context-aware guidance during implementation. They're automatically activated based on your task context:
 
-- **Always-Active Skills**: Core methodology loaded for every task (e.g., Conductor Methodology)
+- **Always-Active Skills**: Core methodology loaded for every task (e.g., conductor-methodology)
 - **Context-Activated Skills**: Matched based on task keywords, tech stack, and file patterns
 
 #### Activation Scoring
@@ -333,7 +333,7 @@ When running `/conductor:implement`, activated skills are announced:
 🔧 **Skills Activated for This Track:**
 
 **Always Active:**
-- Conductor Methodology: Core development workflow guidance
+- conductor-methodology: Core development workflow guidance
 
 **Context-Activated:** (based on track/task matching)
 - React Best Practices (score: 3.5): Component patterns, hooks usage, state management
@@ -376,25 +376,25 @@ Conductor includes the following reference skills out of the box:
 
 | Skill | Description | Activation |
 | :--- | :--- | :--- |
-| **TypeScript Best Practices** | Type safety, async patterns, null handling | `.ts`, `.tsx` files; TypeScript tech stack |
-| **API Design** | REST conventions, error responses, versioning | routes/controllers/api directories; backend frameworks |
-| **Testing Strategies** | Unit testing, integration testing, mocking | test files (`*.test.*`, `*.spec.*`); test frameworks |
+| **typescript-best-practices** | Type safety, async patterns, null handling | `.ts`, `.tsx` files; TypeScript tech stack |
+| **api-design** | REST conventions, error responses, versioning | routes/controllers/api directories; backend frameworks |
+| **testing-strategies** | Unit testing, integration testing, mocking | test files (`*.test.*`, `*.spec.*`); test frameworks |
 
 ### Skill Patterns
 
 Each reference skill includes domain-specific patterns:
 
-**TypeScript Best Practices:**
+**typescript-best-practices:**
 - `type-safety.md` - Type definitions, generics, discriminated unions
 - `async-patterns.md` - Async/await, Promise handling, error management
 - `null-handling.md` - Optional chaining, nullish coalescing, type guards
 
-**API Design:**
+**api-design:**
 - `rest-conventions.md` - URL naming, HTTP methods, resource design
 - `error-responses.md` - Error format, status codes, error classes
 - `versioning.md` - URL versioning, deprecation, migration
 
-**Testing Strategies:**
+**testing-strategies:**
 - `unit-test-patterns.md` - Structure, naming, assertions
 - `integration-patterns.md` - Database, API, service tests
 - `mocking-strategies.md` - When and how to mock
@@ -410,7 +410,7 @@ Skills can be enabled/disabled per-project via `conductor/settings.json`:
 }
 ```
 
-Note: Always-active skills (like Conductor Methodology) cannot be disabled.
+Note: Always-active skills (like conductor-methodology) cannot be disabled.
 
 ## Quality Intelligence
 

@@ -120,7 +120,7 @@
       "version": "1.0.0",
       "skills": [
         {
-          "name": "Conductor Methodology",
+          "name": "conductor-methodology",
           "version": "1.0.0",
           "path": "./conductor-methodology",
           "description": "Core Conductor development methodology",

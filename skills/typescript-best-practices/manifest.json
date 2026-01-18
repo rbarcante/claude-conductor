@@ -1,6 +1,6 @@
 {
   "$schema": "../manifest-schema.json",
-  "name": "TypeScript Best Practices",
+  "name": "typescript-best-practices",
   "version": "1.0.0",
   "description": "Type safety, async patterns, and null handling guidance for TypeScript development",
   "author": "Conductor Team",

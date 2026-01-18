@@ -1,5 +1,5 @@
 ---
-name: Conductor Methodology
+name: conductor-methodology
 description: Use this skill when the user asks about Conductor concepts, workflow patterns, track lifecycle, plan structures, or context-driven development principles. Also activate when working with conductor/ directory files or when implementing tasks following TDD and verification protocols.
 version: 1.0.0
 ---

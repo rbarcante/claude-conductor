@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "skills": [
     {
-      "name": "Conductor Methodology",
+      "name": "conductor-methodology",
       "version": "1.0.0",
       "path": "./conductor-methodology",
       "description": "Core Conductor development methodology and context-driven principles",
@@ -15,7 +15,7 @@
       }
     },
     {
-      "name": "TypeScript Best Practices",
+      "name": "typescript-best-practices",
       "version": "1.0.0",
       "path": "./typescript-best-practices",
       "description": "Type safety, async patterns, and null handling guidance for TypeScript development",
@@ -32,7 +32,7 @@
       }
     },
     {
-      "name": "API Design",
+      "name": "api-design",
       "version": "1.0.0",
       "path": "./api-design",
       "description": "REST conventions, error responses, and versioning strategies for API development",
@@ -49,7 +49,7 @@
       }
     },
     {
-      "name": "Testing Strategies",
+      "name": "testing-strategies",
       "version": "1.0.0",
       "path": "./testing-strategies",
       "description": "Unit testing, integration testing, and mocking strategies for comprehensive test coverage",

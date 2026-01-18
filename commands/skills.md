@@ -81,9 +81,9 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
     | Skill | Version | Status | Description |
     |-------|---------|--------|-------------|
-    | Conductor Methodology | 1.0.0 | Always Active | Core development methodology |
-    | TypeScript Best Practices | 1.0.0 | Available | Type safety and async patterns |
-    | API Design | 1.0.0 | Disabled | REST conventions and error handling |
+    | conductor-methodology | 1.0.0 | Always Active | Core development methodology |
+    | typescript-best-practices | 1.0.0 | Available | Type safety and async patterns |
+    | api-design | 1.0.0 | Disabled | REST conventions and error handling |
     | ... | ... | ... | ... |
 
     **Total:** X skills available

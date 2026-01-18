@@ -1,5 +1,5 @@
 ---
-name: API Design
+name: api-design
 description: Use this skill when designing or implementing REST APIs, endpoints, routes, or controllers.
 version: 1.0.0
 ---

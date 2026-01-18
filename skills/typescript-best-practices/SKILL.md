@@ -1,5 +1,5 @@
 ---
-name: TypeScript Best Practices
+name: typescript-best-practices
 description: Use this skill when working with TypeScript code, type definitions, interfaces, generics, or async patterns.
 version: 1.0.0
 ---

@@ -1,6 +1,6 @@
 {
   "$schema": "../manifest-schema.json",
-  "name": "Testing Strategies",
+  "name": "testing-strategies",
   "version": "1.0.0",
   "description": "Unit testing, integration testing, and mocking strategies for comprehensive test coverage",
   "author": "Conductor Team",

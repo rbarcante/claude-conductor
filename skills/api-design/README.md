@@ -133,8 +133,8 @@ export function errorHandler(
 
 ## Related Skills
 
-- **TypeScript Best Practices**: For typed API development
-- **Testing Strategies**: For API testing patterns
+- **typescript-best-practices**: For typed API development
+- **testing-strategies**: For API testing patterns
 
 ## Changelog
 

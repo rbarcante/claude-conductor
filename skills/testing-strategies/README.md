@@ -166,8 +166,8 @@ describe('Users API', () => {
 
 ## Related Skills
 
-- **TypeScript Best Practices**: For typed test code
-- **API Design**: For API testing patterns
+- **typescript-best-practices**: For typed test code
+- **api-design**: For API testing patterns
 
 ## Changelog
 

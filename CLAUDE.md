@@ -123,7 +123,7 @@ Read `skills/skill-registry.json` to get the list of available skills with their
   "version": "1.0.0",
   "skills": [
     {
-      "name": "Conductor Methodology",
+      "name": "conductor-methodology",
       "version": "1.0.0",
       "path": "./conductor-methodology",
       "description": "Core development methodology",
@@ -292,10 +292,10 @@ When skills are activated, announce at the start of task execution:
 ```
 🔧 **Skills Activated:**
 
-1. **Conductor Methodology** (always active)
+1. **conductor-methodology** (always active)
    > Core methodology guidance for TDD and verification protocols
 
-2. **TypeScript Best Practices** (score: 3.5)
+2. **typescript-best-practices** (score: 3.5)
    > Type safety, async patterns, and null handling guidance
 
 [Proceed with implementation using activated skills]

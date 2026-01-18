@@ -238,12 +238,12 @@ Recommended structure:
 
 ```markdown
 ---
-name: TypeScript Best Practices
+name: typescript-best-practices
 description: Use this skill when working with TypeScript code, type definitions, or async patterns.
 version: 1.0.0
 ---
 
-# TypeScript Best Practices
+# typescript-best-practices
 
 Guidance for writing type-safe, maintainable TypeScript code.
 
@@ -493,4 +493,4 @@ Workflow protocols the skill implements.
 - [Skill Manifest Schema](./skill-manifest-schema.md) - Complete manifest field reference
 - [Dual-Format Standard](./dual-format-standard.md) - AI Quick Reference format specification
 - [Pattern Template](../patterns/TEMPLATE.md) - Pattern file format
-- [Conductor Methodology](../skills/conductor-methodology/SKILL.md) - Example always-active skill
+- [conductor-methodology](../skills/conductor-methodology/SKILL.md) - Example always-active skill

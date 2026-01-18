@@ -1,6 +1,6 @@
 {
   "$schema": "../manifest-schema.json",
-  "name": "API Design",
+  "name": "api-design",
   "version": "1.0.0",
   "description": "REST conventions, error responses, and versioning strategies for API development",
   "author": "Conductor Team",

@@ -472,17 +472,17 @@ cat conductor/tracks/<track_id>/plan.md
 
 **Scenario: Always-Active Skill Loading**
 
-**Objective:** Verify Conductor Methodology skill is always loaded
+**Objective:** Verify conductor-methodology skill is always loaded
 
 **Steps:**
 1. Start implementation on any track: `/conductor:implement`
 2. Observe the skill activation announcement
 
 **Expected Results:**
-- Conductor Methodology skill should be listed as "always active"
+- conductor-methodology skill should be listed as "always active"
 - Announcement format:
   ```
-  🔧 **Skills Activated:** Conductor Methodology (always active)
+  🔧 **Skills Activated:** conductor-methodology (always active)
   ```
 - No score displayed for always-active skills
 
@@ -505,7 +505,7 @@ cat conductor/tracks/<track_id>/plan.md
   🔧 **Skills Activated for This Track:**
 
   **Always Active:**
-  - Conductor Methodology: Core development workflow guidance
+  - conductor-methodology: Core development workflow guidance
 
   **Context-Activated:** (based on track/task matching)
   - [Skill Name] (score: X.X): [Brief description]
@@ -539,7 +539,7 @@ cat conductor/tracks/<track_id>/plan.md
 2. Run `/conductor:implement`
 
 **Expected Results:**
-- Conductor Methodology skill should match via file pattern
+- conductor-methodology skill should match via file pattern
 - File pattern contributes +1.5 to score
 - Skill activates based on file pattern match
 
@@ -999,7 +999,7 @@ Each ADR entry contains:
 3. Observe skill activation announcement
 
 **Expected Results:**
-- TypeScript Best Practices skill should activate
+- typescript-best-practices skill should activate
 - Score should be displayed (based on keyword + tech stack matches)
 - Skill guidance should be available during implementation
 
@@ -1015,9 +1015,9 @@ Each ADR entry contains:
 
 **Expected Results:**
 - Multiple skills should activate:
-  - TypeScript Best Practices (keywords: typescript)
-  - API Design (keywords: api, endpoint, rest)
-  - Testing Strategies (keywords: tests, unit)
+  - typescript-best-practices (keywords: typescript)
+  - api-design (keywords: api, endpoint, rest)
+  - testing-strategies (keywords: tests, unit)
 - All activated skills listed in announcement
 
 ---

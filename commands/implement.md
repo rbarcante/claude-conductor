@@ -99,7 +99,7 @@ When skills are activated, announce to the user:
 🔧 **Skills Activated for This Track:**
 
 **Always Active:**
-- Conductor Methodology: Core development workflow guidance
+- conductor-methodology: Core development workflow guidance
 
 **Context-Activated:** (based on track/task matching)
 - [Skill Name] (score: X.X): [Brief description]
@@ -109,7 +109,7 @@ Proceeding with implementation using activated skill guidance.
 
 If no additional skills are activated beyond always-active:
 ```
-🔧 **Skills Activated:** Conductor Methodology (always active)
+🔧 **Skills Activated:** conductor-methodology (always active)
 ```
 
 If skill registry is missing or no always-active skills exist, proceed silently without announcement.

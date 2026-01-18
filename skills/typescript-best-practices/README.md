@@ -93,8 +93,8 @@ Recommended `tsconfig.json` settings:
 
 ## Related Skills
 
-- **Testing Strategies**: For TypeScript testing patterns
-- **API Design**: For typed API development
+- **testing-strategies**: For TypeScript testing patterns
+- **api-design**: For typed API development
 
 ## Changelog
 

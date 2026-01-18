@@ -1,5 +1,5 @@
 ---
-name: Testing Strategies
+name: testing-strategies
 description: Use this skill when writing tests, implementing TDD, or setting up test infrastructure.
 version: 1.0.0
 ---
