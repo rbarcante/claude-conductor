@@ -1,5 +1,31 @@
 # Google Python Style Guide Summary
 
+## AI Quick Reference
+
+### Language Rules
+- 4 spaces indentation, never tabs
+- Max 80 characters per line
+- Use `import x` for packages, `from x import y` for submodules only
+- Type annotations required for public APIs
+- f-strings for string formatting
+- Use `if not my_list:` for empty checks, `if foo is None:` for None checks
+
+### Type Patterns
+- `snake_case` for functions, methods, variables
+- `PascalCase` for classes
+- `ALL_CAPS` for module-level constants
+- `_leading_underscore` for internal/private members
+- Triple double quotes `"""` for all docstrings
+
+### Avoid
+- Mutable default arguments (`def fn(items=[])` → `def fn(items=None)`)
+- Bare `except:` clauses (catch specific exceptions)
+- Mutable global state (constants are okay)
+- Complex comprehensions (use loops for readability)
+- Relying on implicit boolean conversion for None checks
+
+---
+
 This document summarizes key rules and best practices from the Google Python Style Guide.
 
 ## 1. Python Language Rules
