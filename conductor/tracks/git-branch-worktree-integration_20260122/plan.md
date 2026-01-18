@@ -48,7 +48,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
-## Phase 3: Add CLI Support for Branch Operations
+## Phase 3: Add CLI Support for Branch Operations [checkpoint: 1f25e9f]
 
 - [x] Task: Add CLI command reference for branch operations [f184dcb]
     - [x] Add entry to CLI Command Reference table for branch suggestion
