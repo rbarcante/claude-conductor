@@ -1,0 +1,8 @@
+{
+  "track_id": "add-git-isolation-protocol_20260122",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-01-22T17:58:33.791553Z",
+  "updated_at": "2026-01-22T17:58:33.791553Z",
+  "description": "Add Git Isolation Protocol to newTrack command"
+}

@@ -51,6 +51,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
+
+- [ ] **Track: Add Git Isolation Protocol to newTrack command**
+  *Link: [add-git-isolation-protocol_20260122](./conductor/tracks/add-git-isolation-protocol_20260122/)*
 - [ ] **Track: Add suggest-branch subcommand to implement CLI**
   *Link: [add-suggest-branch-subcommand_20260122](./conductor/tracks/add-suggest-branch-subcommand_20260122/)*
 - [x] **Track: Bug when detecting Brownfield vs Greenfield project**
