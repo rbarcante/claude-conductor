@@ -50,5 +50,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 ## Active Tracks
 
 
-- [ ] **Track: Bug when detecting Brownfield vs Greenfield project**
+- [x] **Track: Bug when detecting Brownfield vs Greenfield project**
   *Link: [bug-when-detecting-brownfield_20260122](./conductor/tracks/bug-when-detecting-brownfield_20260122/)*

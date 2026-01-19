@@ -10,34 +10,34 @@ Fix the `setup detect` command to correctly identify brownfield projects when so
 
 ## Phase 1: Source Code Detection
 
-- [ ] Task: Write failing tests for source code detection
-    - [ ] Test: detect returns brownfield for project with `main.py` only
-    - [ ] Test: detect returns brownfield for project with `src/index.js` only
-    - [ ] Test: detect returns greenfield for project with only `.md` files
-    - [ ] Test: detect infers language from source files when no manifest exists
-    - [ ] Run tests and confirm they fail
+- [x] Task: Write failing tests for source code detection
+    - [x] Test: detect returns brownfield for project with `main.py` only
+    - [x] Test: detect returns brownfield for project with `src/index.js` only
+    - [x] Test: detect returns greenfield for project with only `.md` files
+    - [x] Test: detect infers language from source files when no manifest exists
+    - [x] Run tests and confirm they fail
 
-- [ ] Task: Implement source code file detection
-    - [ ] Add `SOURCE_CODE_EXTENSIONS` mapping (extension → language)
-    - [ ] Create `_detect_source_files()` helper function
-    - [ ] Integrate into `detect()` function to set brownfield status
-    - [ ] Run tests and confirm they pass
+- [x] Task: Implement source code file detection
+    - [x] Add `SOURCE_CODE_EXTENSIONS` mapping (extension → language)
+    - [x] Create `_detect_source_files()` helper function
+    - [x] Integrate into `detect()` function to set brownfield status
+    - [x] Run tests and confirm they pass
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Source Code Detection' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Source Code Detection' (Protocol in workflow.md)
 
 ---
 
 ## Phase 2: Integration and Polish
 
-- [ ] Task: Verify full test suite passes
-    - [ ] Run all existing tests to ensure no regressions
-    - [ ] Verify coverage meets >80% threshold
+- [x] Task: Verify full test suite passes
+    - [x] Run all existing tests to ensure no regressions
+    - [x] Verify coverage meets >80% threshold
 
-- [ ] Task: Test CLI integration manually
-    - [ ] Test `python scripts/conductor_cli.py setup detect` on a project with source code only
-    - [ ] Verify correct brownfield detection
+- [x] Task: Test CLI integration manually
+    - [x] Test `python scripts/conductor_cli.py setup detect` on a project with source code only
+    - [x] Verify correct brownfield detection
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Integration and Polish' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Integration and Polish' (Protocol in workflow.md)
 
 ---
 

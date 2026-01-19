@@ -93,6 +93,39 @@ FRAMEWORK_PATTERNS = {
     'flutter': ['flutter'],
 }
 
+# Source code file extensions to language mapping
+# Used for brownfield detection when no manifest files are present
+SOURCE_CODE_EXTENSIONS = {
+    # Python
+    '.py': 'python',
+    # JavaScript
+    '.js': 'javascript',
+    '.jsx': 'javascript',
+    '.mjs': 'javascript',
+    # TypeScript
+    '.ts': 'typescript',
+    '.tsx': 'typescript',
+    # Java
+    '.java': 'java',
+    # Go
+    '.go': 'go',
+    # Rust
+    '.rs': 'rust',
+    # Ruby
+    '.rb': 'ruby',
+    # PHP
+    '.php': 'php',
+    # C#
+    '.cs': 'csharp',
+    # Dart
+    '.dart': 'dart',
+    # C/C++
+    '.c': 'c',
+    '.cpp': 'cpp',
+    '.h': 'c',
+    '.hpp': 'cpp',
+}
+
 # Language to styleguide mapping
 LANGUAGE_STYLEGUIDES = {
     'javascript': 'javascript.md',
@@ -181,6 +214,16 @@ def detect(project_root: Path) -> Dict[str, Any]:
                     detected['languages'].append(info['language'])
                 if info['ecosystem'] not in detected['ecosystems']:
                     detected['ecosystems'].append(info['ecosystem'])
+
+    # Detect source code files (for brownfield detection without manifest files)
+    if detected['project_type'] == 'greenfield':
+        source_languages = _detect_source_files(project_root)
+        if source_languages:
+            detected['project_type'] = 'brownfield'
+            detected['indicators_found'].append('source_code_files')
+            for lang in source_languages:
+                if lang not in detected['languages']:
+                    detected['languages'].append(lang)
 
     # Detect frameworks from package files
     frameworks = _detect_frameworks(project_root)
@@ -535,6 +578,50 @@ def _get_code_stats(project_root: Path) -> Dict[str, Any]:
         pass
 
     return stats
+
+
+def _detect_source_files(project_root: Path) -> List[str]:
+    """
+    Detect source code files in the project.
+
+    Scans top-level directory and src/ subdirectory for source code files.
+    Returns list of detected languages based on file extensions.
+
+    Args:
+        project_root: Project root directory
+
+    Returns:
+        List of detected language names (e.g., ['python', 'javascript'])
+    """
+    detected_languages = []
+
+    # Directories to skip
+    skip_dirs = {'node_modules', 'venv', '.venv', '__pycache__', 'target', 'build', 'dist', 'conductor'}
+
+    def scan_directory(directory: Path, depth: int = 0):
+        """Scan a directory for source files (max depth 1 for performance)."""
+        if depth > 1:
+            return
+        try:
+            for item in directory.iterdir():
+                if item.name.startswith('.'):
+                    continue
+                if item.is_file():
+                    ext = item.suffix.lower()
+                    if ext in SOURCE_CODE_EXTENSIONS:
+                        lang = SOURCE_CODE_EXTENSIONS[ext]
+                        if lang not in detected_languages:
+                            detected_languages.append(lang)
+                elif item.is_dir() and item.name not in skip_dirs:
+                    # Scan subdirectories (only src/ and similar)
+                    if item.name in ('src', 'lib', 'app', 'source', 'sources'):
+                        scan_directory(item, depth + 1)
+        except Exception:
+            pass
+
+    scan_directory(project_root)
+
+    return detected_languages
 
 
 def _create_product_template() -> str:

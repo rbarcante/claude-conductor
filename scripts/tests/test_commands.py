@@ -350,6 +350,63 @@ class TestSetupCommand:
         assert result['success'] is True
         assert result['data']['project_type'] == 'brownfield'
 
+    def test_detect_brownfield_with_python_source_only(self, tmp_path):
+        """Test that detect returns brownfield for project with main.py but no requirements.txt."""
+        # Create only a Python source file, no manifest
+        (tmp_path / 'main.py').write_text('print("hello")')
+
+        args = MockArgs(project_root=tmp_path, subcommand='detect')
+        result = setup.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['project_type'] == 'brownfield', \
+            "Project with main.py should be detected as brownfield"
+        assert 'python' in result['data']['languages'], \
+            "Python should be inferred from .py file"
+
+    def test_detect_brownfield_with_js_source_in_src_dir(self, tmp_path):
+        """Test that detect returns brownfield for project with src/index.js but no package.json."""
+        # Create only a JS source file in src/, no manifest
+        (tmp_path / 'src').mkdir()
+        (tmp_path / 'src' / 'index.js').write_text('console.log("hello");')
+
+        args = MockArgs(project_root=tmp_path, subcommand='detect')
+        result = setup.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['project_type'] == 'brownfield', \
+            "Project with src/index.js should be detected as brownfield"
+        assert 'javascript' in result['data']['languages'], \
+            "JavaScript should be inferred from .js file"
+
+    def test_detect_greenfield_with_only_md_files(self, tmp_path):
+        """Test that detect returns greenfield for project with only .md files."""
+        # Create only markdown files
+        (tmp_path / 'README.md').write_text('# My Project')
+        (tmp_path / 'CONTRIBUTING.md').write_text('# Contributing')
+
+        args = MockArgs(project_root=tmp_path, subcommand='detect')
+        result = setup.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['project_type'] == 'greenfield', \
+            "Project with only .md files should be detected as greenfield"
+
+    def test_detect_infers_language_from_source_files(self, tmp_path):
+        """Test that detect infers language from source files when no manifest exists."""
+        # Create TypeScript files without tsconfig.json
+        (tmp_path / 'app.ts').write_text('const x: string = "hello";')
+        (tmp_path / 'utils.ts').write_text('export const util = () => {};')
+
+        args = MockArgs(project_root=tmp_path, subcommand='detect')
+        result = setup.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['project_type'] == 'brownfield', \
+            "Project with .ts files should be detected as brownfield"
+        assert 'typescript' in result['data']['languages'], \
+            "TypeScript should be inferred from .ts files"
+
     def test_scaffold(self, tmp_path):
         """Test conductor scaffolding."""
         args = MockArgs(project_root=tmp_path, subcommand='scaffold')
