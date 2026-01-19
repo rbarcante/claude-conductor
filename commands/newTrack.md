@@ -248,7 +248,24 @@ When user selects this option:
 2.  **Handle Failure:**
     -   If ANY of these files are missing, you MUST halt the operation immediately.
     -   Announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
-    -   Do NOT proceed to New Track Initialization.
+    -   Do NOT proceed.
+
+3.  **Continue:** After setup verification passes, proceed to **Section 1.2 GIT ISOLATION SETUP**.
+
+---
+
+## 1.2 GIT ISOLATION SETUP
+
+**PROTOCOL: Follow the Git Isolation Protocol in `protocols/git-isolation.md`.**
+
+This section ensures track work is properly isolated from the main codebase. Execute the Git Isolation Protocol to create or switch to a dedicated git branch before track creation begins.
+
+**Note for newTrack:** Since the `track_id` does not exist yet, use the track description to generate the branch name:
+1. Extract shortname from the track description (3-4 key words, hyphen-separated, lowercase)
+2. Use the inferred track type to determine the branch prefix
+3. Present branch options to the user following the protocol
+
+After completing the protocol, proceed to **Section 2.0 NEW TRACK INITIALIZATION**.
 
 ---
 
