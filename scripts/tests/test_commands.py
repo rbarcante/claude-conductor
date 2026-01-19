@@ -307,6 +307,34 @@ class TestNewtrackCommand:
         assert (track_dir / 'spec.md').exists()
         assert (track_dir / 'plan.md').exists()
 
+    def test_register_creates_correct_path_format(self, conductor_project):
+        """Test that register creates tracks.md entries with ./conductor/tracks/ path format.
+
+        This tests the fix for the bug where register used ./tracks/{track_id}/
+        but implement update-status expects ./conductor/tracks/{track_id}/.
+        """
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='register',
+            track_id='test-register_20260122',
+            description='Test register path format'
+        )
+        result = newtrack.handle(args)
+
+        assert result['success'] is True
+
+        # Read tracks.md and verify the path format
+        tracks_file = conductor_project / 'conductor' / 'tracks.md'
+        content = tracks_file.read_text()
+
+        # The entry should use ./conductor/tracks/ path, NOT ./tracks/
+        assert '(./conductor/tracks/test-register_20260122/)' in content, \
+            f"Expected path format './conductor/tracks/test-register_20260122/' not found in tracks.md. Content:\n{content}"
+
+        # The entry should NOT use the incorrect ./tracks/ path
+        assert '(./tracks/test-register_20260122/)' not in content, \
+            "Incorrect path format './tracks/test-register_20260122/' found in tracks.md"
+
 
 class TestSetupCommand:
     """Tests for setup command."""

@@ -490,4 +490,4 @@ _No completed tracks._
 def _create_track_entry(track_id: str, description: str) -> str:
     """Create a track entry for tracks.md."""
     return f"""- [ ] **Track: {description}**
-  *Link: [{track_id}](./tracks/{track_id}/)*"""
+  *Link: [{track_id}](./conductor/tracks/{track_id}/)*"""
