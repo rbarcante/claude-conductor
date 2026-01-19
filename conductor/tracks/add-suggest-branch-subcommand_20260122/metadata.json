@@ -1,0 +1,8 @@
+{
+  "track_id": "add-suggest-branch-subcommand_20260122",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-22T17:00:33.866242Z",
+  "updated_at": "2026-01-22T17:00:33.866242Z",
+  "description": "Add suggest-branch subcommand to implement CLI"
+}

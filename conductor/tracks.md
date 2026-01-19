@@ -50,5 +50,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 ## Active Tracks
 
 
+
+- [ ] **Track: Add suggest-branch subcommand to implement CLI**
+  *Link: [add-suggest-branch-subcommand_20260122](./conductor/tracks/add-suggest-branch-subcommand_20260122/)*
 - [x] **Track: Bug when detecting Brownfield vs Greenfield project**
   *Link: [bug-when-detecting-brownfield_20260122](./conductor/tracks/bug-when-detecting-brownfield_20260122/)*
