@@ -192,6 +192,9 @@ def create_parser() -> argparse.ArgumentParser:
     impl_patterns = implement_subparsers.add_parser('match-patterns', help='Match patterns for keywords')
     impl_patterns.add_argument('keywords', nargs='+', help='Keywords to match')
 
+    impl_suggest_branch = implement_subparsers.add_parser('suggest-branch', help='Suggest branch name for track')
+    impl_suggest_branch.add_argument('track_id', help='Track ID')
+
     return parser
 
 

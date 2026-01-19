@@ -461,6 +461,85 @@ class TestImplementCommand:
         assert result['success'] is True
         assert result['data']['next_number'] == 3
 
+    def test_suggest_branch_feature_track(self, conductor_project):
+        """Test suggest_branch returns correct prefix for feature track."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='suggest-branch',
+            track_id='test_20260121'
+        )
+        result = implement.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['branch_prefix'] == 'feature/'
+        assert result['data']['branch_name'] == 'feature/test'
+
+    def test_suggest_branch_bugfix_track(self, conductor_project):
+        """Test suggest_branch returns correct prefix for bugfix track."""
+        # Create a bugfix track
+        bugfix_track_dir = conductor_project / 'conductor' / 'tracks' / 'login-bug_20260121'
+        bugfix_track_dir.mkdir()
+        (bugfix_track_dir / 'metadata.json').write_text(json.dumps({
+            'track_id': 'login-bug_20260121',
+            'type': 'bugfix',
+            'status': 'pending',
+            'created_at': '2026-01-21T00:00:00Z',
+            'updated_at': '2026-01-21T00:00:00Z',
+            'description': 'Fix login bug'
+        }))
+
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='suggest-branch',
+            track_id='login-bug_20260121'
+        )
+        result = implement.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['branch_prefix'] == 'fix/'
+        assert result['data']['branch_name'] == 'fix/login-bug'
+
+    def test_suggest_branch_extracts_shortname(self, conductor_project):
+        """Test suggest_branch extracts shortname from track_id (removes date suffix)."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='suggest-branch',
+            track_id='test_20260121'
+        )
+        result = implement.handle(args)
+
+        assert result['success'] is True
+        assert result['data']['track_id'] == 'test_20260121'
+        # Shortname should not include the date suffix
+        assert 'test' in result['data']['branch_name']
+        assert '20260121' not in result['data']['branch_name']
+
+    def test_suggest_branch_missing_track(self, conductor_project):
+        """Test suggest_branch returns error for missing track."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='suggest-branch',
+            track_id='nonexistent_20260121'
+        )
+        result = implement.handle(args)
+
+        assert result['success'] is False
+        assert 'not found' in result['error'].lower()
+
+    def test_suggest_branch_returns_worktree_path(self, conductor_project):
+        """Test suggest_branch returns suggested worktree path."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand='suggest-branch',
+            track_id='test_20260121'
+        )
+        result = implement.handle(args)
+
+        assert result['success'] is True
+        assert 'worktree_path' in result['data']
+        # Worktree path should be relative to parent directory
+        assert result['data']['worktree_path'].startswith('../')
+
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

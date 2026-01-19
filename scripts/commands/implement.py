@@ -46,10 +46,12 @@ def handle(args) -> Dict[str, Any]:
         return next_adr_number(project_root, adr_path)
     elif args.subcommand == 'match-patterns':
         return match_patterns(plugin_root or project_root, args.keywords)
+    elif args.subcommand == 'suggest-branch':
+        return suggest_branch(project_root, args.track_id)
     else:
         return {
             'success': False,
-            'error': 'No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns'
+            'error': 'No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns, suggest-branch'
         }
 
 
@@ -750,6 +752,105 @@ def match_patterns(project_root: Path, keywords: List[str]) -> Dict[str, Any]:
         },
         'message': format_pattern_matches(top_patterns, keywords)
     }
+
+
+# Track type to branch prefix mapping
+TRACK_TYPE_TO_BRANCH_PREFIX = {
+    'feature': 'feature/',
+    'bugfix': 'fix/',
+    'bug': 'fix/',
+    'refactor': 'refactor/',
+    'docs': 'docs/',
+    'chore': 'chore/',
+}
+
+
+def suggest_branch(project_root: Path, track_id: str) -> Dict[str, Any]:
+    """
+    Suggest a branch name based on track type and ID.
+
+    Args:
+        project_root: Project root path
+        track_id: Track identifier
+
+    Returns:
+        JSON with suggested branch name, prefix, and worktree path
+    """
+    resolver = FileResolver(project_root)
+    json_mgr = JsonManager(project_root)
+    git_ops = GitOps(project_root)
+
+    # Verify track exists
+    if not resolver.track_exists(track_id):
+        return {
+            'success': False,
+            'error': f"Track '{track_id}' not found"
+        }
+
+    # Read track metadata to get type
+    metadata = json_mgr.read_track_metadata(track_id)
+    track_type = metadata.get('type', 'feature') if metadata else 'feature'
+
+    # Map track type to branch prefix (default to feature/)
+    branch_prefix = TRACK_TYPE_TO_BRANCH_PREFIX.get(track_type, 'feature/')
+
+    # Extract shortname from track_id (remove date suffix)
+    # Pattern: shortname_YYYYMMDD
+    shortname = extract_shortname(track_id)
+
+    # Generate branch name
+    branch_name = f"{branch_prefix}{shortname}"
+
+    # Generate worktree path suggestion
+    project_name = project_root.name
+    worktree_path = f"../{project_name}-{shortname}"
+
+    # Get current branch
+    current_branch = git_ops.get_current_branch() if git_ops.is_repo() else 'unknown'
+
+    return {
+        'success': True,
+        'data': {
+            'track_id': track_id,
+            'track_type': track_type,
+            'branch_prefix': branch_prefix,
+            'branch_name': branch_name,
+            'worktree_path': worktree_path,
+            'current_branch': current_branch
+        },
+        'message': format_suggest_branch(branch_name, worktree_path, current_branch)
+    }
+
+
+def extract_shortname(track_id: str) -> str:
+    """
+    Extract shortname from track_id by removing date suffix.
+
+    Args:
+        track_id: Full track ID (e.g., 'dark-mode-toggle_20260122')
+
+    Returns:
+        Shortname without date suffix (e.g., 'dark-mode-toggle')
+    """
+    # Pattern: shortname_YYYYMMDD
+    if '_' in track_id:
+        parts = track_id.rsplit('_', 1)
+        # Check if the last part is a date (8 digits)
+        if len(parts) == 2 and len(parts[1]) == 8 and parts[1].isdigit():
+            return parts[0]
+    return track_id
+
+
+def format_suggest_branch(branch_name: str, worktree_path: str, current_branch: str) -> str:
+    """Format suggest_branch output for human readability."""
+    lines = [
+        'Branch Suggestion:',
+        '',
+        f'  Suggested branch: {branch_name}',
+        f'  Worktree path:    {worktree_path}',
+        f'  Current branch:   {current_branch}',
+    ]
+    return '\n'.join(lines)
 
 
 # Formatting helpers
