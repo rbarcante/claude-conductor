@@ -4,7 +4,14 @@
   "description": "Context-driven development framework that enables structured lifecycle for software projects: Context → Spec & Plan → Implement",
   "author": {
     "name": "Ricardo Barcante",
-    "email": "ricardo@barcante.com"
+    "email": "ricardouza@gmail.com"
   },
-  "keywords": ["workflow", "planning", "tdd", "project-management", "context-driven"]
+  "license": "Apache-2.0",
+  "keywords": [
+    "workflow",
+    "planning",
+    "tdd",
+    "project-management",
+    "context-driven"
+  ]
 }
