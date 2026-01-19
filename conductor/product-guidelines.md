@@ -1,4 +1,4 @@
-# Product Guidelines: Conductor Plugin
+# Product Guidelines: Claude Conductor
 
 ## Brand Identity
 

@@ -1,4 +1,4 @@
-# Implementation Plan: Testing Framework for Conductor Plugin
+# Implementation Plan: Testing Framework for Claude Conductor
 
 ## Phase 1: Testing Framework Setup
 

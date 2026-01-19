@@ -1,4 +1,4 @@
-# Specification: Testing Framework for Conductor Plugin
+# Specification: Testing Framework for Claude Conductor
 
 ## Overview
 
@@ -293,7 +293,7 @@ Total estimated effort: 7-12 days
 
 ## References
 
-- Conductor Plugin README.md
+- Claude Conductor README.md
 - Conductor Product Documentation (conductor/product.md)
 - Conductor Workflow (conductor/workflow.md)
 - Claude Code Documentation (if available)

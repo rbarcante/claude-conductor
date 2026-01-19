@@ -26,7 +26,7 @@ conductor/
 
 **Claude Code:**
 ```
-conductor-plugin/
+claude-conductor/
 ├── .claude-plugin/plugin.json
 ├── commands/*.md
 ├── skills/conductor-methodology/
@@ -161,10 +161,10 @@ gemini extensions install https://github.com/user/conductor --auto-update
 ### Claude Code
 ```bash
 # Option 1: Copy to plugins directory
-cp -r conductor-plugin ~/.claude/plugins/conductor
+cp -r claude-conductor ~/.claude/plugins/conductor
 
 # Option 2: Use plugin-dir flag
-cc --plugin-dir /path/to/conductor-plugin
+cc --plugin-dir /path/to/claude-conductor
 ```
 
 ## Command Invocation

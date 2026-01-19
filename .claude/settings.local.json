@@ -10,9 +10,10 @@
       "Bash(pip3 list:*)",
       "Bash(source .venv/bin/activate)",
       "Bash(python -m pytest:*)",
-      "Bash(python /Users/ricardobarcante/projects/personal/claude-code-plugins/conductor-plugin/scripts/conductor_cli.py:*)",
+      "Bash(python /Users/ricardobarcante/projects/personal/claude-code-plugins/claude-conductor/scripts/conductor_cli.py:*)",
       "Bash(.venv/bin/python -m pytest:*)",
-      "Bash(CI=true .venv/bin/python -m pytest:*)"
+      "Bash(CI=true .venv/bin/python -m pytest:*)",
+      "Bash(find:*)"
     ]
   }
 }

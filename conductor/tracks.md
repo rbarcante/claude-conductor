@@ -52,6 +52,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
+
+- [x] **Track: rename the project as claude-conductor, replace all instances of old names with claude-conductor and Claude Conductor respectively**
+  *Link: [rename-project-claude-conductor_20260123](./conductor/tracks/rename-project-claude-conductor_20260123/)*
 - [ ] **Track: Add suggest-branch subcommand to implement CLI**
   *Link: [add-suggest-branch-subcommand_20260122](./conductor/tracks/add-suggest-branch-subcommand_20260122/)*
 - [x] **Track: Bug when detecting Brownfield vs Greenfield project**

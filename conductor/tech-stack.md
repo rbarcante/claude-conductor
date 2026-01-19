@@ -1,4 +1,4 @@
-# Technology Stack: Conductor Plugin
+# Technology Stack: Claude Conductor
 
 ## Overview
 
@@ -19,7 +19,7 @@ Conductor extends Claude Code through:
 ### Directory Structure
 
 ```
-conductor-plugin/
+claude-conductor/
 ├── commands/           # CLI command protocol definitions
 │   ├── setup.md        # Project initialization command
 │   ├── newTrack.md     # Track creation command
@@ -328,7 +328,7 @@ Conductor can be adopted into existing projects:
 
 ## Dependencies
 
-### Conductor Plugin
+### Claude Conductor
 
 **Runtime Dependencies:** None
 

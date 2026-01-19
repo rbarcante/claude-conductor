@@ -1,4 +1,4 @@
-# Testing Guide for Conductor Plugin
+# Testing Guide for Claude Conductor
 
 This guide provides instructions for testing the Conductor plugin after installation.
 
@@ -14,17 +14,17 @@ This guide provides instructions for testing the Conductor plugin after installa
 
 ```bash
 # Copy plugin to Claude Code plugins directory
-cp -r conductor-plugin ~/.claude/plugins/conductor
+cp -r claude-conductor ~/.claude/plugins/conductor
 
 # Or create a symlink for development
-ln -s /path/to/conductor-plugin ~/.claude/plugins/conductor
+ln -s /path/to/claude-conductor ~/.claude/plugins/conductor
 ```
 
 ### Option 2: Use Plugin Directory Flag
 
 ```bash
 # Test without installing
-cc --plugin-dir /path/to/conductor-plugin
+cc --plugin-dir /path/to/claude-conductor
 ```
 
 ## Test Scenarios

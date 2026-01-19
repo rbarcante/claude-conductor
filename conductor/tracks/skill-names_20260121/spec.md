@@ -71,6 +71,6 @@ Standardize all skill naming across the Conductor plugin to use the `lowercase-w
 ## Implementation Notes
 
 - This is a refactoring task with no functional changes to skill behavior
-- All changes are confined to the conductor-plugin repository
+- All changes are confined to the claude-conductor repository
 - Grep/search operations should be used to find all skill name references
 - Care should be taken to maintain JSON schema compliance

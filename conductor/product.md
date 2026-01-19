@@ -1,4 +1,4 @@
-# Product: Conductor Plugin for Claude Code
+# Product: Claude Conductor for Claude Code
 
 ## Initial Concept
 

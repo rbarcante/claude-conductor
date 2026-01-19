@@ -455,7 +455,7 @@ Workflow protocols the skill implements.
 
 ### Community Contribution
 
-1. Fork the conductor-plugin repository
+1. Fork the claude-conductor repository
 2. Create skill in `skills/` directory
 3. Add to skill-registry.json
 4. Submit pull request

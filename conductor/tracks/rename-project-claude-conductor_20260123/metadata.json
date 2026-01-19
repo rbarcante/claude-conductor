@@ -1,0 +1,8 @@
+{
+  "track_id": "rename-project-claude-conductor_20260123",
+  "type": "refactor",
+  "status": "completed",
+  "created_at": "2026-01-23T13:17:37.335783Z",
+  "updated_at": "2026-01-23T14:06:57.451043Z",
+  "description": "rename the project as claude-conductor, replace all instances of conductor-plugin or Conductor Plugin with claude-conductor and Claude Conductor respectively"
+}

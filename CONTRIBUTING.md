@@ -1,17 +1,17 @@
-# Contributing to Conductor Plugin for Claude Code
+# Contributing to Claude Conductor for Claude Code
 
-Thank you for your interest in contributing to the Conductor Plugin for Claude Code!
+Thank you for your interest in contributing to the Claude Conductor for Claude Code!
 
 ## About This Project
 
-Conductor Plugin for Claude Code is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0. This project extends Conductor's context-driven development methodology to work with Claude Code.
+Claude Conductor for Claude Code is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0. This project extends Conductor's context-driven development methodology to work with Claude Code.
 
 ## How to Contribute
 
 ### Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/conductor-plugin.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/claude-conductor.git`
 3. Create a feature branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Test thoroughly
@@ -88,4 +88,4 @@ This project is a derivative work of the Conductor Extension for Gemini CLI. You
 - Create a new discussion for questions
 - Refer to the documentation in `conductor/` directory
 
-Thank you for helping make Conductor Plugin better!
+Thank you for helping make Claude Conductor better!

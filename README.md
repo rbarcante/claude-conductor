@@ -1,4 +1,4 @@
-# Conductor Plugin for Claude Code
+# Claude Conductor for Claude Code
 
 **Measure twice, code once.**
 
@@ -29,10 +29,10 @@ Install the Conductor plugin by copying it to your Claude Code plugins directory
 
 ```bash
 # Option 1: Project-specific installation
-cp -r conductor-plugin ~/.claude/plugins/conductor
+cp -r claude-conductor ~/.claude/plugins/conductor
 
 # Option 2: Use with --plugin-dir flag
-cc --plugin-dir /path/to/conductor-plugin
+cc --plugin-dir /path/to/claude-conductor
 ```
 
 ## Usage
@@ -592,7 +592,7 @@ For more details, see [CLAUDE.md](CLAUDE.md).
 
 ## Attribution
 
-**Conductor Plugin for Claude Code** is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0.
+**Claude Conductor for Claude Code** is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0.
 
 The original Conductor project provided the foundational context-driven development methodology. This plugin adapts and extends that methodology for use with Claude Code, including:
 

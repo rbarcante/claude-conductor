@@ -1,12 +1,12 @@
-# Specification: Apache-2.0 License Compliance for Conductor Plugin
+# Specification: Apache-2.0 License Compliance for Claude Conductor
 
 ## Overview
 
-This track ensures the Conductor Plugin for Claude Code is fully compliant with the Apache License 2.0 requirements for derivative works. The plugin is adapted from the original "Conductor Extension for Gemini CLI" project.
+This track ensures the Claude Conductor for Claude Code is fully compliant with the Apache License 2.0 requirements for derivative works. The plugin is adapted from the original "Conductor Extension for Gemini CLI" project.
 
 ## Background
 
-The Conductor Plugin is a derivative work based on the Apache 2.0 licensed "Conductor Extension for Gemini CLI" (https://github.com/gemini-cli-extensions/conductor). As per Apache 2.0 Section 4 (Redistribution), derivative works must:
+The Claude Conductor is a derivative work based on the Apache 2.0 licensed "Conductor Extension for Gemini CLI" (https://github.com/gemini-cli-extensions/conductor). As per Apache 2.0 Section 4 (Redistribution), derivative works must:
 
 - (a) Provide recipients a copy of the License ✓ (already present)
 - (b) Include prominent notices stating files were changed
@@ -18,7 +18,7 @@ The Conductor Plugin is a derivative work based on the Apache 2.0 licensed "Cond
 ### FR-1: Create NOTICE File
 
 Create a `NOTICE` file at the project root containing:
-- Project name: "Conductor Plugin for Claude Code"
+- Project name: "Claude Conductor for Claude Code"
 - Statement that this is a derivative work
 - Original project name: "Conductor Extension for Gemini CLI"
 - Original project URL: https://github.com/gemini-cli-extensions/conductor
