@@ -28,12 +28,12 @@ Implement automated CI/CD pipeline using GitHub Actions to run tests, linting, t
 
 ## Phase 2: GitHub Actions Workflow Configuration
 
-- [ ] Task: Write failing test for CI workflow validation
-    - [ ] Create test helper to validate workflow YAML syntax
-    - [ ] Write test to verify workflow structure (triggers, jobs, steps)
-    - [ ] Run test and confirm it fails
+- [x] Task: Write failing test for CI workflow validation [bf30bf0]
+    - [x] Create test helper to validate workflow YAML syntax
+    - [x] Write test to verify workflow structure (triggers, jobs, steps)
+    - [x] Run test and confirm it fails
 
-- [ ] Task: Create basic GitHub Actions workflow file
+- [~] Task: Create basic GitHub Actions workflow file
     - [ ] Create `.github/workflows/` directory structure
     - [ ] Create `ci.yml` with basic workflow configuration
     - [ ] Configure pull_request trigger
