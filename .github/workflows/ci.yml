@@ -1,0 +1,81 @@
+# CI workflow for Claude Conductor Python scripts
+# Runs tests, linting, type checking, and security scans on pull requests
+
+name: CI
+
+on:
+  pull_request:
+    branches: ['*']
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/ci.yml'
+      - 'scripts/requirements-dev.txt'
+  push:
+    branches: [master, main]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/ci.yml'
+      - 'scripts/requirements-dev.txt'
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('scripts/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements-dev.txt
+
+      - name: Run tests with coverage
+        run: |
+          pytest scripts/tests/ -v --cov=scripts --cov-report=xml --cov-report=term-missing --cov-fail-under=50
+
+      - name: Run linting (pylint)
+        run: |
+          pylint scripts/ --exit-zero --output-format=colorized || true
+        continue-on-error: true
+
+      - name: Run linting (flake8)
+        run: |
+          flake8 scripts/ --max-line-length=120 --extend-ignore=E203,W503 || true
+        continue-on-error: true
+
+      - name: Check code formatting (black)
+        run: |
+          black --check --diff scripts/
+
+      - name: Run type checking (mypy)
+        run: |
+          mypy scripts/ --ignore-missing-imports || true
+        continue-on-error: true
+
+      - name: Run security scan (pip-audit)
+        run: |
+          pip-audit --strict || true
+        continue-on-error: true
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 7

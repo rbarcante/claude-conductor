@@ -63,8 +63,10 @@ class TestCIWorkflowStructure:
 
     def test_workflow_triggers_on_pull_request(self, workflow):
         """Test that workflow triggers on pull_request events."""
-        assert 'on' in workflow, "Workflow must have 'on' trigger configuration"
-        triggers = workflow['on']
+        # Note: YAML parses 'on:' as boolean True, not string 'on'
+        assert 'on' in workflow or True in workflow, \
+            "Workflow must have 'on' trigger configuration"
+        triggers = workflow.get('on') or workflow.get(True)
 
         # Handle both dict and list formats
         if isinstance(triggers, dict):
