@@ -55,7 +55,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
-- [ ] **Track: introduce github actions CI to automate the testing of the python scripts and ensure nothing breaks through changes**
+- [~] **Track: introduce github actions CI to automate the testing of the python scripts and ensure nothing breaks through changes**
   *Link: [introduce-github-actions-automate_20260126](./conductor/tracks/introduce-github-actions-automate_20260126/)*
 - [x] **Track: rename the project as claude-conductor, replace all instances of old names with claude-conductor and Claude Conductor respectively**
   *Link: [rename-project-claude-conductor_20260123](./conductor/tracks/rename-project-claude-conductor_20260123/)*
