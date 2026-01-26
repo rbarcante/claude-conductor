@@ -127,7 +127,7 @@ Implement automated CI/CD pipeline using GitHub Actions to run tests, linting, t
     - [x] Add pre-commit hook suggestions (optional - skipped)
     - [x] Update contributing guidelines (covered in README Development section)
 
-- [ ] Task: Create test pull request
+- [~] Task: Create test pull request
     - [ ] Make a trivial change to trigger CI
     - [ ] Create PR to verify CI runs successfully
     - [ ] Verify all checks pass
