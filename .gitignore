@@ -3,6 +3,17 @@ node_modules/
 *.log
 .DS_Store
 __pycache__/
-__pycache__/
 *.pyc
 .claude/
+
+# Python virtual environment
+.venv/
+venv/
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# pytest cache
+.pytest_cache/
