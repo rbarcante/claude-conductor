@@ -27,43 +27,43 @@ class Formatters:
 
     # Status symbols
     STATUS_SYMBOLS = {
-        'completed': '✓',
-        'in_progress': '~',
-        'pending': '○',
-        'success': '✓',
-        'error': '✗',
-        'warning': '⚠',
-        'info': 'ℹ',
+        "completed": "✓",
+        "in_progress": "~",
+        "pending": "○",
+        "success": "✓",
+        "error": "✗",
+        "warning": "⚠",
+        "info": "ℹ",
     }
 
     # Status colors (ANSI codes)
     COLORS = {
-        'green': '\033[92m',
-        'yellow': '\033[93m',
-        'red': '\033[91m',
-        'blue': '\033[94m',
-        'gray': '\033[90m',
-        'reset': '\033[0m',
-        'bold': '\033[1m',
+        "green": "\033[92m",
+        "yellow": "\033[93m",
+        "red": "\033[91m",
+        "blue": "\033[94m",
+        "gray": "\033[90m",
+        "reset": "\033[0m",
+        "bold": "\033[1m",
     }
 
     @classmethod
     def status_symbol(cls, status: str, use_color: bool = True) -> str:
         """Get formatted status symbol."""
-        symbol = cls.STATUS_SYMBOLS.get(status, '?')
+        symbol = cls.STATUS_SYMBOLS.get(status, "?")
 
         if not use_color:
             return symbol
 
-        color = ''
-        if status in ('completed', 'success'):
-            color = cls.COLORS['green']
-        elif status in ('in_progress', 'warning'):
-            color = cls.COLORS['yellow']
-        elif status == 'error':
-            color = cls.COLORS['red']
-        elif status == 'pending':
-            color = cls.COLORS['gray']
+        color = ""
+        if status in ("completed", "success"):
+            color = cls.COLORS["green"]
+        elif status in ("in_progress", "warning"):
+            color = cls.COLORS["yellow"]
+        elif status == "error":
+            color = cls.COLORS["red"]
+        elif status == "pending":
+            color = cls.COLORS["gray"]
 
         if color:
             return f"{color}{symbol}{cls.COLORS['reset']}"
@@ -75,7 +75,7 @@ class Formatters:
         data: List[Dict[str, Any]],
         columns: List[str] = None,
         headers: Dict[str, str] = None,
-        max_width: int = 80
+        max_width: int = 80,
     ) -> str:
         """
         Format data as an ASCII table.
@@ -90,13 +90,13 @@ class Formatters:
             Formatted table string
         """
         if not data:
-            return '(no data)'
+            return "(no data)"
 
         if columns is None:
             columns = list(data[0].keys())
 
         if headers is None:
-            headers = {col: col.replace('_', ' ').title() for col in columns}
+            headers = {col: col.replace("_", " ").title() for col in columns}
 
         # Calculate column widths
         widths = {}
@@ -104,7 +104,7 @@ class Formatters:
             header = headers.get(col, col)
             widths[col] = len(header)
             for row in data:
-                val = str(row.get(col, ''))
+                val = str(row.get(col, ""))
                 widths[col] = max(widths[col], len(val))
 
         # Build table
@@ -112,17 +112,17 @@ class Formatters:
 
         # Header
         header_cells = [headers.get(col, col).ljust(widths[col]) for col in columns]
-        lines.append('  '.join(header_cells))
+        lines.append("  ".join(header_cells))
 
         # Separator
-        lines.append('  '.join('-' * widths[col] for col in columns))
+        lines.append("  ".join("-" * widths[col] for col in columns))
 
         # Rows
         for row in data:
-            cells = [str(row.get(col, '')).ljust(widths[col]) for col in columns]
-            lines.append('  '.join(cells))
+            cells = [str(row.get(col, "")).ljust(widths[col]) for col in columns]
+            lines.append("  ".join(cells))
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @classmethod
     def progress_bar(cls, completed: int, total: int, width: int = 30) -> str:
@@ -157,10 +157,10 @@ class Formatters:
         Returns:
             Formatted summary string
         """
-        total = metrics.get('total', 0)
-        completed = metrics.get('completed', 0)
-        in_progress = metrics.get('in_progress', 0)
-        pending = metrics.get('pending', 0)
+        total = metrics.get("total", 0)
+        completed = metrics.get("completed", 0)
+        in_progress = metrics.get("in_progress", 0)
+        pending = metrics.get("pending", 0)
 
         progress = cls.progress_bar(completed, total)
         percent = (completed / total * 100) if total > 0 else 0
@@ -175,7 +175,7 @@ class Formatters:
             f"  Total:       {total}",
         ]
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @classmethod
     def track_list(cls, tracks: List[Dict[str, Any]]) -> str:
@@ -189,16 +189,16 @@ class Formatters:
             Formatted track list
         """
         if not tracks:
-            return '(no tracks)'
+            return "(no tracks)"
 
         lines = []
         for track in tracks:
-            status = track.get('status', 'pending')
-            desc = track.get('description', 'Unknown')
+            status = track.get("status", "pending")
+            desc = track.get("description", "Unknown")
             symbol = cls.status_symbol(status)
             lines.append(f"  {symbol} {desc}")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @classmethod
     def skill_info(cls, skill: Dict[str, Any], enabled: bool = True) -> str:
@@ -223,27 +223,31 @@ class Formatters:
             f"    {skill.get('description', 'No description')}",
         ]
 
-        activation = skill.get('activation', {})
+        activation = skill.get("activation", {})
         if activation:
-            lines.append('')
-            lines.append('  Activation:')
-            if activation.get('always_active'):
-                lines.append('    Always active')
+            lines.append("")
+            lines.append("  Activation:")
+            if activation.get("always_active"):
+                lines.append("    Always active")
             else:
-                if activation.get('keywords'):
-                    lines.append(f"    Keywords: {', '.join(activation['keywords'][:5])}")
-                if activation.get('file_patterns'):
-                    lines.append(f"    Files:    {', '.join(activation['file_patterns'][:3])}")
+                if activation.get("keywords"):
+                    lines.append(
+                        f"    Keywords: {', '.join(activation['keywords'][:5])}"
+                    )
+                if activation.get("file_patterns"):
+                    lines.append(
+                        f"    Files:    {', '.join(activation['file_patterns'][:3])}"
+                    )
 
-        provides = skill.get('provides', {})
+        provides = skill.get("provides", {})
         if provides:
-            lines.append('')
-            lines.append('  Provides:')
+            lines.append("")
+            lines.append("  Provides:")
             for key, values in provides.items():
                 if values:
                     lines.append(f"    {key}: {', '.join(values[:5])}")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @classmethod
     def error(cls, message: str) -> str:
@@ -261,7 +265,9 @@ class Formatters:
         return f"{cls.COLORS['yellow']}{cls.STATUS_SYMBOLS['warning']} {message}{cls.COLORS['reset']}"
 
     @classmethod
-    def json_output(cls, data: Any, success: bool = True, error: str = None) -> Dict[str, Any]:
+    def json_output(
+        cls, data: Any, success: bool = True, error: str = None
+    ) -> Dict[str, Any]:
         """
         Create standardized JSON output structure.
 
@@ -273,34 +279,34 @@ class Formatters:
         Returns:
             Standardized output dict
         """
-        result = {'success': success}
+        result = {"success": success}
 
         if error:
-            result['error'] = error
+            result["error"] = error
         elif data is not None:
-            result['data'] = data
+            result["data"] = data
 
         return result
 
     @classmethod
-    def truncate(cls, text: str, max_length: int = 50, suffix: str = '...') -> str:
+    def truncate(cls, text: str, max_length: int = 50, suffix: str = "...") -> str:
         """Truncate text to max length with suffix."""
         if len(text) <= max_length:
             return text
-        return text[:max_length - len(suffix)] + suffix
+        return text[: max_length - len(suffix)] + suffix
 
     @classmethod
     def indent(cls, text: str, spaces: int = 2) -> str:
         """Indent all lines of text."""
-        prefix = ' ' * spaces
-        return '\n'.join(prefix + line for line in text.split('\n'))
+        prefix = " " * spaces
+        return "\n".join(prefix + line for line in text.split("\n"))
 
     @classmethod
-    def bullet_list(cls, items: List[str], bullet: str = '•') -> str:
+    def bullet_list(cls, items: List[str], bullet: str = "•") -> str:
         """Format items as a bullet list."""
-        return '\n'.join(f"  {bullet} {item}" for item in items)
+        return "\n".join(f"  {bullet} {item}" for item in items)
 
     @classmethod
     def numbered_list(cls, items: List[str]) -> str:
         """Format items as a numbered list."""
-        return '\n'.join(f"  {i+1}. {item}" for i, item in enumerate(items))
+        return "\n".join(f"  {i+1}. {item}" for i, item in enumerate(items))

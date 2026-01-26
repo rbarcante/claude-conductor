@@ -27,12 +27,12 @@ class MarkdownParser:
     """Parser for markdown files with YAML frontmatter."""
 
     # Frontmatter pattern
-    FRONTMATTER_PATTERN = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.DOTALL)
+    FRONTMATTER_PATTERN = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
     # Header patterns
-    H1_PATTERN = re.compile(r'^#\s+(.+)$', re.MULTILINE)
-    H2_PATTERN = re.compile(r'^##\s+(.+)$', re.MULTILINE)
-    H3_PATTERN = re.compile(r'^###\s+(.+)$', re.MULTILINE)
+    H1_PATTERN = re.compile(r"^#\s+(.+)$", re.MULTILINE)
+    H2_PATTERN = re.compile(r"^##\s+(.+)$", re.MULTILINE)
+    H3_PATTERN = re.compile(r"^###\s+(.+)$", re.MULTILINE)
 
     def __init__(self, project_root: Path):
         """Initialize parser with project root."""
@@ -53,7 +53,7 @@ class MarkdownParser:
             return {}, content
 
         frontmatter_text = match.group(1)
-        remaining = content[match.end():]
+        remaining = content[match.end() :]
 
         # Simple YAML parsing (handles basic key: value pairs)
         frontmatter = self._parse_simple_yaml(frontmatter_text)
@@ -73,7 +73,7 @@ class MarkdownParser:
         - Nested objects (one level deep)
         """
         result = {}
-        lines = yaml_text.split('\n')
+        lines = yaml_text.split("\n")
         current_key = None
         current_list = None
         current_object = None
@@ -81,11 +81,11 @@ class MarkdownParser:
 
         for line in lines:
             stripped = line.strip()
-            if not stripped or stripped.startswith('#'):
+            if not stripped or stripped.startswith("#"):
                 continue
 
             # Check for key: value
-            if ':' in line and not line.startswith(' ') and not line.startswith('\t'):
+            if ":" in line and not line.startswith(" ") and not line.startswith("\t"):
                 if current_list is not None and current_key:
                     result[current_key] = current_list
                     current_list = None
@@ -93,30 +93,32 @@ class MarkdownParser:
                     result[object_key] = current_object
                     current_object = None
 
-                key, value = line.split(':', 1)
+                key, value = line.split(":", 1)
                 key = key.strip()
                 value = value.strip()
 
-                if value == '':
+                if value == "":
                     # Could be start of list or object
                     current_key = key
                     current_list = []
-                elif value.startswith('[') and value.endswith(']'):
+                elif value.startswith("[") and value.endswith("]"):
                     # Inline list
-                    items = value[1:-1].split(',')
-                    result[key] = [item.strip().strip('"\'') for item in items if item.strip()]
+                    items = value[1:-1].split(",")
+                    result[key] = [
+                        item.strip().strip("\"'") for item in items if item.strip()
+                    ]
                 else:
                     # Simple value
                     result[key] = self._parse_value(value)
 
-            elif line.startswith('  ') or line.startswith('\t'):
+            elif line.startswith("  ") or line.startswith("\t"):
                 # Indented content
-                if stripped.startswith('-'):
+                if stripped.startswith("-"):
                     # List item
                     item = stripped[1:].strip()
                     if current_list is not None:
                         current_list.append(self._parse_value(item))
-                elif ':' in stripped and current_key:
+                elif ":" in stripped and current_key:
                     # Nested object
                     if current_object is None:
                         current_object = {}
@@ -124,8 +126,10 @@ class MarkdownParser:
                         current_key = None
                         current_list = None
 
-                    nested_key, nested_value = stripped.split(':', 1)
-                    current_object[nested_key.strip()] = self._parse_value(nested_value.strip())
+                    nested_key, nested_value = stripped.split(":", 1)
+                    current_object[nested_key.strip()] = self._parse_value(
+                        nested_value.strip()
+                    )
 
         # Handle final pending items
         if current_list is not None and current_key:
@@ -137,17 +141,17 @@ class MarkdownParser:
 
     def _parse_value(self, value: str) -> Any:
         """Parse a YAML value string to appropriate Python type."""
-        value = value.strip().strip('"\'')
+        value = value.strip().strip("\"'")
 
         # Boolean
-        if value.lower() in ('true', 'yes'):
+        if value.lower() in ("true", "yes"):
             return True
-        if value.lower() in ('false', 'no'):
+        if value.lower() in ("false", "no"):
             return False
 
         # Number
         try:
-            if '.' in value:
+            if "." in value:
                 return float(value)
             return int(value)
         except ValueError:
@@ -155,7 +159,9 @@ class MarkdownParser:
 
         return value
 
-    def extract_section(self, content: str, header: str, level: int = 2) -> Optional[str]:
+    def extract_section(
+        self, content: str, header: str, level: int = 2
+    ) -> Optional[str]:
         """
         Extract a section by header.
 
@@ -167,11 +173,11 @@ class MarkdownParser:
         Returns:
             Section content (without header) or None
         """
-        prefix = '#' * level
-        pattern = rf'^{prefix}\s+{re.escape(header)}\s*$'
-        next_header = rf'^#{{{1},{level}}}\s+'
+        prefix = "#" * level
+        pattern = rf"^{prefix}\s+{re.escape(header)}\s*$"
+        next_header = rf"^#{{{1},{level}}}\s+"
 
-        lines = content.split('\n')
+        lines = content.split("\n")
         in_section = False
         section_lines = []
 
@@ -188,7 +194,7 @@ class MarkdownParser:
         if not section_lines:
             return None
 
-        return '\n'.join(section_lines).strip()
+        return "\n".join(section_lines).strip()
 
     def extract_ai_reference(self, content: str) -> Optional[str]:
         """
@@ -201,12 +207,7 @@ class MarkdownParser:
             AI Quick Reference section or None
         """
         # Try common header variations
-        headers = [
-            'AI Quick Reference',
-            'Quick Reference',
-            'TL;DR',
-            'Summary'
-        ]
+        headers = ["AI Quick Reference", "Quick Reference", "TL;DR", "Summary"]
 
         for header in headers:
             section = self.extract_section(content, header)
@@ -226,16 +227,18 @@ class MarkdownParser:
             List of dicts with 'level', 'text', and 'line_number'
         """
         headers = []
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for i, line in enumerate(lines):
-            match = re.match(r'^(#{1,6})\s+(.+)$', line)
+            match = re.match(r"^(#{1,6})\s+(.+)$", line)
             if match:
-                headers.append({
-                    'level': len(match.group(1)),
-                    'text': match.group(2).strip(),
-                    'line_number': i + 1
-                })
+                headers.append(
+                    {
+                        "level": len(match.group(1)),
+                        "text": match.group(2).strip(),
+                        "line_number": i + 1,
+                    }
+                )
 
         return headers
 
@@ -250,13 +253,10 @@ class MarkdownParser:
             List of dicts with 'label' and 'path'
         """
         links = []
-        pattern = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
+        pattern = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
         for match in pattern.finditer(content):
-            links.append({
-                'label': match.group(1),
-                'path': match.group(2)
-            })
+            links.append({"label": match.group(1), "path": match.group(2)})
 
         return links
 
@@ -270,27 +270,29 @@ class MarkdownParser:
         Returns:
             List of row dicts with column headers as keys
         """
-        lines = [l.strip() for l in content.split('\n') if l.strip()]
-        table_lines = [l for l in lines if l.startswith('|')]
+        lines = [l.strip() for l in content.split("\n") if l.strip()]
+        table_lines = [l for l in lines if l.startswith("|")]
 
         if len(table_lines) < 3:  # Need header, separator, and at least one row
             return []
 
         # Parse header
         header_line = table_lines[0]
-        headers = [h.strip() for h in header_line.split('|')[1:-1]]
+        headers = [h.strip() for h in header_line.split("|")[1:-1]]
 
         # Skip separator (line 1)
         # Parse data rows
         rows = []
         for line in table_lines[2:]:
-            cells = [c.strip() for c in line.split('|')[1:-1]]
+            cells = [c.strip() for c in line.split("|")[1:-1]]
             if len(cells) == len(headers):
                 rows.append(dict(zip(headers, cells)))
 
         return rows
 
-    def format_table(self, data: List[Dict[str, Any]], columns: List[str] = None) -> str:
+    def format_table(
+        self, data: List[Dict[str, Any]], columns: List[str] = None
+    ) -> str:
         """
         Format data as a markdown table.
 
@@ -302,7 +304,7 @@ class MarkdownParser:
             Markdown table string
         """
         if not data:
-            return ''
+            return ""
 
         if columns is None:
             columns = list(data[0].keys())
@@ -311,26 +313,26 @@ class MarkdownParser:
         widths = {col: len(col) for col in columns}
         for row in data:
             for col in columns:
-                val = str(row.get(col, ''))
+                val = str(row.get(col, ""))
                 widths[col] = max(widths[col], len(val))
 
         # Build table
         lines = []
 
         # Header
-        header = '| ' + ' | '.join(col.ljust(widths[col]) for col in columns) + ' |'
+        header = "| " + " | ".join(col.ljust(widths[col]) for col in columns) + " |"
         lines.append(header)
 
         # Separator
-        sep = '| ' + ' | '.join('-' * widths[col] for col in columns) + ' |'
+        sep = "| " + " | ".join("-" * widths[col] for col in columns) + " |"
         lines.append(sep)
 
         # Rows
         for row in data:
-            cells = [str(row.get(col, '')).ljust(widths[col]) for col in columns]
-            lines.append('| ' + ' | '.join(cells) + ' |')
+            cells = [str(row.get(col, "")).ljust(widths[col]) for col in columns]
+            lines.append("| " + " | ".join(cells) + " |")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def parse_snippet_header(self, content: str, language: str) -> Dict[str, Any]:
         """
@@ -351,35 +353,35 @@ class MarkdownParser:
         """
         header = {}
 
-        if language in ('python', 'py'):
+        if language in ("python", "py"):
             # Python docstring
             match = re.match(r'^"""(.+?)"""', content, re.DOTALL)
             if match:
                 header = self._parse_docstring_header(match.group(1))
 
-        elif language in ('typescript', 'ts', 'javascript', 'js'):
+        elif language in ("typescript", "ts", "javascript", "js"):
             # JSDoc
-            match = re.match(r'^/\*\*(.+?)\*/', content, re.DOTALL)
+            match = re.match(r"^/\*\*(.+?)\*/", content, re.DOTALL)
             if match:
                 header = self._parse_jsdoc_header(match.group(1))
 
-        elif language == 'java':
+        elif language == "java":
             # JavaDoc
-            match = re.match(r'^/\*\*(.+?)\*/', content, re.DOTALL)
+            match = re.match(r"^/\*\*(.+?)\*/", content, re.DOTALL)
             if match:
                 header = self._parse_jsdoc_header(match.group(1))
 
-        elif language in ('go', 'golang'):
+        elif language in ("go", "golang"):
             # Go comment block
-            match = re.match(r'^//\s*(.+?)(?:\n(?!//)|$)', content, re.DOTALL)
+            match = re.match(r"^//\s*(.+?)(?:\n(?!//)|$)", content, re.DOTALL)
             if match:
                 lines = []
-                for line in content.split('\n'):
-                    if line.startswith('//'):
+                for line in content.split("\n"):
+                    if line.startswith("//"):
                         lines.append(line[2:].strip())
                     else:
                         break
-                header = self._parse_docstring_header('\n'.join(lines))
+                header = self._parse_docstring_header("\n".join(lines))
 
         else:
             # Try YAML frontmatter
@@ -392,25 +394,25 @@ class MarkdownParser:
     def _parse_docstring_header(self, docstring: str) -> Dict[str, Any]:
         """Parse USE/REQUIRES/PATTERN from docstring."""
         header = {}
-        for line in docstring.split('\n'):
+        for line in docstring.split("\n"):
             line = line.strip()
-            if line.startswith('USE:'):
-                header['use'] = line[4:].strip()
-            elif line.startswith('REQUIRES:'):
-                header['requires'] = line[9:].strip()
-            elif line.startswith('PATTERN:'):
-                header['pattern'] = line[8:].strip()
+            if line.startswith("USE:"):
+                header["use"] = line[4:].strip()
+            elif line.startswith("REQUIRES:"):
+                header["requires"] = line[9:].strip()
+            elif line.startswith("PATTERN:"):
+                header["pattern"] = line[8:].strip()
         return header
 
     def _parse_jsdoc_header(self, jsdoc: str) -> Dict[str, Any]:
         """Parse @use/@requires/@pattern from JSDoc."""
         header = {}
-        for line in jsdoc.split('\n'):
-            line = line.strip().lstrip('*').strip()
-            if line.startswith('@use'):
-                header['use'] = line[4:].strip()
-            elif line.startswith('@requires'):
-                header['requires'] = line[9:].strip()
-            elif line.startswith('@pattern'):
-                header['pattern'] = line[8:].strip()
+        for line in jsdoc.split("\n"):
+            line = line.strip().lstrip("*").strip()
+            if line.startswith("@use"):
+                header["use"] = line[4:].strip()
+            elif line.startswith("@requires"):
+                header["requires"] = line[9:].strip()
+            elif line.startswith("@pattern"):
+                header["pattern"] = line[8:].strip()
         return header

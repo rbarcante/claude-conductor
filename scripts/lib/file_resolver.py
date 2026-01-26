@@ -28,44 +28,44 @@ class FileResolver:
 
     # Standard default paths for project context
     PROJECT_DEFAULTS = {
-        'product_definition': 'conductor/product.md',
-        'tech_stack': 'conductor/tech-stack.md',
-        'workflow': 'conductor/workflow.md',
-        'product_guidelines': 'conductor/product-guidelines.md',
-        'tracks_registry': 'conductor/tracks.md',
-        'tracks_directory': 'conductor/tracks',
-        'project_index': 'conductor/index.md',
-        'settings': 'conductor/settings.json',
-        'setup_state': 'conductor/setup_state.json',
+        "product_definition": "conductor/product.md",
+        "tech_stack": "conductor/tech-stack.md",
+        "workflow": "conductor/workflow.md",
+        "product_guidelines": "conductor/product-guidelines.md",
+        "tracks_registry": "conductor/tracks.md",
+        "tracks_directory": "conductor/tracks",
+        "project_index": "conductor/index.md",
+        "settings": "conductor/settings.json",
+        "setup_state": "conductor/setup_state.json",
     }
 
     # Standard default paths for track context
     TRACK_DEFAULTS = {
-        'specification': 'spec.md',
-        'implementation_plan': 'plan.md',
-        'metadata': 'metadata.json',
-        'index': 'index.md',
-        'decisions': 'decisions.md',
+        "specification": "spec.md",
+        "implementation_plan": "plan.md",
+        "metadata": "metadata.json",
+        "index": "index.md",
+        "decisions": "decisions.md",
     }
 
     # Pattern-related paths
     PATTERN_DEFAULTS = {
-        'pattern_registry': 'patterns/index.md',
-        'core_patterns': 'patterns/core',
-        'stack_patterns': 'patterns/stack',
-        'pattern_template': 'patterns/TEMPLATE.md',
+        "pattern_registry": "patterns/index.md",
+        "core_patterns": "patterns/core",
+        "stack_patterns": "patterns/stack",
+        "pattern_template": "patterns/TEMPLATE.md",
     }
 
     # Skill-related paths
     SKILL_DEFAULTS = {
-        'skill_registry': 'skills/skill-registry.json',
-        'skill_directory': 'skills',
+        "skill_registry": "skills/skill-registry.json",
+        "skill_directory": "skills",
     }
 
     # Snippet-related paths
     SNIPPET_DEFAULTS = {
-        'snippet_index': 'snippets/index.md',
-        'snippet_directory': 'snippets',
+        "snippet_index": "snippets/index.md",
+        "snippet_directory": "snippets",
     }
 
     def __init__(self, project_root: Path, plugin_root: Optional[Path] = None):
@@ -78,7 +78,9 @@ class FileResolver:
                         If not provided, defaults to project_root for backward compatibility
         """
         self.project_root = Path(project_root).resolve()
-        self.plugin_root = Path(plugin_root).resolve() if plugin_root else self.project_root
+        self.plugin_root = (
+            Path(plugin_root).resolve() if plugin_root else self.project_root
+        )
 
     def resolve_project_file(self, file_key: str) -> Optional[Path]:
         """
@@ -91,7 +93,7 @@ class FileResolver:
             Resolved Path or None if not found
         """
         # First try reading from project index
-        index_path = self.project_root / self.PROJECT_DEFAULTS['project_index']
+        index_path = self.project_root / self.PROJECT_DEFAULTS["project_index"]
         if index_path.exists():
             link = self._find_link_in_index(index_path, file_key)
             if link:
@@ -132,7 +134,7 @@ class FileResolver:
             return None
 
         # Try reading from track index
-        index_path = track_dir / 'index.md'
+        index_path = track_dir / "index.md"
         if index_path.exists():
             link = self._find_link_in_index(index_path, file_key)
             if link:
@@ -158,9 +160,9 @@ class FileResolver:
         Returns:
             Path to track directory or None if not found
         """
-        tracks_dir = self.resolve_project_file('tracks_directory')
+        tracks_dir = self.resolve_project_file("tracks_directory")
         if not tracks_dir:
-            tracks_dir = self.project_root / self.PROJECT_DEFAULTS['tracks_directory']
+            tracks_dir = self.project_root / self.PROJECT_DEFAULTS["tracks_directory"]
 
         track_dir = tracks_dir / track_id
         if track_dir.exists():
@@ -170,7 +172,7 @@ class FileResolver:
 
     def list_tracks(self) -> list[str]:
         """List all track IDs in the tracks directory."""
-        tracks_dir = self.resolve_project_file('tracks_directory')
+        tracks_dir = self.resolve_project_file("tracks_directory")
         if not tracks_dir or not tracks_dir.exists():
             return []
 
@@ -198,14 +200,14 @@ class FileResolver:
 
         # Convert key to various forms for matching
         search_terms = [
-            key.replace('_', ' ').title(),  # tracks_registry -> Tracks Registry
-            key.replace('_', ' '),  # tracks_registry -> tracks registry
+            key.replace("_", " ").title(),  # tracks_registry -> Tracks Registry
+            key.replace("_", " "),  # tracks_registry -> tracks registry
             key,  # As-is
         ]
 
         # Look for markdown links: [Label](./path/to/file)
         for term in search_terms:
-            pattern = rf'\[{re.escape(term)}\]\(([^)]+)\)'
+            pattern = rf"\[{re.escape(term)}\]\(([^)]+)\)"
             match = re.search(pattern, content, re.IGNORECASE)
             if match:
                 return match.group(1)
@@ -226,18 +228,18 @@ class FileResolver:
             Path to pattern file or None
         """
         # Normalize name
-        name = pattern_name.lower().replace(' ', '-')
-        if not name.endswith('.md'):
+        name = pattern_name.lower().replace(" ", "-")
+        if not name.endswith(".md"):
             name = f"{name}.md"
 
         # Try core patterns first (plugin files use plugin_root)
-        core_dir = self.plugin_root / self.PATTERN_DEFAULTS['core_patterns']
+        core_dir = self.plugin_root / self.PATTERN_DEFAULTS["core_patterns"]
         core_path = core_dir / name
         if core_path.exists():
             return core_path
 
         # Try stack patterns as fallback
-        stack_dir = self.plugin_root / self.PATTERN_DEFAULTS['stack_patterns']
+        stack_dir = self.plugin_root / self.PATTERN_DEFAULTS["stack_patterns"]
         stack_path = stack_dir / name
         if stack_path.exists():
             return stack_path
@@ -256,14 +258,16 @@ class FileResolver:
         Returns:
             Path to skill directory or None
         """
-        skills_dir = self.plugin_root / self.SKILL_DEFAULTS['skill_directory']
+        skills_dir = self.plugin_root / self.SKILL_DEFAULTS["skill_directory"]
         skill_dir = skills_dir / skill_name
         if skill_dir.exists():
             return skill_dir
 
         return None
 
-    def resolve_snippet(self, snippet_name: str, language: Optional[str] = None) -> Optional[Path]:
+    def resolve_snippet(
+        self, snippet_name: str, language: Optional[str] = None
+    ) -> Optional[Path]:
         """
         Resolve a snippet file path.
 
@@ -276,7 +280,7 @@ class FileResolver:
         Returns:
             Path to snippet file or None
         """
-        snippets_dir = self.plugin_root / self.SNIPPET_DEFAULTS['snippet_directory']
+        snippets_dir = self.plugin_root / self.SNIPPET_DEFAULTS["snippet_directory"]
         if not snippets_dir.exists():
             return None
 
@@ -285,7 +289,7 @@ class FileResolver:
             lang_dir = snippets_dir / language.lower()
             if lang_dir.exists():
                 # Try with and without extension
-                for ext in ['', '.py', '.ts', '.js', '.java', '.go', '.md']:
+                for ext in ["", ".py", ".ts", ".js", ".java", ".go", ".md"]:
                     path = lang_dir / f"{snippet_name}{ext}"
                     if path.exists():
                         return path

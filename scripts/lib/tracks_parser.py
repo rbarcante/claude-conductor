@@ -27,14 +27,16 @@ from enum import Enum
 
 class TaskStatus(Enum):
     """Task status enumeration."""
-    PENDING = 'pending'
-    IN_PROGRESS = 'in_progress'
-    COMPLETED = 'completed'
+
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
 
 
 @dataclass
 class Track:
     """Represents a track in the registry."""
+
     description: str
     path: Optional[str]
     status: TaskStatus
@@ -44,11 +46,12 @@ class Track:
 @dataclass
 class Task:
     """Represents a task in a plan."""
+
     content: str
     status: TaskStatus
     indent_level: int
     commit_sha: Optional[str] = None
-    subtasks: List['Task'] = None
+    subtasks: List["Task"] = None
 
     def __post_init__(self):
         if self.subtasks is None:
@@ -58,6 +61,7 @@ class Task:
 @dataclass
 class Phase:
     """Represents a phase in a plan."""
+
     name: str
     checkpoint_sha: Optional[str]
     tasks: List[Task]
@@ -66,6 +70,7 @@ class Phase:
 @dataclass
 class PlanMetrics:
     """Aggregated metrics from a plan."""
+
     total: int
     completed: int
     in_progress: int
@@ -82,12 +87,19 @@ class TracksParser:
     """Parser for tracks.md and plan.md files."""
 
     # Regex patterns
-    STATUS_PATTERN = re.compile(r'^\s*-\s*\[([ x~])\]')
-    TRACK_PATTERN = re.compile(r'^\s*-\s*\[([ x~])\]\s*\*\*Track:\s*(.+?)\*\*')
-    LINK_PATTERN = re.compile(r'\*Link:\s*\[([^\]]+)\]\(([^)]+)\)\*')
-    PHASE_PATTERN = re.compile(r'^#\s+Phase\s+\d+:\s*(.+?)(?:\s*\[checkpoint:\s*([a-f0-9]+)\])?$', re.IGNORECASE)
-    TASK_PATTERN = re.compile(r'^(\s*)-\s*\[([ x~])\]\s*(?:Task:\s*)?(.+?)(?:\s*\[commit:\s*([a-f0-9]+)\])?$')
-    SUBTASK_PATTERN = re.compile(r'^(\s+)-\s*\[([ x~])\]\s*(.+?)(?:\s*\[commit:\s*([a-f0-9]+)\])?$')
+    STATUS_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]")
+    TRACK_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]\s*\*\*Track:\s*(.+?)\*\*")
+    LINK_PATTERN = re.compile(r"\*Link:\s*\[([^\]]+)\]\(([^)]+)\)\*")
+    PHASE_PATTERN = re.compile(
+        r"^#\s+Phase\s+\d+:\s*(.+?)(?:\s*\[checkpoint:\s*([a-f0-9]+)\])?$",
+        re.IGNORECASE,
+    )
+    TASK_PATTERN = re.compile(
+        r"^(\s*)-\s*\[([ x~])\]\s*(?:Task:\s*)?(.+?)(?:\s*\[commit:\s*([a-f0-9]+)\])?$"
+    )
+    SUBTASK_PATTERN = re.compile(
+        r"^(\s+)-\s*\[([ x~])\]\s*(.+?)(?:\s*\[commit:\s*([a-f0-9]+)\])?$"
+    )
 
     def __init__(self, project_root: Path):
         """Initialize parser with project root."""
@@ -104,13 +116,13 @@ class TracksParser:
             List of Track objects
         """
         if content is None:
-            tracks_path = self.project_root / 'conductor/tracks.md'
+            tracks_path = self.project_root / "conductor/tracks.md"
             if not tracks_path.exists():
                 return []
             content = tracks_path.read_text()
 
         tracks = []
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         i = 0
         while i < len(lines):
@@ -130,12 +142,11 @@ class TracksParser:
                         path = link_match.group(2)
                         i += 1
 
-                tracks.append(Track(
-                    description=description,
-                    path=path,
-                    status=status,
-                    raw_line=line
-                ))
+                tracks.append(
+                    Track(
+                        description=description, path=path, status=status, raw_line=line
+                    )
+                )
 
             i += 1
 
@@ -153,7 +164,7 @@ class TracksParser:
         """
         phases = []
         current_phase = None
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for line in lines:
             # Check for phase header
@@ -164,7 +175,7 @@ class TracksParser:
                 current_phase = Phase(
                     name=phase_match.group(1).strip(),
                     checkpoint_sha=phase_match.group(2),
-                    tasks=[]
+                    tasks=[],
                 )
                 continue
 
@@ -183,7 +194,7 @@ class TracksParser:
                     content=content_text,
                     status=self._char_to_status(status_char),
                     indent_level=indent,
-                    commit_sha=commit_sha
+                    commit_sha=commit_sha,
                 )
 
                 # Determine if this is a subtask or main task
@@ -231,10 +242,7 @@ class TracksParser:
                 count_task(task)
 
         return PlanMetrics(
-            total=total,
-            completed=completed,
-            in_progress=in_progress,
-            pending=pending
+            total=total, completed=completed, in_progress=in_progress, pending=pending
         )
 
     def count_status_markers(self, content: str) -> Dict[str, int]:
@@ -247,22 +255,19 @@ class TracksParser:
         Returns:
             Dict with counts: {'completed': n, 'in_progress': n, 'pending': n}
         """
-        completed = len(re.findall(r'\[x\]', content))
-        in_progress = len(re.findall(r'\[~\]', content))
-        pending = len(re.findall(r'\[ \]', content))
+        completed = len(re.findall(r"\[x\]", content))
+        in_progress = len(re.findall(r"\[~\]", content))
+        pending = len(re.findall(r"\[ \]", content))
 
         return {
-            'completed': completed,
-            'in_progress': in_progress,
-            'pending': pending,
-            'total': completed + in_progress + pending
+            "completed": completed,
+            "in_progress": in_progress,
+            "pending": pending,
+            "total": completed + in_progress + pending,
         }
 
     def update_track_status(
-        self,
-        content: str,
-        track_description: str,
-        new_status: TaskStatus
+        self, content: str, track_description: str, new_status: TaskStatus
     ) -> str:
         """
         Update a track's status in tracks.md content.
@@ -276,23 +281,23 @@ class TracksParser:
             Updated content
         """
         status_char = self._status_to_char(new_status)
-        lines = content.split('\n')
+        lines = content.split("\n")
         result = []
 
         for line in lines:
-            if f'**Track: {track_description}**' in line or track_description in line:
+            if f"**Track: {track_description}**" in line or track_description in line:
                 # Replace status marker
-                line = re.sub(r'\[([ x~])\]', f'[{status_char}]', line, count=1)
+                line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
             result.append(line)
 
-        return '\n'.join(result)
+        return "\n".join(result)
 
     def update_task_status(
         self,
         content: str,
         task_content: str,
         new_status: TaskStatus,
-        commit_sha: Optional[str] = None
+        commit_sha: Optional[str] = None,
     ) -> str:
         """
         Update a task's status in plan.md content.
@@ -307,21 +312,21 @@ class TracksParser:
             Updated content
         """
         status_char = self._status_to_char(new_status)
-        lines = content.split('\n')
+        lines = content.split("\n")
         result = []
 
         for line in lines:
             if task_content in line:
                 # Replace status marker
-                line = re.sub(r'\[([ x~])\]', f'[{status_char}]', line, count=1)
+                line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
 
                 # Add commit SHA if provided and not already present
-                if commit_sha and '[commit:' not in line:
-                    line = line.rstrip() + f' [commit: {commit_sha}]'
+                if commit_sha and "[commit:" not in line:
+                    line = line.rstrip() + f" [commit: {commit_sha}]"
 
             result.append(line)
 
-        return '\n'.join(result)
+        return "\n".join(result)
 
     def extract_track_id_from_path(self, path: str) -> Optional[str]:
         """
@@ -333,7 +338,7 @@ class TracksParser:
         Returns:
             Track ID or None
         """
-        match = re.search(r'conductor/tracks/([^/]+)', path)
+        match = re.search(r"conductor/tracks/([^/]+)", path)
         if match:
             return match.group(1)
         return None
@@ -349,40 +354,38 @@ class TracksParser:
             List of dicts with 'type' and 'content' keys
         """
         items = []
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for line in lines:
-            if '[~]' in line:
+            if "[~]" in line:
                 # Determine type
-                if '**Track:' in line:
-                    item_type = 'track'
-                elif 'Phase' in line:
-                    item_type = 'phase'
-                elif 'Task:' in line:
-                    item_type = 'task'
+                if "**Track:" in line:
+                    item_type = "track"
+                elif "Phase" in line:
+                    item_type = "phase"
+                elif "Task:" in line:
+                    item_type = "task"
                 else:
-                    item_type = 'subtask'
+                    item_type = "subtask"
 
-                items.append({
-                    'type': item_type,
-                    'content': line.strip(),
-                    'raw_line': line
-                })
+                items.append(
+                    {"type": item_type, "content": line.strip(), "raw_line": line}
+                )
 
         return items
 
     def _char_to_status(self, char: str) -> TaskStatus:
         """Convert status character to TaskStatus enum."""
-        if char == 'x':
+        if char == "x":
             return TaskStatus.COMPLETED
-        elif char == '~':
+        elif char == "~":
             return TaskStatus.IN_PROGRESS
         return TaskStatus.PENDING
 
     def _status_to_char(self, status: TaskStatus) -> str:
         """Convert TaskStatus enum to character."""
         if status == TaskStatus.COMPLETED:
-            return 'x'
+            return "x"
         elif status == TaskStatus.IN_PROGRESS:
-            return '~'
-        return ' '
+            return "~"
+        return " "

@@ -23,7 +23,6 @@ import pytest
 import yaml
 from pathlib import Path
 
-
 # Get the project root (parent of scripts/)
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
@@ -33,15 +32,15 @@ class TestCIWorkflowExists:
 
     def test_github_workflows_directory_exists(self):
         """Test that .github/workflows directory exists."""
-        workflows_dir = PROJECT_ROOT / '.github' / 'workflows'
-        assert workflows_dir.exists(), \
-            f"Expected .github/workflows directory at {workflows_dir}"
+        workflows_dir = PROJECT_ROOT / ".github" / "workflows"
+        assert (
+            workflows_dir.exists()
+        ), f"Expected .github/workflows directory at {workflows_dir}"
 
     def test_ci_workflow_file_exists(self):
         """Test that ci.yml workflow file exists."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
-        assert ci_file.exists(), \
-            f"Expected ci.yml workflow file at {ci_file}"
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
+        assert ci_file.exists(), f"Expected ci.yml workflow file at {ci_file}"
 
 
 class TestCIWorkflowStructure:
@@ -50,7 +49,7 @@ class TestCIWorkflowStructure:
     @pytest.fixture
     def workflow(self):
         """Load the CI workflow YAML file."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
         if not ci_file.exists():
             pytest.skip("CI workflow file does not exist yet")
         with open(ci_file) as f:
@@ -58,30 +57,33 @@ class TestCIWorkflowStructure:
 
     def test_workflow_has_name(self, workflow):
         """Test that workflow has a name."""
-        assert 'name' in workflow, "Workflow must have a 'name' field"
-        assert workflow['name'], "Workflow name must not be empty"
+        assert "name" in workflow, "Workflow must have a 'name' field"
+        assert workflow["name"], "Workflow name must not be empty"
 
     def test_workflow_triggers_on_pull_request(self, workflow):
         """Test that workflow triggers on pull_request events."""
         # Note: YAML parses 'on:' as boolean True, not string 'on'
-        assert 'on' in workflow or True in workflow, \
-            "Workflow must have 'on' trigger configuration"
-        triggers = workflow.get('on') or workflow.get(True)
+        assert (
+            "on" in workflow or True in workflow
+        ), "Workflow must have 'on' trigger configuration"
+        triggers = workflow.get("on") or workflow.get(True)
 
         # Handle both dict and list formats
         if isinstance(triggers, dict):
-            assert 'pull_request' in triggers, \
-                "Workflow must trigger on pull_request events"
+            assert (
+                "pull_request" in triggers
+            ), "Workflow must trigger on pull_request events"
         elif isinstance(triggers, list):
-            assert 'pull_request' in triggers, \
-                "Workflow must trigger on pull_request events"
+            assert (
+                "pull_request" in triggers
+            ), "Workflow must trigger on pull_request events"
         else:
             pytest.fail(f"Unexpected 'on' format: {type(triggers)}")
 
     def test_workflow_has_jobs(self, workflow):
         """Test that workflow defines jobs."""
-        assert 'jobs' in workflow, "Workflow must define 'jobs'"
-        assert workflow['jobs'], "Workflow must have at least one job"
+        assert "jobs" in workflow, "Workflow must define 'jobs'"
+        assert workflow["jobs"], "Workflow must have at least one job"
 
 
 class TestCIWorkflowJobs:
@@ -90,7 +92,7 @@ class TestCIWorkflowJobs:
     @pytest.fixture
     def workflow(self):
         """Load the CI workflow YAML file."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
         if not ci_file.exists():
             pytest.skip("CI workflow file does not exist yet")
         with open(ci_file) as f:
@@ -99,9 +101,9 @@ class TestCIWorkflowJobs:
     @pytest.fixture
     def test_job(self, workflow):
         """Get the test job from the workflow."""
-        jobs = workflow.get('jobs', {})
+        jobs = workflow.get("jobs", {})
         # Look for a job that runs tests (could be named 'test', 'tests', 'ci', etc.)
-        for job_name in ['test', 'tests', 'ci', 'build']:
+        for job_name in ["test", "tests", "ci", "build"]:
             if job_name in jobs:
                 return jobs[job_name]
         # If no standard name, just return the first job
@@ -111,43 +113,41 @@ class TestCIWorkflowJobs:
 
     def test_job_runs_on_ubuntu(self, test_job):
         """Test that job runs on Ubuntu."""
-        assert 'runs-on' in test_job, "Job must specify 'runs-on'"
-        runs_on = test_job['runs-on']
-        assert 'ubuntu' in runs_on.lower(), \
-            f"Job should run on Ubuntu, got: {runs_on}"
+        assert "runs-on" in test_job, "Job must specify 'runs-on'"
+        runs_on = test_job["runs-on"]
+        assert "ubuntu" in runs_on.lower(), f"Job should run on Ubuntu, got: {runs_on}"
 
     def test_job_has_steps(self, test_job):
         """Test that job has steps defined."""
-        assert 'steps' in test_job, "Job must have 'steps'"
-        assert len(test_job['steps']) > 0, "Job must have at least one step"
+        assert "steps" in test_job, "Job must have 'steps'"
+        assert len(test_job["steps"]) > 0, "Job must have at least one step"
 
     def test_job_uses_checkout_action(self, test_job):
         """Test that job uses actions/checkout."""
-        steps = test_job.get('steps', [])
+        steps = test_job.get("steps", [])
         checkout_found = any(
-            step.get('uses', '').startswith('actions/checkout')
-            for step in steps
+            step.get("uses", "").startswith("actions/checkout") for step in steps
         )
         assert checkout_found, "Job must use actions/checkout action"
 
     def test_job_uses_setup_python_action(self, test_job):
         """Test that job uses actions/setup-python."""
-        steps = test_job.get('steps', [])
+        steps = test_job.get("steps", [])
         setup_python_found = any(
-            step.get('uses', '').startswith('actions/setup-python')
-            for step in steps
+            step.get("uses", "").startswith("actions/setup-python") for step in steps
         )
         assert setup_python_found, "Job must use actions/setup-python action"
 
     def test_job_uses_python_312(self, test_job):
         """Test that job uses Python 3.12."""
-        steps = test_job.get('steps', [])
+        steps = test_job.get("steps", [])
         for step in steps:
-            if step.get('uses', '').startswith('actions/setup-python'):
-                with_config = step.get('with', {})
-                python_version = str(with_config.get('python-version', ''))
-                assert '3.12' in python_version, \
-                    f"Python version should be 3.12, got: {python_version}"
+            if step.get("uses", "").startswith("actions/setup-python"):
+                with_config = step.get("with", {})
+                python_version = str(with_config.get("python-version", ""))
+                assert (
+                    "3.12" in python_version
+                ), f"Python version should be 3.12, got: {python_version}"
                 return
         pytest.fail("Could not find setup-python step to verify Python version")
 
@@ -158,7 +158,7 @@ class TestCIWorkflowTestStep:
     @pytest.fixture
     def workflow(self):
         """Load the CI workflow YAML file."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
         if not ci_file.exists():
             pytest.skip("CI workflow file does not exist yet")
         with open(ci_file) as f:
@@ -168,26 +168,24 @@ class TestCIWorkflowTestStep:
     def all_steps(self, workflow):
         """Get all steps from all jobs."""
         steps = []
-        for job in workflow.get('jobs', {}).values():
-            steps.extend(job.get('steps', []))
+        for job in workflow.get("jobs", {}).values():
+            steps.extend(job.get("steps", []))
         return steps
 
     def test_workflow_runs_pytest(self, all_steps):
         """Test that workflow runs pytest."""
         pytest_found = any(
-            'pytest' in step.get('run', '')
-            for step in all_steps
-            if 'run' in step
+            "pytest" in step.get("run", "") for step in all_steps if "run" in step
         )
         assert pytest_found, "Workflow must run pytest"
 
     def test_workflow_installs_dependencies(self, all_steps):
         """Test that workflow installs dependencies."""
         install_found = any(
-            'pip install' in step.get('run', '') or
-            'requirements' in step.get('run', '')
+            "pip install" in step.get("run", "")
+            or "requirements" in step.get("run", "")
             for step in all_steps
-            if 'run' in step
+            if "run" in step
         )
         assert install_found, "Workflow must install dependencies"
 
@@ -198,7 +196,7 @@ class TestCIWorkflowCodeQuality:
     @pytest.fixture
     def workflow(self):
         """Load the CI workflow YAML file."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
         if not ci_file.exists():
             pytest.skip("CI workflow file does not exist yet")
         with open(ci_file) as f:
@@ -208,36 +206,32 @@ class TestCIWorkflowCodeQuality:
     def all_steps(self, workflow):
         """Get all steps from all jobs."""
         steps = []
-        for job in workflow.get('jobs', {}).values():
-            steps.extend(job.get('steps', []))
+        for job in workflow.get("jobs", {}).values():
+            steps.extend(job.get("steps", []))
         return steps
 
     def test_workflow_runs_linting(self, all_steps):
         """Test that workflow runs linting (pylint or flake8)."""
         linting_found = any(
-            'pylint' in step.get('run', '') or
-            'flake8' in step.get('run', '') or
-            'ruff' in step.get('run', '')
+            "pylint" in step.get("run", "")
+            or "flake8" in step.get("run", "")
+            or "ruff" in step.get("run", "")
             for step in all_steps
-            if 'run' in step
+            if "run" in step
         )
         assert linting_found, "Workflow must run linting (pylint, flake8, or ruff)"
 
     def test_workflow_runs_black(self, all_steps):
         """Test that workflow runs black formatter check."""
         black_found = any(
-            'black' in step.get('run', '')
-            for step in all_steps
-            if 'run' in step
+            "black" in step.get("run", "") for step in all_steps if "run" in step
         )
         assert black_found, "Workflow must run black formatter check"
 
     def test_workflow_runs_mypy(self, all_steps):
         """Test that workflow runs mypy type checking."""
         mypy_found = any(
-            'mypy' in step.get('run', '')
-            for step in all_steps
-            if 'run' in step
+            "mypy" in step.get("run", "") for step in all_steps if "run" in step
         )
         assert mypy_found, "Workflow must run mypy type checking"
 
@@ -248,7 +242,7 @@ class TestCIWorkflowSecurity:
     @pytest.fixture
     def workflow(self):
         """Load the CI workflow YAML file."""
-        ci_file = PROJECT_ROOT / '.github' / 'workflows' / 'ci.yml'
+        ci_file = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
         if not ci_file.exists():
             pytest.skip("CI workflow file does not exist yet")
         with open(ci_file) as f:
@@ -258,20 +252,21 @@ class TestCIWorkflowSecurity:
     def all_steps(self, workflow):
         """Get all steps from all jobs."""
         steps = []
-        for job in workflow.get('jobs', {}).values():
-            steps.extend(job.get('steps', []))
+        for job in workflow.get("jobs", {}).values():
+            steps.extend(job.get("steps", []))
         return steps
 
     def test_workflow_runs_security_scan(self, all_steps):
         """Test that workflow runs security scanning (pip-audit or safety)."""
         security_found = any(
-            'pip-audit' in step.get('run', '') or
-            'safety' in step.get('run', '')
+            "pip-audit" in step.get("run", "") or "safety" in step.get("run", "")
             for step in all_steps
-            if 'run' in step
+            if "run" in step
         )
-        assert security_found, "Workflow must run security scanning (pip-audit or safety)"
+        assert (
+            security_found
+        ), "Workflow must run security scanning (pip-audit or safety)"
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
