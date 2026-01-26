@@ -10,11 +10,11 @@ Implement automated CI/CD pipeline using GitHub Actions to run tests, linting, t
 
 ## Phase 1: Project Setup and Dependencies
 
-- [ ] Task: Document Python dependencies for testing
-    - [ ] Research existing test dependencies in use
-    - [ ] Create `scripts/requirements-dev.txt` with test dependencies
-    - [ ] Include pytest, pylint, black, mypy, pip-audit
-    - [ ] Document installation instructions in README or docs
+- [x] Task: Document Python dependencies for testing [bc52438]
+    - [x] Research existing test dependencies in use
+    - [x] Create `scripts/requirements-dev.txt` with test dependencies
+    - [x] Include pytest, pylint, black, mypy, pip-audit
+    - [x] Document installation instructions in README or docs
 
 - [ ] Task: Verify existing tests can run locally
     - [ ] Run existing tests in `scripts/tests/` directory
