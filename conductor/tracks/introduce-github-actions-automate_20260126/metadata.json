@@ -1,0 +1,8 @@
+{
+  "track_id": "introduce-github-actions-automate_20260126",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-01-26T14:13:21.049836Z",
+  "updated_at": "2026-01-26T14:13:21.049836Z",
+  "description": "introduce github actions CI to automate the testing of the python scripts and ensure nothing breaks through changes"
+}
