@@ -1,5 +1,7 @@
 # Claude Conductor for Claude Code
 
+[![CI](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml/badge.svg)](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml)
+
 **Measure twice, code once.**
 
 Conductor is a Claude Code plugin that enables **Context-Driven Development**. It turns Claude Code into a proactive project manager that follows a strict protocol to specify, plan, and implement software features and bug fixes.
