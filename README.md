@@ -590,6 +590,60 @@ Commands automatically resolve file paths using these index files with fallback 
 
 For more details, see [CLAUDE.md](CLAUDE.md).
 
+## Development
+
+### Prerequisites
+
+- Python 3.12+
+- Git
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/claude-conductor.git
+cd claude-conductor
+
+# Create a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install development dependencies
+pip install -r scripts/requirements-dev.txt
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest scripts/tests/ -v
+
+# Run with coverage
+pytest scripts/tests/ --cov=scripts --cov-report=html
+
+# Run specific test file
+pytest scripts/tests/test_commands.py -v
+
+# Run specific test class
+pytest scripts/tests/test_commands.py::TestSkillsCommand -v
+```
+
+### Code Quality Checks
+
+```bash
+# Run linting
+pylint scripts/
+
+# Check code formatting
+black --check scripts/
+
+# Run type checking
+mypy scripts/
+
+# Security scan
+pip-audit
+```
+
 ## Attribution
 
 **Claude Conductor for Claude Code** is a derivative work based on the [Conductor Extension for Gemini CLI](https://github.com/gemini-cli-extensions/conductor), originally released under the Apache License 2.0.
