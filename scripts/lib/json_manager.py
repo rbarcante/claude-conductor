@@ -37,7 +37,9 @@ class JsonManager:
                         If not provided, defaults to project_root for backward compatibility
         """
         self.project_root = Path(project_root).resolve()
-        self.plugin_root = Path(plugin_root).resolve() if plugin_root else self.project_root
+        self.plugin_root = (
+            Path(plugin_root).resolve() if plugin_root else self.project_root
+        )
 
     def read(self, path: Path) -> Optional[Dict[str, Any]]:
         """
@@ -54,7 +56,7 @@ class JsonManager:
             return None
 
         try:
-            with open(full_path, 'r', encoding='utf-8') as f:
+            with open(full_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except json.JSONDecodeError:
             return None
@@ -77,20 +79,20 @@ class JsonManager:
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            with open(full_path, 'w', encoding='utf-8') as f:
+            with open(full_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=indent, ensure_ascii=False)
-                f.write('\n')  # Add trailing newline
+                f.write("\n")  # Add trailing newline
             return True
         except Exception:
             return False
 
     def read_skill_registry(self) -> Optional[Dict[str, Any]]:
         """Read the skill registry file (from plugin root)."""
-        return self._read_plugin_file(Path('skills/skill-registry.json'))
+        return self._read_plugin_file(Path("skills/skill-registry.json"))
 
     def read_skill_manifest(self, skill_name: str) -> Optional[Dict[str, Any]]:
         """Read a skill's manifest.json file (from plugin root)."""
-        return self._read_plugin_file(Path(f'skills/{skill_name}/manifest.json'))
+        return self._read_plugin_file(Path(f"skills/{skill_name}/manifest.json"))
 
     def _read_plugin_file(self, path: Path) -> Optional[Dict[str, Any]]:
         """
@@ -107,7 +109,7 @@ class JsonManager:
             return None
 
         try:
-            with open(full_path, 'r', encoding='utf-8') as f:
+            with open(full_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except json.JSONDecodeError:
             return None
@@ -119,43 +121,36 @@ class JsonManager:
         Returns:
             Settings dict with at least 'disabledSkills' array
         """
-        settings = self.read(Path('conductor/settings.json'))
+        settings = self.read(Path("conductor/settings.json"))
         if settings is None:
-            settings = {
-                'version': '1.0.0',
-                'disabledSkills': []
-            }
+            settings = {"version": "1.0.0", "disabledSkills": []}
         return settings
 
     def write_settings(self, settings: Dict[str, Any]) -> bool:
         """Write conductor settings."""
-        return self.write(Path('conductor/settings.json'), settings)
+        return self.write(Path("conductor/settings.json"), settings)
 
     def read_setup_state(self) -> Dict[str, Any]:
         """Read setup state file."""
-        state = self.read(Path('conductor/setup_state.json'))
+        state = self.read(Path("conductor/setup_state.json"))
         if state is None:
-            state = {'last_successful_step': None}
+            state = {"last_successful_step": None}
         return state
 
     def write_setup_state(self, state: Dict[str, Any]) -> bool:
         """Write setup state file."""
-        return self.write(Path('conductor/setup_state.json'), state)
+        return self.write(Path("conductor/setup_state.json"), state)
 
     def read_track_metadata(self, track_id: str) -> Optional[Dict[str, Any]]:
         """Read a track's metadata.json file."""
-        return self.read(Path(f'conductor/tracks/{track_id}/metadata.json'))
+        return self.read(Path(f"conductor/tracks/{track_id}/metadata.json"))
 
     def write_track_metadata(self, track_id: str, metadata: Dict[str, Any]) -> bool:
         """Write a track's metadata.json file."""
-        return self.write(Path(f'conductor/tracks/{track_id}/metadata.json'), metadata)
+        return self.write(Path(f"conductor/tracks/{track_id}/metadata.json"), metadata)
 
     def create_track_metadata(
-        self,
-        track_id: str,
-        track_type: str,
-        description: str,
-        status: str = 'new'
+        self, track_id: str, track_type: str, description: str, status: str = "new"
     ) -> Dict[str, Any]:
         """
         Create metadata structure for a new track.
@@ -169,14 +164,14 @@ class JsonManager:
         Returns:
             Metadata dict
         """
-        now = datetime.utcnow().isoformat() + 'Z'
+        now = datetime.utcnow().isoformat() + "Z"
         return {
-            'track_id': track_id,
-            'type': track_type,
-            'status': status,
-            'created_at': now,
-            'updated_at': now,
-            'description': description
+            "track_id": track_id,
+            "type": track_type,
+            "status": status,
+            "created_at": now,
+            "updated_at": now,
+            "description": description,
         }
 
     def update_disabled_skills(self, skill_name: str, disable: bool) -> Dict[str, Any]:
@@ -191,7 +186,7 @@ class JsonManager:
             Updated settings dict
         """
         settings = self.read_settings()
-        disabled = settings.get('disabledSkills', [])
+        disabled = settings.get("disabledSkills", [])
 
         if disable:
             # Add to disabled list if not already there
@@ -201,7 +196,7 @@ class JsonManager:
             # Remove from disabled list
             disabled = [s for s in disabled if s != skill_name]
 
-        settings['disabledSkills'] = disabled
+        settings["disabledSkills"] = disabled
         self.write_settings(settings)
         return settings
 

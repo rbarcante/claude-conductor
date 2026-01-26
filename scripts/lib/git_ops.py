@@ -28,6 +28,7 @@ from dataclasses import dataclass
 @dataclass
 class Commit:
     """Represents a git commit."""
+
     sha: str
     short_sha: str
     message: str
@@ -60,23 +61,20 @@ class GitOps:
         """
         try:
             result = subprocess.run(
-                ['git'] + args,
-                cwd=self.project_root,
-                capture_output=capture,
-                text=True
+                ["git"] + args, cwd=self.project_root, capture_output=capture, text=True
             )
             return result.returncode, result.stdout, result.stderr
         except FileNotFoundError:
-            return 1, '', 'git not found'
+            return 1, "", "git not found"
 
     def is_repo(self) -> bool:
         """Check if project root is a git repository."""
-        code, _, _ = self._run(['rev-parse', '--git-dir'])
+        code, _, _ = self._run(["rev-parse", "--git-dir"])
         return code == 0
 
     def get_current_branch(self) -> Optional[str]:
         """Get current branch name."""
-        code, stdout, _ = self._run(['rev-parse', '--abbrev-ref', 'HEAD'])
+        code, stdout, _ = self._run(["rev-parse", "--abbrev-ref", "HEAD"])
         if code == 0:
             return stdout.strip()
         return None
@@ -92,20 +90,20 @@ class GitOps:
             List of file paths
         """
         if staged:
-            args = ['diff', '--cached', '--name-only']
+            args = ["diff", "--cached", "--name-only"]
         else:
-            args = ['diff', '--name-only', 'HEAD']
+            args = ["diff", "--name-only", "HEAD"]
 
         code, stdout, _ = self._run(args)
         if code == 0:
-            return [f for f in stdout.strip().split('\n') if f]
+            return [f for f in stdout.strip().split("\n") if f]
         return []
 
     def get_untracked_files(self) -> List[str]:
         """Get list of untracked files."""
-        code, stdout, _ = self._run(['ls-files', '--others', '--exclude-standard'])
+        code, stdout, _ = self._run(["ls-files", "--others", "--exclude-standard"])
         if code == 0:
-            return [f for f in stdout.strip().split('\n') if f]
+            return [f for f in stdout.strip().split("\n") if f]
         return []
 
     def log(
@@ -113,7 +111,7 @@ class GitOps:
         n: int = 10,
         path: Optional[str] = None,
         grep: Optional[str] = None,
-        format_str: str = '%H|%h|%s|%an|%ai'
+        format_str: str = "%H|%h|%s|%an|%ai",
     ) -> List[Commit]:
         """
         Get commit log.
@@ -127,31 +125,33 @@ class GitOps:
         Returns:
             List of Commit objects
         """
-        args = ['log', f'-n{n}', f'--format={format_str}']
+        args = ["log", f"-n{n}", f"--format={format_str}"]
 
         if grep:
-            args.append(f'--grep={grep}')
+            args.append(f"--grep={grep}")
 
         if path:
-            args.extend(['--', path])
+            args.extend(["--", path])
 
         code, stdout, _ = self._run(args)
         if code != 0:
             return []
 
         commits = []
-        for line in stdout.strip().split('\n'):
+        for line in stdout.strip().split("\n"):
             if not line:
                 continue
-            parts = line.split('|')
+            parts = line.split("|")
             if len(parts) >= 5:
-                commits.append(Commit(
-                    sha=parts[0],
-                    short_sha=parts[1],
-                    message=parts[2],
-                    author=parts[3],
-                    date=parts[4]
-                ))
+                commits.append(
+                    Commit(
+                        sha=parts[0],
+                        short_sha=parts[1],
+                        message=parts[2],
+                        author=parts[3],
+                        date=parts[4],
+                    )
+                )
 
         return commits
 
@@ -171,7 +171,7 @@ class GitOps:
         message_commits = self.log(n=100, grep=track_id)
 
         # Find commits by path
-        track_path = f'conductor/tracks/{track_id}'
+        track_path = f"conductor/tracks/{track_id}"
         path_commits = self.log(n=100, path=track_path)
 
         # Merge and deduplicate
@@ -195,27 +195,27 @@ class GitOps:
         Returns:
             List of plan.md file paths changed
         """
-        code, stdout, _ = self._run(['show', '--name-only', '--format=', sha])
+        code, stdout, _ = self._run(["show", "--name-only", "--format=", sha])
         if code != 0:
             return []
 
-        return [f for f in stdout.strip().split('\n') if f.endswith('plan.md')]
+        return [f for f in stdout.strip().split("\n") if f.endswith("plan.md")]
 
     def get_files_in_commit(self, sha: str) -> List[str]:
         """Get list of files changed in a commit."""
-        code, stdout, _ = self._run(['show', '--name-only', '--format=', sha])
+        code, stdout, _ = self._run(["show", "--name-only", "--format=", sha])
         if code == 0:
-            return [f for f in stdout.strip().split('\n') if f]
+            return [f for f in stdout.strip().split("\n") if f]
         return []
 
     def is_merge_commit(self, sha: str) -> bool:
         """Check if a commit is a merge commit."""
-        code, stdout, _ = self._run(['cat-file', '-p', sha])
+        code, stdout, _ = self._run(["cat-file", "-p", sha])
         if code != 0:
             return False
 
         # Merge commits have multiple 'parent' lines
-        parent_count = len(re.findall(r'^parent ', stdout, re.MULTILINE))
+        parent_count = len(re.findall(r"^parent ", stdout, re.MULTILINE))
         return parent_count > 1
 
     def revert(self, sha: str, no_commit: bool = False) -> Tuple[bool, str]:
@@ -229,9 +229,9 @@ class GitOps:
         Returns:
             Tuple of (success, message)
         """
-        args = ['revert']
+        args = ["revert"]
         if no_commit:
-            args.append('--no-commit')
+            args.append("--no-commit")
         args.append(sha)
 
         code, stdout, stderr = self._run(args)
@@ -252,28 +252,28 @@ class GitOps:
             Dict with 'files_changed', 'insertions', 'deletions'
         """
         if sha:
-            args = ['show', '--stat', '--format=', sha]
+            args = ["show", "--stat", "--format=", sha]
         else:
-            args = ['diff', '--stat']
+            args = ["diff", "--stat"]
 
         code, stdout, _ = self._run(args)
         if code != 0:
-            return {'files_changed': 0, 'insertions': 0, 'deletions': 0}
+            return {"files_changed": 0, "insertions": 0, "deletions": 0}
 
         # Parse the summary line like "5 files changed, 100 insertions(+), 50 deletions(-)"
-        match = re.search(r'(\d+) files? changed', stdout)
+        match = re.search(r"(\d+) files? changed", stdout)
         files_changed = int(match.group(1)) if match else 0
 
-        match = re.search(r'(\d+) insertions?\(\+\)', stdout)
+        match = re.search(r"(\d+) insertions?\(\+\)", stdout)
         insertions = int(match.group(1)) if match else 0
 
-        match = re.search(r'(\d+) deletions?\(-\)', stdout)
+        match = re.search(r"(\d+) deletions?\(-\)", stdout)
         deletions = int(match.group(1)) if match else 0
 
         return {
-            'files_changed': files_changed,
-            'insertions': insertions,
-            'deletions': deletions
+            "files_changed": files_changed,
+            "insertions": insertions,
+            "deletions": deletions,
         }
 
     def status(self) -> Dict[str, Any]:
@@ -283,11 +283,11 @@ class GitOps:
         Returns:
             Dict with 'branch', 'staged', 'modified', 'untracked' counts
         """
-        code, stdout, _ = self._run(['status', '--porcelain', '-b'])
+        code, stdout, _ = self._run(["status", "--porcelain", "-b"])
         if code != 0:
             return {}
 
-        lines = stdout.strip().split('\n')
+        lines = stdout.strip().split("\n")
 
         branch = None
         staged = 0
@@ -295,33 +295,33 @@ class GitOps:
         untracked = 0
 
         for line in lines:
-            if line.startswith('## '):
+            if line.startswith("## "):
                 # Branch line
-                match = re.match(r'## (.+?)(?:\.\.\.|$)', line)
+                match = re.match(r"## (.+?)(?:\.\.\.|$)", line)
                 if match:
                     branch = match.group(1)
-            elif line.startswith('??'):
+            elif line.startswith("??"):
                 untracked += 1
-            elif line[0] != ' ':
+            elif line[0] != " ":
                 staged += 1
-            elif line[1] != ' ':
+            elif line[1] != " ":
                 modified += 1
 
         return {
-            'branch': branch,
-            'staged': staged,
-            'modified': modified,
-            'untracked': untracked
+            "branch": branch,
+            "staged": staged,
+            "modified": modified,
+            "untracked": untracked,
         }
 
     def init(self) -> bool:
         """Initialize a new git repository."""
-        code, _, _ = self._run(['init'])
+        code, _, _ = self._run(["init"])
         return code == 0
 
     def add(self, paths: List[str]) -> bool:
         """Stage files for commit."""
-        code, _, _ = self._run(['add'] + paths)
+        code, _, _ = self._run(["add"] + paths)
         return code == 0
 
     def commit(self, message: str) -> Tuple[bool, str]:
@@ -334,17 +334,17 @@ class GitOps:
         Returns:
             Tuple of (success, commit_sha or error)
         """
-        code, stdout, stderr = self._run(['commit', '-m', message])
+        code, stdout, stderr = self._run(["commit", "-m", message])
         if code == 0:
             # Extract commit SHA
-            match = re.search(r'\[.+ ([a-f0-9]+)\]', stdout)
-            sha = match.group(1) if match else ''
+            match = re.search(r"\[.+ ([a-f0-9]+)\]", stdout)
+            sha = match.group(1) if match else ""
             return True, sha
         return False, stderr
 
-    def get_commit_sha(self, ref: str = 'HEAD') -> Optional[str]:
+    def get_commit_sha(self, ref: str = "HEAD") -> Optional[str]:
         """Get full SHA for a ref."""
-        code, stdout, _ = self._run(['rev-parse', ref])
+        code, stdout, _ = self._run(["rev-parse", ref])
         if code == 0:
             return stdout.strip()
         return None

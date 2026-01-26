@@ -29,16 +29,15 @@ from lib.file_resolver import FileResolver
 from lib.markdown_parser import MarkdownParser
 from lib.formatters import Formatters
 
-
 # Language extension mappings
 LANGUAGE_EXTENSIONS = {
-    'python': ['.py'],
-    'typescript': ['.ts'],
-    'javascript': ['.js'],
-    'java': ['.java'],
-    'go': ['.go'],
-    'rust': ['.rs'],
-    'markdown': ['.md'],
+    "python": [".py"],
+    "typescript": [".ts"],
+    "javascript": [".js"],
+    "java": [".java"],
+    "go": [".go"],
+    "rust": [".rs"],
+    "markdown": [".md"],
 }
 
 # Reverse mapping for extension to language
@@ -51,19 +50,19 @@ for lang, exts in LANGUAGE_EXTENSIONS.items():
 def handle(args) -> Dict[str, Any]:
     """Handle snippets subcommands."""
     project_root = args.project_root
-    plugin_root = getattr(args, 'plugin_root', None)
+    plugin_root = getattr(args, "plugin_root", None)
 
     # Snippets are plugin files, so use plugin_root when available
     snippets_root = plugin_root or project_root
 
-    if args.subcommand == 'list':
+    if args.subcommand == "list":
         return list_snippets(snippets_root)
-    elif args.subcommand == 'show':
-        language = getattr(args, 'language', None)
+    elif args.subcommand == "show":
+        language = getattr(args, "language", None)
         return show_snippet(snippets_root, args.name, language)
-    elif args.subcommand == 'search':
+    elif args.subcommand == "search":
         return search_snippets(snippets_root, args.query)
-    elif args.subcommand == 'detect_language':
+    elif args.subcommand == "detect_language":
         return detect_language(args.filename)
     else:
         # Default to list
@@ -82,11 +81,11 @@ def list_snippets(project_root: Path) -> Dict[str, Any]:
     md_parser = MarkdownParser(project_root)
 
     # Read snippets index
-    index_path = resolver.resolve_project_file('snippet_index')
+    index_path = resolver.resolve_project_file("snippet_index")
     if not index_path:
         return {
-            'success': False,
-            'error': 'Snippet index not found at snippets/index.md'
+            "success": False,
+            "error": "Snippet index not found at snippets/index.md",
         }
 
     content = index_path.read_text()
@@ -96,7 +95,7 @@ def list_snippets(project_root: Path) -> Dict[str, Any]:
     all_snippets = []
 
     # Categories to look for
-    category_names = ['TypeScript', 'Python', 'Java', 'Patterns']
+    category_names = ["TypeScript", "Python", "Java", "Patterns"]
 
     for category in category_names:
         section = md_parser.extract_section(content, category, level=3)
@@ -107,39 +106,41 @@ def list_snippets(project_root: Path) -> Dict[str, Any]:
 
     # Validate and enrich with file info
     # Paths in index.md are relative to the snippets directory (where index.md is)
-    snippets_dir = project_root / 'snippets'
+    snippets_dir = project_root / "snippets"
     for snippet in all_snippets:
-        path = snippet.get('path', '')
+        path = snippet.get("path", "")
         if path:
-            full_path = snippets_dir / path.lstrip('./')
-            snippet['exists'] = full_path.exists()
+            full_path = snippets_dir / path.lstrip("./")
+            snippet["exists"] = full_path.exists()
             if full_path.exists():
-                snippet['size'] = full_path.stat().st_size
+                snippet["size"] = full_path.stat().st_size
                 # Extract header info
                 header = _extract_snippet_header(full_path, md_parser)
                 snippet.update(header)
         else:
-            snippet['exists'] = False
+            snippet["exists"] = False
 
     # Summary counts
     summary = {
-        'total': len(all_snippets),
-        'by_language': {cat: len(snips) for cat, snips in categories.items()},
-        'valid': sum(1 for s in all_snippets if s.get('exists', False))
+        "total": len(all_snippets),
+        "by_language": {cat: len(snips) for cat, snips in categories.items()},
+        "valid": sum(1 for s in all_snippets if s.get("exists", False)),
     }
 
     return {
-        'success': True,
-        'data': {
-            'snippets': all_snippets,
-            'categories': categories,
-            'summary': summary
+        "success": True,
+        "data": {
+            "snippets": all_snippets,
+            "categories": categories,
+            "summary": summary,
         },
-        'message': format_snippets_list(categories)
+        "message": format_snippets_list(categories),
     }
 
 
-def show_snippet(project_root: Path, name: str, language: Optional[str] = None) -> Dict[str, Any]:
+def show_snippet(
+    project_root: Path, name: str, language: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Show a specific snippet with its AI header and content.
 
@@ -153,10 +154,7 @@ def show_snippet(project_root: Path, name: str, language: Optional[str] = None) 
     - content: Full snippet content
     """
     if not name:
-        return {
-            'success': False,
-            'error': 'Snippet name is required'
-        }
+        return {"success": False, "error": "Snippet name is required"}
 
     resolver = FileResolver(project_root)
     md_parser = MarkdownParser(project_root)
@@ -169,8 +167,9 @@ def show_snippet(project_root: Path, name: str, language: Optional[str] = None) 
 
     if not snippet_path:
         return {
-            'success': False,
-            'error': f"Snippet '{name}' not found" + (f" for language '{language}'" if language else "")
+            "success": False,
+            "error": f"Snippet '{name}' not found"
+            + (f" for language '{language}'" if language else ""),
         }
 
     content = snippet_path.read_text()
@@ -182,18 +181,14 @@ def show_snippet(project_root: Path, name: str, language: Optional[str] = None) 
     header = md_parser.parse_snippet_header(content, detected_language)
 
     result = {
-        'name': snippet_path.stem,
-        'language': detected_language,
-        'path': str(snippet_path.relative_to(project_root)),
-        'header': header,
-        'content': content
+        "name": snippet_path.stem,
+        "language": detected_language,
+        "path": str(snippet_path.relative_to(project_root)),
+        "header": header,
+        "content": content,
     }
 
-    return {
-        'success': True,
-        'data': result,
-        'message': format_snippet_detail(result)
-    }
+    return {"success": True, "data": result, "message": format_snippet_detail(result)}
 
 
 def search_snippets(project_root: Path, query: str) -> Dict[str, Any]:
@@ -205,19 +200,13 @@ def search_snippets(project_root: Path, query: str) -> Dict[str, Any]:
     Returns ranked JSON results.
     """
     if not query:
-        return {
-            'success': False,
-            'error': 'Search query is required'
-        }
+        return {"success": False, "error": "Search query is required"}
 
     md_parser = MarkdownParser(project_root)
-    snippets_dir = project_root / 'snippets'
+    snippets_dir = project_root / "snippets"
 
     if not snippets_dir.exists():
-        return {
-            'success': False,
-            'error': 'Snippets directory not found'
-        }
+        return {"success": False, "error": "Snippets directory not found"}
 
     results = []
     query_lower = query.lower()
@@ -238,25 +227,23 @@ def search_snippets(project_root: Path, query: str) -> Dict[str, Any]:
 
             score, matches = _score_snippet(snippet_file, query_terms, md_parser)
             if score > 0:
-                results.append({
-                    'name': snippet_file.stem,
-                    'language': lang_dir.name,
-                    'path': str(snippet_file.relative_to(project_root)),
-                    'score': score,
-                    'matches': matches
-                })
+                results.append(
+                    {
+                        "name": snippet_file.stem,
+                        "language": lang_dir.name,
+                        "path": str(snippet_file.relative_to(project_root)),
+                        "score": score,
+                        "matches": matches,
+                    }
+                )
 
     # Sort by score descending
-    results.sort(key=lambda x: x['score'], reverse=True)
+    results.sort(key=lambda x: x["score"], reverse=True)
 
     return {
-        'success': True,
-        'data': {
-            'query': query,
-            'results': results,
-            'count': len(results)
-        },
-        'message': format_search_results(query, results)
+        "success": True,
+        "data": {"query": query, "results": results, "count": len(results)},
+        "message": format_search_results(query, results),
     }
 
 
@@ -267,10 +254,7 @@ def detect_language(filename: str) -> Dict[str, Any]:
     Returns language name and associated extensions.
     """
     if not filename:
-        return {
-            'success': False,
-            'error': 'Filename is required'
-        }
+        return {"success": False, "error": "Filename is required"}
 
     # Extract extension
     path = Path(filename)
@@ -279,52 +263,53 @@ def detect_language(filename: str) -> Dict[str, Any]:
     if ext in EXTENSION_TO_LANGUAGE:
         language = EXTENSION_TO_LANGUAGE[ext]
         return {
-            'success': True,
-            'data': {
-                'filename': filename,
-                'extension': ext,
-                'language': language,
-                'all_extensions': LANGUAGE_EXTENSIONS.get(language, [ext])
+            "success": True,
+            "data": {
+                "filename": filename,
+                "extension": ext,
+                "language": language,
+                "all_extensions": LANGUAGE_EXTENSIONS.get(language, [ext]),
             },
-            'message': f"Detected language: {language} (from {ext})"
+            "message": f"Detected language: {language} (from {ext})",
         }
     else:
         return {
-            'success': True,
-            'data': {
-                'filename': filename,
-                'extension': ext,
-                'language': 'unknown',
-                'all_extensions': []
+            "success": True,
+            "data": {
+                "filename": filename,
+                "extension": ext,
+                "language": "unknown",
+                "all_extensions": [],
             },
-            'message': f"Unknown language for extension: {ext}"
+            "message": f"Unknown language for extension: {ext}",
         }
 
 
 # Helper functions
 
+
 def detect_language_from_path(path: Path) -> str:
     """Detect language from file path."""
     ext = path.suffix.lower()
-    return EXTENSION_TO_LANGUAGE.get(ext, 'unknown')
+    return EXTENSION_TO_LANGUAGE.get(ext, "unknown")
 
 
 def _parse_snippet_table(section: str, category: str) -> List[Dict[str, Any]]:
     """Parse a markdown table from a section into snippet dicts."""
     snippets = []
-    lines = section.strip().split('\n')
+    lines = section.strip().split("\n")
 
     # Find table lines
-    table_lines = [l for l in lines if l.strip().startswith('|')]
+    table_lines = [l for l in lines if l.strip().startswith("|")]
     if len(table_lines) < 3:
         return snippets
 
     # Skip header and separator
     for line in table_lines[2:]:
-        cells = [c.strip() for c in line.split('|')[1:-1]]
+        cells = [c.strip() for c in line.split("|")[1:-1]]
         if len(cells) >= 2:
             # Extract link from first cell
-            link_match = re.search(r'\[([^\]]+)\]\(([^)]+)\)', cells[0])
+            link_match = re.search(r"\[([^\]]+)\]\(([^)]+)\)", cells[0])
             if link_match:
                 name = link_match.group(1)
                 path = link_match.group(2)
@@ -333,15 +318,15 @@ def _parse_snippet_table(section: str, category: str) -> List[Dict[str, Any]]:
                 path = None
 
             snippet = {
-                'name': name,
-                'path': path,
-                'category': category,
-                'description': cells[1] if len(cells) > 1 else ''
+                "name": name,
+                "path": path,
+                "category": category,
+                "description": cells[1] if len(cells) > 1 else "",
             }
 
             # Some tables have Pattern column
             if len(cells) > 2:
-                snippet['pattern'] = cells[2]
+                snippet["pattern"] = cells[2]
 
             snippets.append(snippet)
 
@@ -358,9 +343,11 @@ def _extract_snippet_header(path: Path, md_parser: MarkdownParser) -> Dict[str, 
         return {}
 
 
-def _find_snippet_by_name(project_root: Path, name: str, language: Optional[str] = None) -> Optional[Path]:
+def _find_snippet_by_name(
+    project_root: Path, name: str, language: Optional[str] = None
+) -> Optional[Path]:
     """Find a snippet file by name, optionally filtered by language."""
-    snippets_dir = project_root / 'snippets'
+    snippets_dir = project_root / "snippets"
     if not snippets_dir.exists():
         return None
 
@@ -386,7 +373,9 @@ def _find_snippet_by_name(project_root: Path, name: str, language: Optional[str]
     return None
 
 
-def _score_snippet(snippet_path: Path, query_terms: List[str], md_parser: MarkdownParser) -> tuple:
+def _score_snippet(
+    snippet_path: Path, query_terms: List[str], md_parser: MarkdownParser
+) -> tuple:
     """
     Score a snippet file against search terms.
 
@@ -411,21 +400,21 @@ def _score_snippet(snippet_path: Path, query_terms: List[str], md_parser: Markdo
             matches.append(f"name: {name}")
 
     # Check USE field (high weight - describes purpose)
-    use_text = header.get('use', '').lower()
+    use_text = header.get("use", "").lower()
     for term in query_terms:
         if term in use_text:
             score += 2.5
             matches.append(f"use: {term}")
 
     # Check PATTERN field (patterns this implements)
-    pattern_text = header.get('pattern', '').lower()
+    pattern_text = header.get("pattern", "").lower()
     for term in query_terms:
         if term in pattern_text:
             score += 2.0
             matches.append(f"pattern: {term}")
 
     # Check REQUIRES field
-    requires_text = header.get('requires', '').lower()
+    requires_text = header.get("requires", "").lower()
     for term in query_terms:
         if term in requires_text:
             score += 1.0
@@ -458,58 +447,60 @@ def format_snippets_list(categories: Dict[str, List[Dict[str, Any]]]) -> str:
         if not snippets:
             continue
 
-        lines.append(f"\n{Formatters.COLORS['bold']}{category}{Formatters.COLORS['reset']} ({len(snippets)} snippets)")
-        lines.append('-' * 40)
+        lines.append(
+            f"\n{Formatters.COLORS['bold']}{category}{Formatters.COLORS['reset']} ({len(snippets)} snippets)"
+        )
+        lines.append("-" * 40)
 
         for snippet in snippets:
-            exists = snippet.get('exists', False)
-            symbol = Formatters.status_symbol('completed' if exists else 'error')
-            name = snippet.get('name', 'Unknown')
-            desc = Formatters.truncate(snippet.get('description', ''), 45)
+            exists = snippet.get("exists", False)
+            symbol = Formatters.status_symbol("completed" if exists else "error")
+            name = snippet.get("name", "Unknown")
+            desc = Formatters.truncate(snippet.get("description", ""), 45)
             lines.append(f"  {symbol} {name}")
             if desc:
                 lines.append(f"      {desc}")
 
     if not lines:
-        return 'No snippets found.'
+        return "No snippets found."
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_snippet_detail(snippet: Dict[str, Any]) -> str:
     """Format detailed snippet information."""
     lines = [
         f"{Formatters.COLORS['bold']}{snippet.get('name', 'Unknown')}{Formatters.COLORS['reset']}",
-        '',
+        "",
         f"  Language:  {snippet.get('language', '?')}",
         f"  Path:      {snippet.get('path', '?')}",
     ]
 
-    header = snippet.get('header', {})
-    if header.get('use'):
-        lines.append('')
+    header = snippet.get("header", {})
+    if header.get("use"):
+        lines.append("")
         lines.append(f"  USE: {header['use']}")
 
-    if header.get('requires'):
+    if header.get("requires"):
         lines.append(f"  REQUIRES: {header['requires']}")
 
-    if header.get('pattern'):
+    if header.get("pattern"):
         lines.append(f"  PATTERN: {header['pattern']}")
 
-    lines.append('')
-    lines.append('  Content Preview:')
-    lines.append('  ' + '-' * 50)
+    lines.append("")
+    lines.append("  Content Preview:")
+    lines.append("  " + "-" * 50)
 
     # Show first 15 lines of content
-    content = snippet.get('content', '')
-    content_lines = content.split('\n')[:15]
+    content = snippet.get("content", "")
+    content_lines = content.split("\n")[:15]
     for line in content_lines:
         lines.append(f"  {line[:70]}")
 
-    if len(snippet.get('content', '').split('\n')) > 15:
-        lines.append('  ... (truncated)')
+    if len(snippet.get("content", "").split("\n")) > 15:
+        lines.append("  ... (truncated)")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_search_results(query: str, results: List[Dict[str, Any]]) -> str:
@@ -517,19 +508,23 @@ def format_search_results(query: str, results: List[Dict[str, Any]]) -> str:
     lines = [
         f"Search results for: '{query}'",
         f"Found {len(results)} matching snippet(s)",
-        ''
+        "",
     ]
 
     if not results:
-        lines.append('  (no matches)')
+        lines.append("  (no matches)")
     else:
         for result in results[:10]:
-            score = result.get('score', 0)
-            symbol = Formatters.status_symbol('completed') if score >= 2 else Formatters.status_symbol('pending')
-            lang = result.get('language', '?')
+            score = result.get("score", 0)
+            symbol = (
+                Formatters.status_symbol("completed")
+                if score >= 2
+                else Formatters.status_symbol("pending")
+            )
+            lang = result.get("language", "?")
             lines.append(f"  {symbol} {result['name']} [{lang}] (score: {score:.1f})")
-            matches = result.get('matches', [])
+            matches = result.get("matches", [])
             if matches:
                 lines.append(f"      Matches: {', '.join(matches[:3])}")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)

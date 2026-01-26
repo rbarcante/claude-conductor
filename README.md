@@ -1,5 +1,7 @@
 # Claude Conductor for Claude Code
 
+[![CI](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml/badge.svg)](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml)
+
 **Measure twice, code once.**
 
 Conductor is a Claude Code plugin that enables **Context-Driven Development**. It turns Claude Code into a proactive project manager that follows a strict protocol to specify, plan, and implement software features and bug fixes.
@@ -589,6 +591,60 @@ Conductor uses a flexible file resolution system that allows you to customize yo
 Commands automatically resolve file paths using these index files with fallback to standard default paths. This means you can reorganize your conductor directory structure by updating the index files, and all commands will continue to work correctly.
 
 For more details, see [CLAUDE.md](CLAUDE.md).
+
+## Development
+
+### Prerequisites
+
+- Python 3.12+
+- Git
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/claude-conductor.git
+cd claude-conductor
+
+# Create a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install development dependencies
+pip install -r scripts/requirements-dev.txt
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest scripts/tests/ -v
+
+# Run with coverage
+pytest scripts/tests/ --cov=scripts --cov-report=html
+
+# Run specific test file
+pytest scripts/tests/test_commands.py -v
+
+# Run specific test class
+pytest scripts/tests/test_commands.py::TestSkillsCommand -v
+```
+
+### Code Quality Checks
+
+```bash
+# Run linting
+pylint scripts/
+
+# Check code formatting
+black --check scripts/
+
+# Run type checking
+mypy scripts/
+
+# Security scan
+pip-audit
+```
 
 ## Attribution
 

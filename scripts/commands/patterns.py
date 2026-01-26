@@ -33,16 +33,16 @@ from lib.formatters import Formatters
 def handle(args) -> Dict[str, Any]:
     """Handle patterns subcommands."""
     project_root = args.project_root
-    plugin_root = getattr(args, 'plugin_root', None)
+    plugin_root = getattr(args, "plugin_root", None)
 
-    if args.subcommand == 'list':
+    if args.subcommand == "list":
         return list_patterns(plugin_root or project_root)
-    elif args.subcommand == 'show':
+    elif args.subcommand == "show":
         # Check for --ai-only flag
-        if getattr(args, 'ai_only', False):
+        if getattr(args, "ai_only", False):
             return ai_only(plugin_root or project_root, args.name)
         return show_pattern(plugin_root or project_root, args.name)
-    elif args.subcommand == 'search':
+    elif args.subcommand == "search":
         return search_patterns(plugin_root or project_root, args.query)
     else:
         # Default to list
@@ -61,23 +61,23 @@ def list_patterns(project_root: Path) -> Dict[str, Any]:
     md_parser = MarkdownParser(project_root)
 
     # Read pattern registry
-    index_path = resolver.resolve_project_file('pattern_registry')
+    index_path = resolver.resolve_project_file("pattern_registry")
     if not index_path:
         return {
-            'success': False,
-            'error': 'Pattern registry not found at patterns/index.md'
+            "success": False,
+            "error": "Pattern registry not found at patterns/index.md",
         }
 
     content = index_path.read_text()
 
     # Parse the Core Patterns table
-    core_section = md_parser.extract_section(content, 'Core Patterns')
+    core_section = md_parser.extract_section(content, "Core Patterns")
     core_patterns = []
     if core_section:
         core_patterns = _parse_pattern_table(core_section)
 
     # Parse Stack Patterns table (if any)
-    stack_section = md_parser.extract_section(content, 'Stack Patterns')
+    stack_section = md_parser.extract_section(content, "Stack Patterns")
     stack_patterns = []
     if stack_section:
         stack_patterns = _parse_pattern_table(stack_section)
@@ -85,31 +85,31 @@ def list_patterns(project_root: Path) -> Dict[str, Any]:
     # Enrich patterns with validation and frontmatter
     all_patterns = []
     for pattern in core_patterns:
-        enriched = _enrich_pattern(project_root, pattern, 'core')
+        enriched = _enrich_pattern(project_root, pattern, "core")
         all_patterns.append(enriched)
 
     for pattern in stack_patterns:
-        enriched = _enrich_pattern(project_root, pattern, 'stack')
+        enriched = _enrich_pattern(project_root, pattern, "stack")
         all_patterns.append(enriched)
 
     # Summary by category
     categories = {}
     for p in all_patterns:
-        cat = p.get('category', 'Uncategorized')
+        cat = p.get("category", "Uncategorized")
         categories[cat] = categories.get(cat, 0) + 1
 
     return {
-        'success': True,
-        'data': {
-            'patterns': all_patterns,
-            'summary': {
-                'total': len(all_patterns),
-                'core': len(core_patterns),
-                'stack': len(stack_patterns),
-                'by_category': categories
-            }
+        "success": True,
+        "data": {
+            "patterns": all_patterns,
+            "summary": {
+                "total": len(all_patterns),
+                "core": len(core_patterns),
+                "stack": len(stack_patterns),
+                "by_category": categories,
+            },
         },
-        'message': format_patterns_list(all_patterns)
+        "message": format_patterns_list(all_patterns),
     }
 
 
@@ -124,10 +124,7 @@ def show_pattern(project_root: Path, name: str) -> Dict[str, Any]:
     - sections: full content of each section
     """
     if not name:
-        return {
-            'success': False,
-            'error': 'Pattern name is required'
-        }
+        return {"success": False, "error": "Pattern name is required"}
 
     resolver = FileResolver(project_root)
     md_parser = MarkdownParser(project_root)
@@ -136,8 +133,8 @@ def show_pattern(project_root: Path, name: str) -> Dict[str, Any]:
     pattern_path = resolver.resolve_pattern(name)
     if not pattern_path:
         return {
-            'success': False,
-            'error': f"Pattern '{name}' not found in core/ or stack/ directories"
+            "success": False,
+            "error": f"Pattern '{name}' not found in core/ or stack/ directories",
         }
 
     content = pattern_path.read_text()
@@ -147,8 +144,14 @@ def show_pattern(project_root: Path, name: str) -> Dict[str, Any]:
 
     # Extract key sections
     sections = {}
-    for section_name in ['AI Quick Reference', 'Human Documentation', 'Anti-Patterns to Avoid',
-                         'Implementation Examples', 'Best Practices', 'Related Patterns']:
+    for section_name in [
+        "AI Quick Reference",
+        "Human Documentation",
+        "Anti-Patterns to Avoid",
+        "Implementation Examples",
+        "Best Practices",
+        "Related Patterns",
+    ]:
         section = md_parser.extract_section(body, section_name)
         if section:
             sections[section_name] = section
@@ -157,22 +160,18 @@ def show_pattern(project_root: Path, name: str) -> Dict[str, Any]:
     headers = md_parser.extract_headers(body)
 
     result = {
-        'name': frontmatter.get('name', name),
-        'category': frontmatter.get('category', 'Unknown'),
-        'tags': frontmatter.get('tags', []),
-        'version': frontmatter.get('version', '?'),
-        'last_updated': frontmatter.get('last_updated'),
-        'activation': frontmatter.get('activation', {}),
-        'path': str(pattern_path.relative_to(project_root)),
-        'sections': sections,
-        'headers': headers
+        "name": frontmatter.get("name", name),
+        "category": frontmatter.get("category", "Unknown"),
+        "tags": frontmatter.get("tags", []),
+        "version": frontmatter.get("version", "?"),
+        "last_updated": frontmatter.get("last_updated"),
+        "activation": frontmatter.get("activation", {}),
+        "path": str(pattern_path.relative_to(project_root)),
+        "sections": sections,
+        "headers": headers,
     }
 
-    return {
-        'success': True,
-        'data': result,
-        'message': format_pattern_detail(result)
-    }
+    return {"success": True, "data": result, "message": format_pattern_detail(result)}
 
 
 def search_patterns(project_root: Path, query: str) -> Dict[str, Any]:
@@ -182,17 +181,14 @@ def search_patterns(project_root: Path, query: str) -> Dict[str, Any]:
     Returns ranked JSON results based on match relevance.
     """
     if not query:
-        return {
-            'success': False,
-            'error': 'Search query is required'
-        }
+        return {"success": False, "error": "Search query is required"}
 
     resolver = FileResolver(project_root)
     md_parser = MarkdownParser(project_root)
 
     # Get pattern directories
-    core_dir = project_root / 'patterns' / 'core'
-    stack_dir = project_root / 'patterns' / 'stack'
+    core_dir = project_root / "patterns" / "core"
+    stack_dir = project_root / "patterns" / "stack"
 
     results = []
     query_lower = query.lower()
@@ -200,45 +196,45 @@ def search_patterns(project_root: Path, query: str) -> Dict[str, Any]:
 
     # Search core patterns
     if core_dir.exists():
-        for pattern_file in core_dir.glob('*.md'):
-            if pattern_file.name == 'TEMPLATE.md':
+        for pattern_file in core_dir.glob("*.md"):
+            if pattern_file.name == "TEMPLATE.md":
                 continue
             score, matches = _score_pattern(pattern_file, query_terms, md_parser)
             if score > 0:
-                results.append({
-                    'name': pattern_file.stem,
-                    'path': str(pattern_file.relative_to(project_root)),
-                    'type': 'core',
-                    'score': score,
-                    'matches': matches
-                })
+                results.append(
+                    {
+                        "name": pattern_file.stem,
+                        "path": str(pattern_file.relative_to(project_root)),
+                        "type": "core",
+                        "score": score,
+                        "matches": matches,
+                    }
+                )
 
     # Search stack patterns
     if stack_dir.exists():
-        for pattern_file in stack_dir.rglob('*.md'):
-            if pattern_file.name == 'TEMPLATE.md':
+        for pattern_file in stack_dir.rglob("*.md"):
+            if pattern_file.name == "TEMPLATE.md":
                 continue
             score, matches = _score_pattern(pattern_file, query_terms, md_parser)
             if score > 0:
-                results.append({
-                    'name': pattern_file.stem,
-                    'path': str(pattern_file.relative_to(project_root)),
-                    'type': 'stack',
-                    'score': score,
-                    'matches': matches
-                })
+                results.append(
+                    {
+                        "name": pattern_file.stem,
+                        "path": str(pattern_file.relative_to(project_root)),
+                        "type": "stack",
+                        "score": score,
+                        "matches": matches,
+                    }
+                )
 
     # Sort by score descending
-    results.sort(key=lambda x: x['score'], reverse=True)
+    results.sort(key=lambda x: x["score"], reverse=True)
 
     return {
-        'success': True,
-        'data': {
-            'query': query,
-            'results': results,
-            'count': len(results)
-        },
-        'message': format_search_results(query, results)
+        "success": True,
+        "data": {"query": query, "results": results, "count": len(results)},
+        "message": format_search_results(query, results),
     }
 
 
@@ -249,10 +245,7 @@ def ai_only(project_root: Path, name: str) -> Dict[str, Any]:
     Returns minimal JSON for LLM consumption.
     """
     if not name:
-        return {
-            'success': False,
-            'error': 'Pattern name is required'
-        }
+        return {"success": False, "error": "Pattern name is required"}
 
     resolver = FileResolver(project_root)
     md_parser = MarkdownParser(project_root)
@@ -260,10 +253,7 @@ def ai_only(project_root: Path, name: str) -> Dict[str, Any]:
     # Resolve pattern path
     pattern_path = resolver.resolve_pattern(name)
     if not pattern_path:
-        return {
-            'success': False,
-            'error': f"Pattern '{name}' not found"
-        }
+        return {"success": False, "error": f"Pattern '{name}' not found"}
 
     content = pattern_path.read_text()
 
@@ -275,42 +265,39 @@ def ai_only(project_root: Path, name: str) -> Dict[str, Any]:
 
     if not ai_reference:
         return {
-            'success': False,
-            'error': f"Pattern '{name}' has no AI Quick Reference section"
+            "success": False,
+            "error": f"Pattern '{name}' has no AI Quick Reference section",
         }
 
     result = {
-        'name': frontmatter.get('name', name),
-        'category': frontmatter.get('category'),
-        'keywords': frontmatter.get('activation', {}).get('keywords', []),
-        'ai_reference': ai_reference
+        "name": frontmatter.get("name", name),
+        "category": frontmatter.get("category"),
+        "keywords": frontmatter.get("activation", {}).get("keywords", []),
+        "ai_reference": ai_reference,
     }
 
-    return {
-        'success': True,
-        'data': result,
-        'message': format_ai_reference(result)
-    }
+    return {"success": True, "data": result, "message": format_ai_reference(result)}
 
 
 # Helper functions
 
+
 def _parse_pattern_table(section: str) -> List[Dict[str, str]]:
     """Parse a markdown table from a section into pattern dicts."""
     patterns = []
-    lines = section.strip().split('\n')
+    lines = section.strip().split("\n")
 
     # Find table lines
-    table_lines = [l for l in lines if l.strip().startswith('|')]
+    table_lines = [l for l in lines if l.strip().startswith("|")]
     if len(table_lines) < 3:
         return patterns
 
     # Skip header and separator
     for line in table_lines[2:]:
-        cells = [c.strip() for c in line.split('|')[1:-1]]
+        cells = [c.strip() for c in line.split("|")[1:-1]]
         if len(cells) >= 4:
             # Extract link from first cell
-            link_match = re.search(r'\[([^\]]+)\]\(([^)]+)\)', cells[0])
+            link_match = re.search(r"\[([^\]]+)\]\(([^)]+)\)", cells[0])
             if link_match:
                 name = link_match.group(1)
                 path = link_match.group(2)
@@ -318,33 +305,37 @@ def _parse_pattern_table(section: str) -> List[Dict[str, str]]:
                 name = cells[0]
                 path = None
 
-            patterns.append({
-                'name': name,
-                'path': path,
-                'category': cells[1] if len(cells) > 1 else '',
-                'description': cells[2] if len(cells) > 2 else '',
-                'keywords': cells[3] if len(cells) > 3 else ''
-            })
+            patterns.append(
+                {
+                    "name": name,
+                    "path": path,
+                    "category": cells[1] if len(cells) > 1 else "",
+                    "description": cells[2] if len(cells) > 2 else "",
+                    "keywords": cells[3] if len(cells) > 3 else "",
+                }
+            )
 
     return patterns
 
 
-def _enrich_pattern(project_root: Path, pattern: Dict[str, str], source: str) -> Dict[str, Any]:
+def _enrich_pattern(
+    project_root: Path, pattern: Dict[str, str], source: str
+) -> Dict[str, Any]:
     """Enrich pattern data with file validation and frontmatter."""
     resolver = FileResolver(project_root)
     md_parser = MarkdownParser(project_root)
 
     # Validate file exists
-    pattern_path = resolver.resolve_pattern(pattern.get('name', ''))
+    pattern_path = resolver.resolve_pattern(pattern.get("name", ""))
     exists = pattern_path is not None
 
     result = {
-        'name': pattern.get('name', ''),
-        'category': pattern.get('category', ''),
-        'description': pattern.get('description', ''),
-        'keywords': pattern.get('keywords', ''),
-        'source': source,
-        'exists': exists
+        "name": pattern.get("name", ""),
+        "category": pattern.get("category", ""),
+        "description": pattern.get("description", ""),
+        "keywords": pattern.get("keywords", ""),
+        "source": source,
+        "exists": exists,
     }
 
     # If file exists, get additional metadata from frontmatter
@@ -352,16 +343,20 @@ def _enrich_pattern(project_root: Path, pattern: Dict[str, str], source: str) ->
         try:
             content = pattern_path.read_text()
             frontmatter, _ = md_parser.parse_frontmatter(content)
-            result['tags'] = frontmatter.get('tags', [])
-            result['version'] = frontmatter.get('version', '?')
-            result['activation_keywords'] = frontmatter.get('activation', {}).get('keywords', [])
+            result["tags"] = frontmatter.get("tags", [])
+            result["version"] = frontmatter.get("version", "?")
+            result["activation_keywords"] = frontmatter.get("activation", {}).get(
+                "keywords", []
+            )
         except Exception:
             pass
 
     return result
 
 
-def _score_pattern(pattern_path: Path, query_terms: List[str], md_parser: MarkdownParser) -> tuple:
+def _score_pattern(
+    pattern_path: Path, query_terms: List[str], md_parser: MarkdownParser
+) -> tuple:
     """
     Score a pattern file against search terms.
 
@@ -378,14 +373,14 @@ def _score_pattern(pattern_path: Path, query_terms: List[str], md_parser: Markdo
     matches = []
 
     # Check name match (highest weight)
-    name = frontmatter.get('name', pattern_path.stem).lower()
+    name = frontmatter.get("name", pattern_path.stem).lower()
     for term in query_terms:
         if term in name:
             score += 3.0
             matches.append(f"name: {name}")
 
     # Check tags match
-    tags = frontmatter.get('tags', [])
+    tags = frontmatter.get("tags", [])
     for tag in tags:
         tag_lower = tag.lower()
         for term in query_terms:
@@ -394,7 +389,7 @@ def _score_pattern(pattern_path: Path, query_terms: List[str], md_parser: Markdo
                 matches.append(f"tag: {tag}")
 
     # Check activation keywords (high weight - these are meant for matching)
-    keywords = frontmatter.get('activation', {}).get('keywords', [])
+    keywords = frontmatter.get("activation", {}).get("keywords", [])
     for keyword in keywords:
         keyword_lower = keyword.lower()
         for term in query_terms:
@@ -406,7 +401,7 @@ def _score_pattern(pattern_path: Path, query_terms: List[str], md_parser: Markdo
                 matches.append(f"keyword: {keyword}")
 
     # Check category match
-    category = frontmatter.get('category', '').lower()
+    category = frontmatter.get("category", "").lower()
     for term in query_terms:
         if term in category:
             score += 1.5
@@ -428,18 +423,14 @@ def _score_pattern(pattern_path: Path, query_terms: List[str], md_parser: Markdo
 def format_patterns_list(patterns: List[Dict[str, Any]]) -> str:
     """Format patterns list for human-readable output."""
     if not patterns:
-        return 'No patterns found.'
+        return "No patterns found."
 
-    columns = ['name', 'category', 'description']
-    headers = {
-        'name': 'Pattern',
-        'category': 'Category',
-        'description': 'Description'
-    }
+    columns = ["name", "category", "description"]
+    headers = {"name": "Pattern", "category": "Category", "description": "Description"}
 
     # Truncate descriptions
     for p in patterns:
-        p['description'] = Formatters.truncate(p.get('description', ''), 50)
+        p["description"] = Formatters.truncate(p.get("description", ""), 50)
 
     return Formatters.table(patterns, columns, headers)
 
@@ -448,35 +439,35 @@ def format_pattern_detail(pattern: Dict[str, Any]) -> str:
     """Format detailed pattern information."""
     lines = [
         f"{Formatters.COLORS['bold']}{pattern.get('name', 'Unknown')}{Formatters.COLORS['reset']}",
-        '',
+        "",
         f"  Category:    {pattern.get('category', '?')}",
         f"  Version:     {pattern.get('version', '?')}",
         f"  Path:        {pattern.get('path', '?')}",
     ]
 
-    tags = pattern.get('tags', [])
+    tags = pattern.get("tags", [])
     if tags:
         lines.append(f"  Tags:        {', '.join(tags)}")
 
-    activation = pattern.get('activation', {})
-    keywords = activation.get('keywords', [])
+    activation = pattern.get("activation", {})
+    keywords = activation.get("keywords", [])
     if keywords:
         lines.append(f"  Keywords:    {', '.join(keywords[:8])}")
 
-    file_patterns = activation.get('file_patterns', [])
+    file_patterns = activation.get("file_patterns", [])
     if file_patterns:
         lines.append(f"  File Patterns: {', '.join(file_patterns[:3])}")
 
-    lines.append('')
+    lines.append("")
 
     # List available sections
-    sections = pattern.get('sections', {})
+    sections = pattern.get("sections", {})
     if sections:
-        lines.append('  Available Sections:')
+        lines.append("  Available Sections:")
         for section_name in sections.keys():
             lines.append(f"    - {section_name}")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_search_results(query: str, results: List[Dict[str, Any]]) -> str:
@@ -484,37 +475,41 @@ def format_search_results(query: str, results: List[Dict[str, Any]]) -> str:
     lines = [
         f"Search results for: '{query}'",
         f"Found {len(results)} matching pattern(s)",
-        ''
+        "",
     ]
 
     if not results:
-        lines.append('  (no matches)')
+        lines.append("  (no matches)")
     else:
         for i, result in enumerate(results[:10]):
-            score = result.get('score', 0)
-            symbol = Formatters.status_symbol('completed') if score >= 2 else Formatters.status_symbol('pending')
+            score = result.get("score", 0)
+            symbol = (
+                Formatters.status_symbol("completed")
+                if score >= 2
+                else Formatters.status_symbol("pending")
+            )
             lines.append(f"  {symbol} {result['name']} (score: {score:.1f})")
-            matches = result.get('matches', [])
+            matches = result.get("matches", [])
             if matches:
                 lines.append(f"      Matches: {', '.join(matches[:3])}")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_ai_reference(data: Dict[str, Any]) -> str:
     """Format AI Quick Reference for output."""
     lines = [
         f"{Formatters.COLORS['bold']}AI Quick Reference: {data.get('name', 'Unknown')}{Formatters.COLORS['reset']}",
-        ''
+        "",
     ]
 
-    keywords = data.get('keywords', [])
+    keywords = data.get("keywords", [])
     if keywords:
         lines.append(f"Keywords: {', '.join(keywords)}")
-        lines.append('')
+        lines.append("")
 
-    ai_ref = data.get('ai_reference', '')
+    ai_ref = data.get("ai_reference", "")
     if ai_ref:
         lines.append(ai_ref)
 
-    return '\n'.join(lines)
+    return "\n".join(lines)

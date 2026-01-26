@@ -1,0 +1,21 @@
+# Development dependencies for Claude Conductor Python scripts
+# Install with: pip install -r scripts/requirements-dev.txt
+
+# Testing
+pytest>=8.0.0
+pytest-cov>=5.0.0
+
+# Code Quality
+pylint>=3.0.0
+flake8>=7.0.0
+black>=24.0.0
+isort>=5.13.0
+
+# Type Checking
+mypy>=1.8.0
+
+# Security Scanning
+pip-audit>=2.7.0
+
+# Optional: For testing with YAML validation
+PyYAML>=6.0.0

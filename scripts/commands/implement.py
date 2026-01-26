@@ -41,31 +41,31 @@ from lib.formatters import Formatters
 def handle(args) -> Dict[str, Any]:
     """Handle implement subcommands."""
     project_root = args.project_root
-    plugin_root = getattr(args, 'plugin_root', None)
+    plugin_root = getattr(args, "plugin_root", None)
 
-    if args.subcommand == 'parse-tracks':
+    if args.subcommand == "parse-tracks":
         return parse_tracks(project_root)
-    elif args.subcommand == 'update-status':
+    elif args.subcommand == "update-status":
         return update_status(project_root, args.track_id, args.status)
-    elif args.subcommand == 'archive':
+    elif args.subcommand == "archive":
         return archive(project_root, args.track_id)
-    elif args.subcommand == 'modified-files':
+    elif args.subcommand == "modified-files":
         return modified_files(project_root)
-    elif args.subcommand == 'parse-coverage':
-        coverage_format = getattr(args, 'format', 'lcov')
-        coverage_path = getattr(args, 'path', None)
+    elif args.subcommand == "parse-coverage":
+        coverage_format = getattr(args, "format", "lcov")
+        coverage_path = getattr(args, "path", None)
         return parse_coverage(project_root, coverage_format, coverage_path)
-    elif args.subcommand == 'next-adr-number':
-        adr_path = getattr(args, 'path', 'docs/decisions')
+    elif args.subcommand == "next-adr-number":
+        adr_path = getattr(args, "path", "docs/decisions")
         return next_adr_number(project_root, adr_path)
-    elif args.subcommand == 'match-patterns':
+    elif args.subcommand == "match-patterns":
         return match_patterns(plugin_root or project_root, args.keywords)
-    elif args.subcommand == 'suggest-branch':
+    elif args.subcommand == "suggest-branch":
         return suggest_branch(project_root, args.track_id)
     else:
         return {
-            'success': False,
-            'error': 'No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns, suggest-branch'
+            "success": False,
+            "error": "No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns, suggest-branch",
         }
 
 
@@ -84,11 +84,11 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
     json_mgr = JsonManager(project_root)
 
     # Read tracks registry
-    tracks_file = resolver.resolve_project_file('tracks_registry')
+    tracks_file = resolver.resolve_project_file("tracks_registry")
     if not tracks_file:
         return {
-            'success': False,
-            'error': 'Tracks registry (conductor/tracks.md) not found'
+            "success": False,
+            "error": "Tracks registry (conductor/tracks.md) not found",
         }
 
     tracks = parser.parse_tracks_registry()
@@ -97,54 +97,51 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
     enriched_tracks = []
     for track in tracks:
         track_data = {
-            'description': track.description,
-            'status': track.status.value,
-            'path': track.path
+            "description": track.description,
+            "status": track.status.value,
+            "path": track.path,
         }
 
         # Extract track ID
         if track.path:
             track_id = parser.extract_track_id_from_path(track.path)
             if track_id:
-                track_data['track_id'] = track_id
+                track_data["track_id"] = track_id
 
                 # Read metadata
                 metadata = json_mgr.read_track_metadata(track_id)
                 if metadata:
-                    track_data['type'] = metadata.get('type')
-                    track_data['created_at'] = metadata.get('created_at')
-                    track_data['updated_at'] = metadata.get('updated_at')
+                    track_data["type"] = metadata.get("type")
+                    track_data["created_at"] = metadata.get("created_at")
+                    track_data["updated_at"] = metadata.get("updated_at")
 
                 # Get task progress
-                plan_file = resolver.resolve_track_file(track_id, 'implementation_plan')
+                plan_file = resolver.resolve_track_file(track_id, "implementation_plan")
                 if plan_file:
                     content = plan_file.read_text()
                     counts = parser.count_status_markers(content)
-                    track_data['tasks'] = counts
-                    if counts['total'] > 0:
-                        track_data['progress_percent'] = round(
-                            (counts['completed'] / counts['total']) * 100, 1
+                    track_data["tasks"] = counts
+                    if counts["total"] > 0:
+                        track_data["progress_percent"] = round(
+                            (counts["completed"] / counts["total"]) * 100, 1
                         )
                     else:
-                        track_data['progress_percent'] = 0
+                        track_data["progress_percent"] = 0
 
         enriched_tracks.append(track_data)
 
     # Summary by status
     summary = {
-        'total': len(enriched_tracks),
-        'completed': sum(1 for t in enriched_tracks if t['status'] == 'completed'),
-        'in_progress': sum(1 for t in enriched_tracks if t['status'] == 'in_progress'),
-        'pending': sum(1 for t in enriched_tracks if t['status'] == 'pending')
+        "total": len(enriched_tracks),
+        "completed": sum(1 for t in enriched_tracks if t["status"] == "completed"),
+        "in_progress": sum(1 for t in enriched_tracks if t["status"] == "in_progress"),
+        "pending": sum(1 for t in enriched_tracks if t["status"] == "pending"),
     }
 
     return {
-        'success': True,
-        'data': {
-            'tracks': enriched_tracks,
-            'summary': summary
-        },
-        'message': format_tracks_list(enriched_tracks, summary)
+        "success": True,
+        "data": {"tracks": enriched_tracks, "summary": summary},
+        "message": format_tracks_list(enriched_tracks, summary),
     }
 
 
@@ -166,55 +163,52 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
 
     # Verify track exists
     if not resolver.track_exists(track_id):
-        return {
-            'success': False,
-            'error': f"Track '{track_id}' not found"
-        }
+        return {"success": False, "error": f"Track '{track_id}' not found"}
 
     # Read tracks.md
-    tracks_file = resolver.resolve_project_file('tracks_registry')
+    tracks_file = resolver.resolve_project_file("tracks_registry")
     if not tracks_file:
         return {
-            'success': False,
-            'error': 'Tracks registry (conductor/tracks.md) not found'
+            "success": False,
+            "error": "Tracks registry (conductor/tracks.md) not found",
         }
 
     content = tracks_file.read_text()
 
     # Map status string to enum
     status_map = {
-        'pending': TaskStatus.PENDING,
-        'in-progress': TaskStatus.IN_PROGRESS,
-        'completed': TaskStatus.COMPLETED
+        "pending": TaskStatus.PENDING,
+        "in-progress": TaskStatus.IN_PROGRESS,
+        "completed": TaskStatus.COMPLETED,
     }
 
     if status not in status_map:
         return {
-            'success': False,
-            'error': f"Invalid status '{status}'. Use: pending, in-progress, completed"
+            "success": False,
+            "error": f"Invalid status '{status}'. Use: pending, in-progress, completed",
         }
 
     new_status = status_map[status]
 
     # Find and update the track line
     # Look for the track by ID in the path
-    lines = content.split('\n')
+    lines = content.split("\n")
     updated = False
     new_lines = []
 
     for line in lines:
-        if f'conductor/tracks/{track_id}' in line or f'tracks/{track_id}' in line:
+        if f"conductor/tracks/{track_id}" in line or f"tracks/{track_id}" in line:
             # This is the link line, track status is on previous line
             new_lines.append(line)
-        elif track_id in line and '**Track:' in line:
+        elif track_id in line and "**Track:" in line:
             # Update status marker
-            status_char = ' '
+            status_char = " "
             if new_status == TaskStatus.COMPLETED:
-                status_char = 'x'
+                status_char = "x"
             elif new_status == TaskStatus.IN_PROGRESS:
-                status_char = '~'
+                status_char = "~"
 
-            updated_line = re.sub(r'\[([ x~])\]', f'[{status_char}]', line, count=1)
+            updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
             new_lines.append(updated_line)
             updated = True
         else:
@@ -226,15 +220,15 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
     if not updated:
         new_lines = []
         for i, line in enumerate(lines):
-            if i + 1 < len(lines) and f'conductor/tracks/{track_id}' in lines[i + 1]:
+            if i + 1 < len(lines) and f"conductor/tracks/{track_id}" in lines[i + 1]:
                 # Current line should be the track line
-                status_char = ' '
+                status_char = " "
                 if new_status == TaskStatus.COMPLETED:
-                    status_char = 'x'
+                    status_char = "x"
                 elif new_status == TaskStatus.IN_PROGRESS:
-                    status_char = '~'
+                    status_char = "~"
 
-                updated_line = re.sub(r'\[([ x~])\]', f'[{status_char}]', line, count=1)
+                updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
                 new_lines.append(updated_line)
                 updated = True
             else:
@@ -242,29 +236,26 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
 
     if not updated:
         return {
-            'success': False,
-            'error': f"Could not find track '{track_id}' in tracks.md"
+            "success": False,
+            "error": f"Could not find track '{track_id}' in tracks.md",
         }
 
     # Write updated content
-    tracks_file.write_text('\n'.join(new_lines))
+    tracks_file.write_text("\n".join(new_lines))
 
     # Update metadata
     metadata = json_mgr.read_track_metadata(track_id)
     if metadata:
         from datetime import datetime
-        metadata['status'] = status
-        metadata['updated_at'] = datetime.utcnow().isoformat() + 'Z'
+
+        metadata["status"] = status
+        metadata["updated_at"] = datetime.utcnow().isoformat() + "Z"
         json_mgr.write_track_metadata(track_id, metadata)
 
     return {
-        'success': True,
-        'data': {
-            'track_id': track_id,
-            'new_status': status,
-            'updated': True
-        },
-        'message': Formatters.success(f"Track '{track_id}' status updated to {status}")
+        "success": True,
+        "data": {"track_id": track_id, "new_status": status, "updated": True},
+        "message": Formatters.success(f"Track '{track_id}' status updated to {status}"),
     }
 
 
@@ -284,40 +275,34 @@ def archive(project_root: Path, track_id: str) -> Dict[str, Any]:
     # Verify track exists
     track_dir = resolver.get_track_directory(track_id)
     if not track_dir:
-        return {
-            'success': False,
-            'error': f"Track '{track_id}' not found"
-        }
+        return {"success": False, "error": f"Track '{track_id}' not found"}
 
     # Create archive directory
-    archive_dir = project_root / 'conductor' / 'tracks' / 'archive'
+    archive_dir = project_root / "conductor" / "tracks" / "archive"
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Check if archive destination already exists
     dest_dir = archive_dir / track_id
     if dest_dir.exists():
         return {
-            'success': False,
-            'error': f"Archive destination already exists: {dest_dir}"
+            "success": False,
+            "error": f"Archive destination already exists: {dest_dir}",
         }
 
     # Move track directory
     try:
         shutil.move(str(track_dir), str(dest_dir))
     except Exception as e:
-        return {
-            'success': False,
-            'error': f"Failed to archive track: {str(e)}"
-        }
+        return {"success": False, "error": f"Failed to archive track: {str(e)}"}
 
     return {
-        'success': True,
-        'data': {
-            'track_id': track_id,
-            'source': str(track_dir),
-            'destination': str(dest_dir)
+        "success": True,
+        "data": {
+            "track_id": track_id,
+            "source": str(track_dir),
+            "destination": str(dest_dir),
         },
-        'message': Formatters.success(f"Track '{track_id}' archived to {dest_dir}")
+        "message": Formatters.success(f"Track '{track_id}' archived to {dest_dir}"),
     }
 
 
@@ -336,10 +321,7 @@ def modified_files(project_root: Path) -> Dict[str, Any]:
     git_ops = GitOps(project_root)
 
     if not git_ops.is_repo():
-        return {
-            'success': False,
-            'error': 'Not a git repository'
-        }
+        return {"success": False, "error": "Not a git repository"}
 
     # Get staged files
     staged = git_ops.get_modified_files(staged=True)
@@ -354,24 +336,26 @@ def modified_files(project_root: Path) -> Dict[str, Any]:
     unstaged = [f for f in all_modified if f not in staged]
 
     return {
-        'success': True,
-        'data': {
-            'staged': staged,
-            'unstaged': unstaged,
-            'untracked': untracked,
-            'all_modified': all_modified,
-            'counts': {
-                'staged': len(staged),
-                'unstaged': len(unstaged),
-                'untracked': len(untracked),
-                'total': len(all_modified) + len(untracked)
-            }
+        "success": True,
+        "data": {
+            "staged": staged,
+            "unstaged": unstaged,
+            "untracked": untracked,
+            "all_modified": all_modified,
+            "counts": {
+                "staged": len(staged),
+                "unstaged": len(unstaged),
+                "untracked": len(untracked),
+                "total": len(all_modified) + len(untracked),
+            },
         },
-        'message': format_modified_files(staged, unstaged, untracked)
+        "message": format_modified_files(staged, unstaged, untracked),
     }
 
 
-def parse_coverage(project_root: Path, format_type: str, path: Optional[str]) -> Dict[str, Any]:
+def parse_coverage(
+    project_root: Path, format_type: str, path: Optional[str]
+) -> Dict[str, Any]:
     """
     Parse coverage reports in various formats.
 
@@ -391,9 +375,17 @@ def parse_coverage(project_root: Path, format_type: str, path: Optional[str]) ->
     # Auto-detect path if not provided
     if not path:
         default_paths = {
-            'lcov': ['coverage/lcov.info', 'lcov.info'],
-            'cobertura': ['coverage/cobertura-coverage.xml', 'cobertura.xml', 'coverage.xml'],
-            'json': ['coverage/coverage-summary.json', 'coverage-final.json', 'coverage.json']
+            "lcov": ["coverage/lcov.info", "lcov.info"],
+            "cobertura": [
+                "coverage/cobertura-coverage.xml",
+                "cobertura.xml",
+                "coverage.xml",
+            ],
+            "json": [
+                "coverage/coverage-summary.json",
+                "coverage-final.json",
+                "coverage.json",
+            ],
         }
 
         for default in default_paths.get(format_type, []):
@@ -404,43 +396,30 @@ def parse_coverage(project_root: Path, format_type: str, path: Optional[str]) ->
 
     if not path:
         return {
-            'success': False,
-            'error': f'No coverage file found for format: {format_type}'
+            "success": False,
+            "error": f"No coverage file found for format: {format_type}",
         }
 
     coverage_file = project_root / path
     if not coverage_file.exists():
-        return {
-            'success': False,
-            'error': f'Coverage file not found: {path}'
-        }
+        return {"success": False, "error": f"Coverage file not found: {path}"}
 
     try:
-        if format_type == 'lcov':
+        if format_type == "lcov":
             metrics = parse_lcov(coverage_file)
-        elif format_type == 'cobertura':
+        elif format_type == "cobertura":
             metrics = parse_cobertura(coverage_file)
-        elif format_type == 'json':
+        elif format_type == "json":
             metrics = parse_json_coverage(coverage_file)
         else:
-            return {
-                'success': False,
-                'error': f'Unknown format: {format_type}'
-            }
+            return {"success": False, "error": f"Unknown format: {format_type}"}
     except Exception as e:
-        return {
-            'success': False,
-            'error': f'Failed to parse coverage: {str(e)}'
-        }
+        return {"success": False, "error": f"Failed to parse coverage: {str(e)}"}
 
     return {
-        'success': True,
-        'data': {
-            'format': format_type,
-            'path': str(path),
-            'metrics': metrics
-        },
-        'message': format_coverage_metrics(metrics)
+        "success": True,
+        "data": {"format": format_type, "path": str(path), "metrics": metrics},
+        "message": format_coverage_metrics(metrics),
     }
 
 
@@ -456,36 +435,35 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
     file_lf = 0
     file_lh = 0
 
-    for line in content.split('\n'):
+    for line in content.split("\n"):
         line = line.strip()
 
-        if line.startswith('SF:'):
+        if line.startswith("SF:"):
             current_file = line[3:]
             file_lf = 0
             file_lh = 0
-        elif line.startswith('LF:'):
+        elif line.startswith("LF:"):
             file_lf = int(line[3:])
             lines_found += file_lf
-        elif line.startswith('LH:'):
+        elif line.startswith("LH:"):
             file_lh = int(line[3:])
             lines_hit += file_lh
-        elif line == 'end_of_record':
+        elif line == "end_of_record":
             if current_file and file_lf > 0 and file_lh < file_lf:
                 coverage = (file_lh / file_lf) * 100
                 if coverage < 80:  # Files with less than 80% coverage
-                    uncovered_files.append({
-                        'file': current_file,
-                        'coverage': round(coverage, 1)
-                    })
+                    uncovered_files.append(
+                        {"file": current_file, "coverage": round(coverage, 1)}
+                    )
             current_file = None
 
     coverage_percent = (lines_hit / lines_found * 100) if lines_found > 0 else 0
 
     return {
-        'lines_covered': lines_hit,
-        'lines_total': lines_found,
-        'coverage_percent': round(coverage_percent, 2),
-        'uncovered_files': sorted(uncovered_files, key=lambda x: x['coverage'])[:10]
+        "lines_covered": lines_hit,
+        "lines_total": lines_found,
+        "coverage_percent": round(coverage_percent, 2),
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
     }
 
 
@@ -495,13 +473,13 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
     root = tree.getroot()
 
     # Get line-rate from root or coverage element
-    line_rate = root.get('line-rate') or root.get('lines-covered')
+    line_rate = root.get("line-rate") or root.get("lines-covered")
 
     if line_rate is None:
         # Try finding coverage element
-        coverage_elem = root.find('.//coverage')
+        coverage_elem = root.find(".//coverage")
         if coverage_elem is not None:
-            line_rate = coverage_elem.get('line-rate')
+            line_rate = coverage_elem.get("line-rate")
 
     if line_rate is not None:
         coverage_percent = float(line_rate) * 100
@@ -510,38 +488,37 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         lines_covered = 0
         lines_valid = 0
 
-        for line in root.iter('line'):
+        for line in root.iter("line"):
             lines_valid += 1
-            if int(line.get('hits', '0')) > 0:
+            if int(line.get("hits", "0")) > 0:
                 lines_covered += 1
 
         coverage_percent = (lines_covered / lines_valid * 100) if lines_valid > 0 else 0
 
     # Find uncovered files
     uncovered_files = []
-    for cls in root.iter('class'):
-        filename = cls.get('filename', '')
-        cls_line_rate = cls.get('line-rate')
+    for cls in root.iter("class"):
+        filename = cls.get("filename", "")
+        cls_line_rate = cls.get("line-rate")
         if cls_line_rate:
             file_coverage = float(cls_line_rate) * 100
             if file_coverage < 80:
-                uncovered_files.append({
-                    'file': filename,
-                    'coverage': round(file_coverage, 1)
-                })
+                uncovered_files.append(
+                    {"file": filename, "coverage": round(file_coverage, 1)}
+                )
 
     # Get total lines if available
-    lines_covered_attr = root.get('lines-covered')
-    lines_valid_attr = root.get('lines-valid')
+    lines_covered_attr = root.get("lines-covered")
+    lines_valid_attr = root.get("lines-valid")
 
     lines_covered = int(lines_covered_attr) if lines_covered_attr else 0
     lines_total = int(lines_valid_attr) if lines_valid_attr else 0
 
     return {
-        'lines_covered': lines_covered,
-        'lines_total': lines_total,
-        'coverage_percent': round(coverage_percent, 2),
-        'uncovered_files': sorted(uncovered_files, key=lambda x: x['coverage'])[:10]
+        "lines_covered": lines_covered,
+        "lines_total": lines_total,
+        "coverage_percent": round(coverage_percent, 2),
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
     }
 
 
@@ -551,23 +528,23 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
 
     # Try different JSON structures
     # Istanbul summary format
-    if 'total' in data and 'lines' in data['total']:
-        lines = data['total']['lines']
+    if "total" in data and "lines" in data["total"]:
+        lines = data["total"]["lines"]
         return {
-            'lines_covered': lines.get('covered', 0),
-            'lines_total': lines.get('total', 0),
-            'coverage_percent': round(lines.get('pct', 0), 2),
-            'uncovered_files': []
+            "lines_covered": lines.get("covered", 0),
+            "lines_total": lines.get("total", 0),
+            "coverage_percent": round(lines.get("pct", 0), 2),
+            "uncovered_files": [],
         }
 
     # Coverage-summary format
-    if 'lines' in data:
-        lines = data['lines']
+    if "lines" in data:
+        lines = data["lines"]
         return {
-            'lines_covered': lines.get('covered', 0),
-            'lines_total': lines.get('total', 0),
-            'coverage_percent': round(lines.get('pct', 0), 2),
-            'uncovered_files': []
+            "lines_covered": lines.get("covered", 0),
+            "lines_total": lines.get("total", 0),
+            "coverage_percent": round(lines.get("pct", 0), 2),
+            "uncovered_files": [],
         }
 
     # Jest coverage format with file breakdown
@@ -576,28 +553,27 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
     uncovered_files = []
 
     for filename, file_data in data.items():
-        if isinstance(file_data, dict) and 'lines' in file_data:
-            file_lines = file_data['lines']
-            file_covered = file_lines.get('covered', 0)
-            file_total = file_lines.get('total', 0)
+        if isinstance(file_data, dict) and "lines" in file_data:
+            file_lines = file_data["lines"]
+            file_covered = file_lines.get("covered", 0)
+            file_total = file_lines.get("total", 0)
             lines_covered += file_covered
             lines_total += file_total
 
             if file_total > 0:
                 file_pct = (file_covered / file_total) * 100
                 if file_pct < 80:
-                    uncovered_files.append({
-                        'file': filename,
-                        'coverage': round(file_pct, 1)
-                    })
+                    uncovered_files.append(
+                        {"file": filename, "coverage": round(file_pct, 1)}
+                    )
 
     coverage_percent = (lines_covered / lines_total * 100) if lines_total > 0 else 0
 
     return {
-        'lines_covered': lines_covered,
-        'lines_total': lines_total,
-        'coverage_percent': round(coverage_percent, 2),
-        'uncovered_files': sorted(uncovered_files, key=lambda x: x['coverage'])[:10]
+        "lines_covered": lines_covered,
+        "lines_total": lines_total,
+        "coverage_percent": round(coverage_percent, 2),
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
     }
 
 
@@ -617,18 +593,18 @@ def next_adr_number(project_root: Path, adr_path: str) -> Dict[str, Any]:
     if not adr_dir.exists():
         # Directory doesn't exist yet, start with 1
         return {
-            'success': True,
-            'data': {
-                'next_number': 1,
-                'padded': '0001',
-                'existing_count': 0,
-                'path': str(adr_dir)
+            "success": True,
+            "data": {
+                "next_number": 1,
+                "padded": "0001",
+                "existing_count": 0,
+                "path": str(adr_dir),
             },
-            'message': 'ADR directory does not exist. Next ADR: 0001'
+            "message": "ADR directory does not exist. Next ADR: 0001",
         }
 
     # Find existing ADR files (format: NNNN-*.md)
-    adr_pattern = re.compile(r'^(\d{4})-.*\.md$')
+    adr_pattern = re.compile(r"^(\d{4})-.*\.md$")
     existing_numbers = []
 
     for file in adr_dir.iterdir():
@@ -643,14 +619,14 @@ def next_adr_number(project_root: Path, adr_path: str) -> Dict[str, Any]:
         next_num = max(existing_numbers) + 1
 
     return {
-        'success': True,
-        'data': {
-            'next_number': next_num,
-            'padded': f'{next_num:04d}',
-            'existing_count': len(existing_numbers),
-            'path': str(adr_dir)
+        "success": True,
+        "data": {
+            "next_number": next_num,
+            "padded": f"{next_num:04d}",
+            "existing_count": len(existing_numbers),
+            "path": str(adr_dir),
         },
-        'message': f'Next ADR number: {next_num:04d} ({len(existing_numbers)} existing)'
+        "message": f"Next ADR number: {next_num:04d} ({len(existing_numbers)} existing)",
     }
 
 
@@ -673,11 +649,11 @@ def match_patterns(project_root: Path, keywords: List[str]) -> Dict[str, Any]:
     md_parser = MarkdownParser(project_root)
 
     # Find patterns index
-    patterns_index = resolver.resolve_project_file('pattern_registry')
+    patterns_index = resolver.resolve_project_file("pattern_registry")
     if not patterns_index:
         return {
-            'success': False,
-            'error': 'Patterns index (patterns/index.md) not found'
+            "success": False,
+            "error": "Patterns index (patterns/index.md) not found",
         }
 
     # Normalize keywords
@@ -692,11 +668,11 @@ def match_patterns(project_root: Path, keywords: List[str]) -> Dict[str, Any]:
     matched_patterns = []
 
     for link in links:
-        pattern_name = link['label']
-        pattern_path = link['path']
+        pattern_name = link["label"]
+        pattern_path = link["path"]
 
         # Resolve pattern file
-        if pattern_path.startswith('./'):
+        if pattern_path.startswith("./"):
             pattern_file = patterns_index.parent / pattern_path
         else:
             pattern_file = project_root / pattern_path
@@ -708,14 +684,14 @@ def match_patterns(project_root: Path, keywords: List[str]) -> Dict[str, Any]:
         pattern_content = pattern_file.read_text()
         frontmatter, _ = md_parser.parse_frontmatter(pattern_content)
 
-        activation = frontmatter.get('activation', {})
+        activation = frontmatter.get("activation", {})
         if isinstance(activation, dict):
-            activation_keywords = activation.get('keywords', [])
+            activation_keywords = activation.get("keywords", [])
         else:
             activation_keywords = []
 
         # Also use pattern name words as implicit keywords
-        name_words = pattern_name.lower().replace('-', ' ').replace('_', ' ').split()
+        name_words = pattern_name.lower().replace("-", " ").replace("_", " ").split()
         all_pattern_keywords = [k.lower() for k in activation_keywords] + name_words
 
         # Calculate score
@@ -735,47 +711,53 @@ def match_patterns(project_root: Path, keywords: List[str]) -> Dict[str, Any]:
 
         if score > 0:
             # Extract description from pattern
-            description = frontmatter.get('description', '')
+            description = frontmatter.get("description", "")
             if not description:
                 # Try to get first line of content
-                for line in pattern_content.split('\n'):
-                    if line.strip() and not line.startswith('#') and not line.startswith('---'):
+                for line in pattern_content.split("\n"):
+                    if (
+                        line.strip()
+                        and not line.startswith("#")
+                        and not line.startswith("---")
+                    ):
                         description = line.strip()[:100]
                         break
 
-            matched_patterns.append({
-                'name': pattern_name,
-                'path': str(pattern_file),
-                'score': score,
-                'matched_keywords': list(set(matched_keywords)),
-                'description': Formatters.truncate(description, 80)
-            })
+            matched_patterns.append(
+                {
+                    "name": pattern_name,
+                    "path": str(pattern_file),
+                    "score": score,
+                    "matched_keywords": list(set(matched_keywords)),
+                    "description": Formatters.truncate(description, 80),
+                }
+            )
 
     # Sort by score descending
-    matched_patterns.sort(key=lambda x: x['score'], reverse=True)
+    matched_patterns.sort(key=lambda x: x["score"], reverse=True)
 
     # Limit to top matches
     top_patterns = matched_patterns[:10]
 
     return {
-        'success': True,
-        'data': {
-            'keywords': keywords,
-            'matches': top_patterns,
-            'total_matches': len(matched_patterns)
+        "success": True,
+        "data": {
+            "keywords": keywords,
+            "matches": top_patterns,
+            "total_matches": len(matched_patterns),
         },
-        'message': format_pattern_matches(top_patterns, keywords)
+        "message": format_pattern_matches(top_patterns, keywords),
     }
 
 
 # Track type to branch prefix mapping
 TRACK_TYPE_TO_BRANCH_PREFIX = {
-    'feature': 'feature/',
-    'bugfix': 'fix/',
-    'bug': 'fix/',
-    'refactor': 'refactor/',
-    'docs': 'docs/',
-    'chore': 'chore/',
+    "feature": "feature/",
+    "bugfix": "fix/",
+    "bug": "fix/",
+    "refactor": "refactor/",
+    "docs": "docs/",
+    "chore": "chore/",
 }
 
 
@@ -796,17 +778,14 @@ def suggest_branch(project_root: Path, track_id: str) -> Dict[str, Any]:
 
     # Verify track exists
     if not resolver.track_exists(track_id):
-        return {
-            'success': False,
-            'error': f"Track '{track_id}' not found"
-        }
+        return {"success": False, "error": f"Track '{track_id}' not found"}
 
     # Read track metadata to get type
     metadata = json_mgr.read_track_metadata(track_id)
-    track_type = metadata.get('type', 'feature') if metadata else 'feature'
+    track_type = metadata.get("type", "feature") if metadata else "feature"
 
     # Map track type to branch prefix (default to feature/)
-    branch_prefix = TRACK_TYPE_TO_BRANCH_PREFIX.get(track_type, 'feature/')
+    branch_prefix = TRACK_TYPE_TO_BRANCH_PREFIX.get(track_type, "feature/")
 
     # Extract shortname from track_id (remove date suffix)
     # Pattern: shortname_YYYYMMDD
@@ -820,19 +799,19 @@ def suggest_branch(project_root: Path, track_id: str) -> Dict[str, Any]:
     worktree_path = f"../{project_name}-{shortname}"
 
     # Get current branch
-    current_branch = git_ops.get_current_branch() if git_ops.is_repo() else 'unknown'
+    current_branch = git_ops.get_current_branch() if git_ops.is_repo() else "unknown"
 
     return {
-        'success': True,
-        'data': {
-            'track_id': track_id,
-            'track_type': track_type,
-            'branch_prefix': branch_prefix,
-            'branch_name': branch_name,
-            'worktree_path': worktree_path,
-            'current_branch': current_branch
+        "success": True,
+        "data": {
+            "track_id": track_id,
+            "track_type": track_type,
+            "branch_prefix": branch_prefix,
+            "branch_name": branch_name,
+            "worktree_path": worktree_path,
+            "current_branch": current_branch,
         },
-        'message': format_suggest_branch(branch_name, worktree_path, current_branch)
+        "message": format_suggest_branch(branch_name, worktree_path, current_branch),
     }
 
 
@@ -847,27 +826,30 @@ def extract_shortname(track_id: str) -> str:
         Shortname without date suffix (e.g., 'dark-mode-toggle')
     """
     # Pattern: shortname_YYYYMMDD
-    if '_' in track_id:
-        parts = track_id.rsplit('_', 1)
+    if "_" in track_id:
+        parts = track_id.rsplit("_", 1)
         # Check if the last part is a date (8 digits)
         if len(parts) == 2 and len(parts[1]) == 8 and parts[1].isdigit():
             return parts[0]
     return track_id
 
 
-def format_suggest_branch(branch_name: str, worktree_path: str, current_branch: str) -> str:
+def format_suggest_branch(
+    branch_name: str, worktree_path: str, current_branch: str
+) -> str:
     """Format suggest_branch output for human readability."""
     lines = [
-        'Branch Suggestion:',
-        '',
-        f'  Suggested branch: {branch_name}',
-        f'  Worktree path:    {worktree_path}',
-        f'  Current branch:   {current_branch}',
+        "Branch Suggestion:",
+        "",
+        f"  Suggested branch: {branch_name}",
+        f"  Worktree path:    {worktree_path}",
+        f"  Current branch:   {current_branch}",
     ]
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 # Formatting helpers
+
 
 def format_tracks_list(tracks: List[Dict], summary: Dict) -> str:
     """Format tracks list for human output."""
@@ -876,80 +858,86 @@ def format_tracks_list(tracks: List[Dict], summary: Dict) -> str:
         f"  {Formatters.status_symbol('completed')} Completed:   {summary['completed']}",
         f"  {Formatters.status_symbol('in_progress')} In Progress: {summary['in_progress']}",
         f"  {Formatters.status_symbol('pending')} Pending:     {summary['pending']}",
-        ''
+        "",
     ]
 
     for track in tracks:
-        status = track.get('status', 'pending')
+        status = track.get("status", "pending")
         symbol = Formatters.status_symbol(status)
-        desc = Formatters.truncate(track.get('description', ''), 45)
-        track_id = track.get('track_id', '')
+        desc = Formatters.truncate(track.get("description", ""), 45)
+        track_id = track.get("track_id", "")
 
         lines.append(f"  {symbol} [{track_id}] {desc}")
 
         # Show progress if available
-        if 'progress_percent' in track:
+        if "progress_percent" in track:
             progress = Formatters.progress_bar(
-                track.get('tasks', {}).get('completed', 0),
-                track.get('tasks', {}).get('total', 1),
-                width=20
+                track.get("tasks", {}).get("completed", 0),
+                track.get("tasks", {}).get("total", 1),
+                width=20,
             )
             lines.append(f"      {progress}")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
-def format_modified_files(staged: List[str], unstaged: List[str], untracked: List[str]) -> str:
+def format_modified_files(
+    staged: List[str], unstaged: List[str], untracked: List[str]
+) -> str:
     """Format modified files for human output."""
-    lines = ['Modified Files:', '']
+    lines = ["Modified Files:", ""]
 
     if staged:
         lines.append(f'{Formatters.status_symbol("completed")} Staged ({len(staged)}):')
         for f in staged[:10]:
-            lines.append(f'    {f}')
+            lines.append(f"    {f}")
         if len(staged) > 10:
-            lines.append(f'    ... and {len(staged) - 10} more')
-        lines.append('')
+            lines.append(f"    ... and {len(staged) - 10} more")
+        lines.append("")
 
     if unstaged:
-        lines.append(f'{Formatters.status_symbol("in_progress")} Unstaged ({len(unstaged)}):')
+        lines.append(
+            f'{Formatters.status_symbol("in_progress")} Unstaged ({len(unstaged)}):'
+        )
         for f in unstaged[:10]:
-            lines.append(f'    {f}')
+            lines.append(f"    {f}")
         if len(unstaged) > 10:
-            lines.append(f'    ... and {len(unstaged) - 10} more')
-        lines.append('')
+            lines.append(f"    ... and {len(unstaged) - 10} more")
+        lines.append("")
 
     if untracked:
-        lines.append(f'{Formatters.status_symbol("pending")} Untracked ({len(untracked)}):')
+        lines.append(
+            f'{Formatters.status_symbol("pending")} Untracked ({len(untracked)}):'
+        )
         for f in untracked[:10]:
-            lines.append(f'    {f}')
+            lines.append(f"    {f}")
         if len(untracked) > 10:
-            lines.append(f'    ... and {len(untracked) - 10} more')
+            lines.append(f"    ... and {len(untracked) - 10} more")
 
     if not staged and not unstaged and not untracked:
-        lines.append('  No changes detected')
+        lines.append("  No changes detected")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_coverage_metrics(metrics: Dict[str, Any]) -> str:
     """Format coverage metrics for human output."""
     lines = [
-        'Coverage Report:',
-        '',
+        "Coverage Report:",
+        "",
         f"  Lines: {metrics['lines_covered']}/{metrics['lines_total']} ({metrics['coverage_percent']}%)",
-        '',
-        Formatters.progress_bar(metrics['lines_covered'], metrics['lines_total'])
+        "",
+        Formatters.progress_bar(metrics["lines_covered"], metrics["lines_total"]),
     ]
 
-    uncovered = metrics.get('uncovered_files', [])
+    uncovered = metrics.get("uncovered_files", [])
     if uncovered:
-        lines.append('')
-        lines.append('Files needing coverage:')
+        lines.append("")
+        lines.append("Files needing coverage:")
         for f in uncovered[:5]:
             lines.append(f"  - {f['file']}: {f['coverage']}%")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def format_pattern_matches(patterns: List[Dict], keywords: List[str]) -> str:
@@ -957,15 +945,12 @@ def format_pattern_matches(patterns: List[Dict], keywords: List[str]) -> str:
     if not patterns:
         return f'No patterns matched for: {", ".join(keywords)}'
 
-    lines = [
-        f'Pattern matches for: {", ".join(keywords)}',
-        ''
-    ]
+    lines = [f'Pattern matches for: {", ".join(keywords)}', ""]
 
     for pattern in patterns:
         score_display = f"[{pattern['score']:.1f}]"
         lines.append(f"  {score_display} {pattern['name']}")
-        if pattern.get('description'):
+        if pattern.get("description"):
             lines.append(f"        {pattern['description']}")
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
