@@ -29,7 +29,7 @@ Create the codebase analysis protocol document that defines how to detect patter
     - [x] Create `templates/docs/` folder with category templates (architecture.md, code-conventions.md, testing.md, api-patterns.md, configuration.md, annotations.md)
     - [x] Define auto-generated section markers (`<!-- AUTO-GENERATED -->`)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Analysis Protocol Design' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Analysis Protocol Design' (Protocol in workflow.md)
 
 ---
 
