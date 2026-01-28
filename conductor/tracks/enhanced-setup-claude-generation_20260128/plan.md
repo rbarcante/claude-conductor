@@ -24,10 +24,10 @@ Create the codebase analysis protocol document that defines how to detect patter
     - [x] Document configuration pattern detection rules
     - [x] Add confidence scoring methodology
 
-- [ ] Task: Create documentation templates
-    - [ ] Create `templates/claude-md.md` template with Progressive Disclosure structure
-    - [ ] Create `templates/docs/` folder with category templates (architecture.md, code-conventions.md, testing.md, api-patterns.md, configuration.md, annotations.md)
-    - [ ] Define auto-generated section markers (`<!-- AUTO-GENERATED -->`)
+- [x] Task: Create documentation templates [6ae5d56]
+    - [x] Create `templates/claude-md.md` template with Progressive Disclosure structure
+    - [x] Create `templates/docs/` folder with category templates (architecture.md, code-conventions.md, testing.md, api-patterns.md, configuration.md, annotations.md)
+    - [x] Define auto-generated section markers (`<!-- AUTO-GENERATED -->`)
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Analysis Protocol Design' (Protocol in workflow.md)
 
