@@ -17,6 +17,7 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 - **Iterate safely**: Review plans before code is written, keeping you firmly in the loop.
 - **Work as a team**: Set project-level context for your product, tech stack, and workflow preferences that become a shared foundation for your team.
 - **Build on existing projects**: Intelligent initialization for both new (Greenfield) and existing (Brownfield) projects.
+- **Codebase Pattern Analysis**: Automatically detect and document existing code patterns, architecture conventions, and testing practices for brownfield projects.
 - **Smart revert**: A git-aware revert command that understands logical units of work (tracks, phases, tasks) rather than just commit hashes.
 - **Universal File Resolution Protocol (UFRP)**: Flexible file organization with dynamic path resolution via index files, allowing customization of your project structure.
 - **Pattern Reference Layer**: Reusable best-practice patterns that are automatically surfaced during implementation based on task context.
@@ -54,10 +55,11 @@ When you run `/conductor:setup`, Conductor helps you define the core components 
 
 **Generated Artifacts:**
 - `conductor/product.md`
-- `conductor/product-guidelines.md`
+- `conductor/product-guidelines.md` (includes codebase patterns for brownfield)
 - `conductor/tech-stack.md`
 - `conductor/workflow.md`
 - `conductor/code_styleguides/`
+- `conductor/docs/` (pattern documentation for brownfield projects)
 - `conductor/tracks.md`
 - `conductor/index.md` (navigation index)
 
@@ -305,6 +307,48 @@ After detection, you can:
 - **Accept** the detected values
 - **Edit** specific categories
 - **Skip** and enter manually
+
+### Codebase Pattern Analysis (Brownfield)
+
+For brownfield projects, Conductor analyzes your existing codebase to detect established patterns and conventions. This analysis generates Progressive Disclosure documentation that helps AI assistants understand and follow your project's practices.
+
+#### Analyzed Categories
+
+| Category | What's Detected |
+|:---------|:----------------|
+| **Code Conventions** | File naming, import patterns, module organization, barrel exports |
+| **Architecture** | Design patterns, layer organization, dependency injection, state management |
+| **Testing** | Test framework, naming conventions, mocking patterns, test organization |
+| **API Patterns** | REST conventions, response formats, error handling, versioning |
+| **Configuration** | Config files, environment variables, build tools, CI/CD |
+| **Annotations** | Custom decorators, documentation patterns, validation decorators |
+
+#### Confidence Levels
+
+Each detected category includes a confidence level:
+- **HIGH (80-100)**: Multiple strong indicators, consistent patterns
+- **MEDIUM (50-79)**: Some indicators found, minor inconsistencies
+- **LOW (20-49)**: Few indicators, patterns unclear
+- **UNCERTAIN (<20)**: Insufficient data for reliable detection
+
+#### Generated Documentation
+
+After analysis, you review and approve which categories to include. Approved categories generate:
+
+1. **Codebase Patterns section** in `conductor/product-guidelines.md`:
+   - Quick reference rules (5-10 key patterns)
+   - Directory structure overview
+   - Links to detailed documentation
+
+2. **conductor/docs/** with category-specific files:
+   - `code-conventions.md` - Naming, imports, organization
+   - `architecture.md` - Patterns, layers, DI
+   - `testing.md` - Framework, mocking, organization
+   - `api-patterns.md` - REST, errors, responses
+   - `configuration.md` - Config, env vars, CI/CD
+   - `annotations.md` - Decorators, docs
+
+Each file includes actual code examples from your codebase and confidence indicators.
 
 ### Skill Activation System
 
