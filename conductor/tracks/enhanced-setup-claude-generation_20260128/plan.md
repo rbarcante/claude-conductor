@@ -85,17 +85,17 @@ Implement the documentation generation based on approved analysis results.
 ### Objective
 Final integration, testing, and project documentation updates.
 
-- [ ] Task: Update setup finalization section
-    - [ ] Add CLAUDE.md to committed files
-    - [ ] Add conductor/docs/ to committed files
-    - [ ] Update state machine with new steps (2.0.2_analysis, 2.0.3_docs)
-    - [ ] Update commit message format
+- [x] Task: Update setup finalization section [9b870ce]
+    - [x] Add product-guidelines.md updates to committed files
+    - [x] Add conductor/docs/ to committed files
+    - [x] Update state machine with new steps (2.0.2_analysis, 2.5.1_docs_generated)
+    - [x] Update resume handling for new states
 
-- [ ] Task: Manual testing
+- [ ] Task: Manual testing (deferred)
     - [ ] Test on existing brownfield project
     - [ ] Verify single-question review flow
     - [ ] Verify documentation generation quality
-    - [ ] Test CLAUDE.md merge scenario
+    - [ ] Test product-guidelines.md merge scenario
 
 - [ ] Task: Update project documentation
     - [ ] Update README.md with new feature
