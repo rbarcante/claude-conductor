@@ -50,10 +50,10 @@ This plan outlines the implementation tasks for consolidating CLI context inject
     - [x] Update Section 1.1 to use context for state check
     - [x] Update Section 2.0 to use context for project detection
 
-- [ ] Task: Validate setup.md changes
-    - [ ] Verify command syntax is correct
-    - [ ] Verify fallback instructions are preserved
-    - [ ] Verify action CLI calls (scaffold, state set, copy-templates) remain as instructions
+- [x] Task: Validate setup.md changes
+    - [x] Verify command syntax is correct
+    - [x] Verify fallback instructions are preserved
+    - [x] Verify action CLI calls (scaffold, state set, copy-templates) remain as instructions
 
 - [ ] Task: Conductor - User Manual Verification 'Update setup.md' (Protocol in workflow.md)
 
