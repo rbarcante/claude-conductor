@@ -56,7 +56,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
-- [ ] **Track: Consolidate CLI context injection**
+- [x] **Track: Consolidate CLI context injection**
   *Link: [consolidate-cli-context-injection_20260128](./conductor/tracks/consolidate-cli-context-injection_20260128/)*
 - [x] **Track: rename the project as claude-conductor, replace all instances of old names with claude-conductor and Claude Conductor respectively**
   *Link: [rename-project-claude-conductor_20260123](./conductor/tracks/rename-project-claude-conductor_20260123/)*
