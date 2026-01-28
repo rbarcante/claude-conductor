@@ -8,7 +8,7 @@ This plan implements the enhanced `/conductor:setup` command with comprehensive 
 
 ---
 
-## Phase 1: Analysis Protocol Design
+## Phase 1: Analysis Protocol Design [checkpoint: 49e600a]
 
 ### Objective
 Create the codebase analysis protocol document that defines how to detect patterns.
@@ -29,7 +29,7 @@ Create the codebase analysis protocol document that defines how to detect patter
     - [x] Create `templates/docs/` folder with category templates (architecture.md, code-conventions.md, testing.md, api-patterns.md, configuration.md, annotations.md)
     - [x] Define auto-generated section markers (`<!-- AUTO-GENERATED -->`)
 
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Analysis Protocol Design' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Analysis Protocol Design' (Protocol in workflow.md) [49e600a]
 
 ---
 
