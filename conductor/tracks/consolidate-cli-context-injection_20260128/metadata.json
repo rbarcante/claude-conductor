@@ -1,8 +1,0 @@
-{
-  "track_id": "consolidate-cli-context-injection_20260128",
-  "type": "refactor",
-  "status": "completed",
-  "created_at": "2026-01-28T20:46:48.253195Z",
-  "updated_at": "2026-01-28T21:24:17.762465Z",
-  "description": "Consolidate CLI context injection"
-}
