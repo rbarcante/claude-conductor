@@ -33,7 +33,7 @@ Create the codebase analysis protocol document that defines how to detect patter
 
 ---
 
-## Phase 2: Integration into Setup Command
+## Phase 2: Integration into Setup Command [checkpoint: de25bcd]
 
 ### Objective
 Integrate the analysis into the existing setup.md flow with a single consolidated review.
@@ -50,7 +50,7 @@ Integrate the analysis into the existing setup.md flow with a single consolidate
     - [x] Options: Each detected category as a selectable option (e.g., "Code Conventions (8 patterns)", "Architecture (3 patterns)")
     - [x] Allow user to approve all, select specific categories, or skip
 
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Integration into Setup Command' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Integration into Setup Command' (Protocol in workflow.md) [de25bcd]
 
 ---
 
