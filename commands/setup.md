@@ -421,6 +421,162 @@ When user selects this option:
         -   User will manually specify the stack in Section 2.3.
         -   Proceed to Section 2.1.
 
+5.  **Continue:** Proceed to Section 2.0.2 (Codebase Analysis) if brownfield, or Section 2.1 if greenfield.
+
+### 2.0.2 Codebase Analysis (Brownfield Only)
+**PROTOCOL: For brownfield projects, analyze existing codebase patterns for documentation generation.**
+
+**Skip Condition:** This section applies ONLY to brownfield projects. For greenfield projects, skip directly to Section 2.1.
+
+**Protocol Reference:** This section executes the Codebase Analysis Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/codebase-analysis.md`.
+
+1.  **Announce Analysis:**
+    -   Inform the user: "I will now analyze your codebase to detect established patterns and conventions. This will be used to generate documentation that helps AI assistants understand your project's practices."
+
+2.  **Execute Pattern Detection:**
+    For each of the six analysis categories, execute the detection algorithms defined in the protocol:
+
+    **Category 1: Code Conventions**
+    -   Detect file naming conventions (kebab-case, camelCase, PascalCase, snake_case)
+    -   Detect directory structure patterns (feature-based, layer-based, etc.)
+    -   Detect import patterns (relative, absolute, path aliases)
+    -   Detect module organization (barrel exports, co-location)
+
+    **Category 2: Architecture Patterns**
+    -   Detect design patterns (Repository, Factory, Observer, etc.)
+    -   Detect layer organization (Clean Architecture, Hexagonal, MVC, etc.)
+    -   Detect dependency injection patterns
+    -   Detect state management patterns (for frontend projects)
+
+    **Category 3: Testing Patterns**
+    -   Detect test file naming conventions
+    -   Detect test framework usage
+    -   Detect mocking patterns
+    -   Detect test organization (co-located, centralized, type-separated)
+
+    **Category 4: Annotations & Decorators**
+    -   Detect custom decorators and their purposes
+    -   Detect framework-specific decorators
+    -   Detect documentation patterns (JSDoc, docstrings, etc.)
+
+    **Category 5: API Patterns**
+    -   Detect REST endpoint conventions
+    -   Detect response format patterns
+    -   Detect error handling conventions
+    -   Detect API versioning strategy
+
+    **Category 6: Configuration Patterns**
+    -   Detect configuration file formats
+    -   Detect environment variable patterns
+    -   Detect build tool configuration
+    -   Detect CI/CD pipeline patterns
+
+3.  **Calculate Confidence Levels:**
+    -   For each category, calculate confidence score per protocol:
+        -   **HIGH (80-100):** Multiple strong indicators, consistent patterns
+        -   **MEDIUM (50-79):** Some indicators found, minor inconsistencies
+        -   **LOW (20-49):** Few indicators, patterns unclear
+        -   **UNCERTAIN (<20):** Insufficient data for reliable detection
+    -   Count total patterns detected per category
+
+4.  **Store Analysis Results:**
+    -   Store the complete analysis results internally as a JSON structure.
+    -   This will be used in Section 2.0.3 for documentation generation.
+    -   Set internal flag `codebase_analyzed = true`.
+
+5.  **Continue:** Proceed to Section 2.0.2.1 (Consolidated Review).
+
+### 2.0.2.1 Consolidated Pattern Review
+**PROTOCOL: Present all analysis results in a single review step for user approval.**
+
+1.  **Present Analysis Summary:**
+    -   Display all detected patterns in a formatted summary:
+
+    ```
+    ═══════════════════════════════════════════════════════════
+    **Codebase Analysis Results**
+    ═══════════════════════════════════════════════════════════
+
+    **Code Conventions** (Confidence: HIGH)
+    • File naming: kebab-case (75% of files)
+    • Directory structure: feature-based
+    • Imports: absolute with @/ alias
+    • Module organization: barrel exports
+    Patterns detected: 8
+
+    **Architecture** (Confidence: MEDIUM)
+    • Design patterns: Repository, Factory
+    • Layer organization: Clean Architecture
+    • Dependency injection: NestJS framework DI
+    Patterns detected: 5
+
+    **Testing** (Confidence: HIGH)
+    • Test naming: *.test.ts suffix
+    • Framework: Vitest
+    • Mocking: vi.mock() inline
+    • Organization: co-located
+    Patterns detected: 6
+
+    **API Patterns** (Confidence: HIGH)
+    • REST: plural nouns, kebab-case
+    • Versioning: /api/v1/ prefix
+    • Response: envelope pattern
+    • Errors: custom exception classes
+    Patterns detected: 7
+
+    **Configuration** (Confidence: MEDIUM)
+    • Config format: TypeScript
+    • Env vars: SCREAMING_SNAKE_CASE with APP_ prefix
+    • Build tool: Vite
+    • CI/CD: GitHub Actions
+    Patterns detected: 5
+
+    **Annotations** (Confidence: LOW)
+    • Documentation: JSDoc (partial coverage)
+    Patterns detected: 2
+
+    ═══════════════════════════════════════════════════════════
+    Total patterns detected: 33
+    ═══════════════════════════════════════════════════════════
+    ```
+
+2.  **User Category Selection:**
+    -   Use the `AskUserQuestion` tool with `multiSelect: true` for category approval:
+        ```json
+        {
+          "questions": [{
+            "question": "Which pattern categories should be included in the generated documentation?",
+            "header": "Categories",
+            "options": [
+              {"label": "All categories (Recommended)", "description": "Include all detected patterns in documentation"},
+              {"label": "Code Conventions", "description": "File naming, imports, module organization (8 patterns)"},
+              {"label": "Architecture", "description": "Design patterns, layers, DI (5 patterns)"},
+              {"label": "Testing", "description": "Test patterns, framework, mocking (6 patterns)"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
+    -   **Note:** Due to 4-option limit, present categories in batches or use "All categories" as primary option.
+    -   If more than 4 categories have patterns, present a second question for remaining categories.
+
+3.  **Handle User Selection:**
+    -   **If User Selects "All categories":**
+        -   Store all categories as approved for documentation generation.
+        -   Set internal flag `approved_categories = ["code_conventions", "architecture", "testing", "annotations", "api_patterns", "configuration"]`.
+
+    -   **If User Selects Specific Categories:**
+        -   Store only selected categories as approved.
+        -   Set internal flag `approved_categories = [<selected categories>]`.
+
+    -   **If User Selects Nothing (via "Other" to skip):**
+        -   Set internal flag `approved_categories = []`.
+        -   Skip documentation generation in Section 2.0.3.
+
+4.  **Announce Next Steps:**
+    -   If categories were approved: "I will generate documentation for the approved categories after we complete the product definition."
+    -   If no categories approved: "Skipping pattern documentation. Proceeding with product definition."
+
 5.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
 
 ### 2.1 Generate Product Guide (Interactive)
