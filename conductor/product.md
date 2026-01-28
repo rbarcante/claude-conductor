@@ -116,6 +116,8 @@ Apply best practices consistently:
 ### Technology Intelligence
 Smart technology detection and context-aware skill activation:
 - **Automatic Stack Detection**: For brownfield projects, automatically detects languages, frameworks, and build tools from manifest files and code analysis
+- **Codebase Pattern Analysis**: Analyzes existing code to detect naming conventions, architecture patterns, testing practices, API conventions, and configuration patterns
+- **Progressive Disclosure Documentation**: Generates categorized documentation in `conductor/docs/` with quick reference rules appended to product-guidelines.md
 - **Confidence-Based Presentation**: Detection results shown with HIGH/MEDIUM/LOW/UNCERTAIN confidence levels
 - **Skill Registry System**: Central registry of skills with activation rules based on keywords, file patterns, and tech stack
 - **Context-Aware Skill Activation**: Skills automatically activate during implementation based on task context, providing relevant guidance
