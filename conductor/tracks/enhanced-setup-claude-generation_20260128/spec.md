@@ -1,13 +1,13 @@
-# Specification: Enhanced Setup - CLAUDE.md Generation with Progressive Disclosure
+# Specification: Enhanced Setup - Pattern Documentation with Progressive Disclosure
 
 > **Type:** feature
 > **Track ID:** `enhanced-setup-claude-generation_20260128`
 
 ## Overview
 
-Enhance the `/conductor:setup` command to perform comprehensive codebase analysis for brownfield projects and generate structured documentation using **Progressive Disclosure**. Instead of placing all context in a single CLAUDE.md file, the system will generate:
+Enhance the `/conductor:setup` command to perform comprehensive codebase analysis for brownfield projects and generate structured documentation using **Progressive Disclosure**. The system will generate:
 
-1. **CLAUDE.md** - High-level project overview with links to detailed documentation
+1. **conductor/product-guidelines.md** - Append a "Codebase Patterns" section with quick reference rules and links
 2. **conductor/docs/** - Task-specific documentation files organized by category
 
 This approach ensures Claude only loads context when needed, reducing token consumption and improving response quality.
@@ -61,9 +61,8 @@ The setup command must analyze existing codebases to detect:
 
 #### FR-2: Progressive Disclosure Documentation Structure
 
-**FR-2.1: CLAUDE.md Generation**
-Generate a high-level CLAUDE.md containing:
-- [x] Project summary (one paragraph)
+**FR-2.1: Product Guidelines Pattern Section**
+Append a "Codebase Patterns" section to conductor/product-guidelines.md containing:
 - [x] Quick reference: Core coding rules (5-10 bullet points)
 - [x] Directory structure overview
 - [x] Links to detailed documentation in conductor/docs/
@@ -82,7 +81,7 @@ Create organized documentation files:
 
 **FR-2.3: Cross-referencing**
 Each documentation file must:
-- [x] Include a header linking back to CLAUDE.md
+- [x] Include a header linking back to product-guidelines.md
 - [x] Reference related documentation files where relevant
 - [x] Include concrete code examples from the actual codebase
 
@@ -93,9 +92,8 @@ Each documentation file must:
 - [x] Use already-detected stack information as input
 - [x] Run before product definition generation
 
-**FR-3.2: CLAUDE.md Handling**
-- [x] If CLAUDE.md exists: Merge new content, preserve user sections
-- [x] If CLAUDE.md doesn't exist: Create new file
+**FR-3.2: Product Guidelines Handling**
+- [x] If product-guidelines.md exists: Append pattern section, preserve existing content
 - [x] Mark auto-generated sections with comments for easy identification
 
 **FR-3.3: conductor/docs/ Handling**
@@ -121,11 +119,11 @@ Each documentation file must:
 
 ## Acceptance Criteria
 
-- [x] Running `/conductor:setup` on a brownfield project generates CLAUDE.md with project overview
+- [x] Running `/conductor:setup` on a brownfield project appends pattern section to product-guidelines.md
 - [x] Running `/conductor:setup` creates conductor/docs/ with categorized documentation
 - [x] Generated documentation includes actual code examples from the codebase
 - [x] Analysis results are presented in a single consolidated review question
-- [x] Existing CLAUDE.md content is preserved during merge
+- [x] Existing product-guidelines.md content is preserved during append
 - [x] Auto-generated sections are clearly marked for future updates
 - [x] Documentation includes confidence levels for detected patterns
 
