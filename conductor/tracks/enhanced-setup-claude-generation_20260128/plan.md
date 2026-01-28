@@ -59,22 +59,22 @@ Integrate the analysis into the existing setup.md flow with a single consolidate
 ### Objective
 Implement the documentation generation based on approved analysis results.
 
-- [ ] Task: Define CLAUDE.md generation logic
-    - [ ] Generate overview section from product.md context
-    - [ ] Generate quick reference (5-10 key rules) from approved patterns
-    - [ ] Generate links section to conductor/docs/
-    - [ ] Define merge strategy for existing CLAUDE.md
+- [x] Task: Define CLAUDE.md generation logic [9b13374]
+    - [x] Generate overview section from product.md context
+    - [x] Generate quick reference (5-10 key rules) from approved patterns
+    - [x] Generate links section to conductor/docs/
+    - [x] Define merge strategy for existing CLAUDE.md
 
-- [ ] Task: Define conductor/docs/ generation logic
-    - [ ] Generate only files for approved categories
-    - [ ] Include code examples extracted during analysis
-    - [ ] Add confidence indicators where applicable
-    - [ ] Add cross-references between related files
+- [x] Task: Define conductor/docs/ generation logic [9b13374]
+    - [x] Generate only files for approved categories
+    - [x] Include code examples extracted during analysis
+    - [x] Add confidence indicators where applicable
+    - [x] Add cross-references between related files
 
-- [ ] Task: Add documentation generation section to setup.md (Section 2.0.3)
-    - [ ] Generate CLAUDE.md and conductor/docs/ based on approved categories
-    - [ ] Handle CLAUDE.md merge if file exists
-    - [ ] Present final documentation for user confirmation
+- [x] Task: Add documentation generation section to setup.md (Section 2.5.1) [9b13374]
+    - [x] Generate CLAUDE.md and conductor/docs/ based on approved categories
+    - [x] Handle CLAUDE.md merge if file exists
+    - [x] Present final documentation for user confirmation
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Documentation Generation' (Protocol in workflow.md)
 
