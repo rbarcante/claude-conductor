@@ -34,10 +34,10 @@ This plan outlines the implementation tasks for consolidating CLI context inject
     - [x] Update Section 1.1 to use context instead of separate verify call
     - [x] Update Section 2.1 to use context instead of separate full call
 
-- [ ] Task: Validate status.md changes
-    - [ ] Verify command syntax is correct
-    - [ ] Verify fallback instructions are preserved
-    - [ ] Test that `!`backtick`` syntax executes properly
+- [x] Task: Validate status.md changes
+    - [x] Verify command syntax is correct
+    - [x] Verify fallback instructions are preserved
+    - [x] Test that `!`backtick`` syntax executes properly
 
 - [ ] Task: Conductor - User Manual Verification 'Update status.md' (Protocol in workflow.md)
 
