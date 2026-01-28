@@ -74,11 +74,11 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 ## Phase 5: Update implement.md
 
-- [ ] Task: Add Context section to implement.md
-    - [ ] Add `# Context` section after frontmatter
-    - [ ] Add `!`backtick`` with parse-tracks CLI call
-    - [ ] Update CLI Operations section to reference injected context
-    - [ ] Update Section 2.0 to use context for track parsing
+- [x] Task: Add Context section to implement.md
+    - [x] Add `# Context` section after frontmatter
+    - [x] Add `!`backtick`` with parse-tracks CLI call
+    - [x] Update CLI Operations section to reference injected context
+    - [x] Update Section 2.0 to use context for track parsing
 
 - [ ] Task: Validate implement.md changes
     - [ ] Verify command syntax is correct
