@@ -55,7 +55,7 @@ This plan outlines the implementation tasks for consolidating CLI context inject
     - [x] Verify fallback instructions are preserved
     - [x] Verify action CLI calls (scaffold, state set, copy-templates) remain as instructions
 
-- [ ] Task: Conductor - User Manual Verification 'Update setup.md' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Update setup.md' (Protocol in workflow.md)
 
 ## Phase 4: Update newTrack.md
 
