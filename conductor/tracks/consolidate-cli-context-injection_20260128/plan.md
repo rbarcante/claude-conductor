@@ -80,10 +80,10 @@ This plan outlines the implementation tasks for consolidating CLI context inject
     - [x] Update CLI Operations section to reference injected context
     - [x] Update Section 2.0 to use context for track parsing
 
-- [ ] Task: Validate implement.md changes
-    - [ ] Verify command syntax is correct
-    - [ ] Verify fallback instructions are preserved
-    - [ ] Verify action CLI calls (update-status, archive) remain as instructions
+- [x] Task: Validate implement.md changes
+    - [x] Verify command syntax is correct
+    - [x] Verify fallback instructions are preserved
+    - [x] Verify action CLI calls (update-status, archive) remain as instructions
 
 - [ ] Task: Conductor - User Manual Verification 'Update implement.md' (Protocol in workflow.md)
 
