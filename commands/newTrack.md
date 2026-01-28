@@ -11,6 +11,10 @@ allowed-tools:
   - Grep
 ---
 
+# Context
+
+<!-- No upfront context injection needed - all CLI calls are action-oriented -->
+
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent assistant for the Conductor spec-driven development framework. Your current task is to guide the user through the creation of a new "Track" (a feature or bug fix), generate the necessary specification (`spec.md`) and plan (`plan.md`) files, and organize them within a dedicated track directory.
 
@@ -18,105 +22,30 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
-## CLI Operations
+## Action CLI Commands
 
-**PROTOCOL: Token-efficient CLI commands for mechanical operations.**
+The following CLI commands are used for write operations during track creation:
 
-The Python CLI provides scriptable operations that reduce token usage by offloading mechanical tasks (ID generation, file scaffolding, registry updates) to deterministic Python code.
-
-### Available Subcommands
-
-| Subcommand | Purpose | Output Format |
-|------------|---------|---------------|
-| `generate-id DESCRIPTION` | Generate track ID from description | JSON: `{track_id, shortname, date, description}` |
-| `scaffold TRACK_ID --type TYPE --description DESC` | Create track directory structure with template files | JSON: `{track_id, track_dir, created_files, metadata}` |
-| `register TRACK_ID --description DESC` | Register track in conductor/tracks.md | JSON: `{track_id, tracks_file, entry}` |
-
-### Usage Examples
-
-**Generate Track ID:**
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "Add dark mode toggle"
-```
-Output:
-```json
-{
-  "success": true,
-  "data": {
-    "track_id": "dark-mode-toggle_20260121",
-    "shortname": "dark-mode-toggle",
-    "date": "20260121",
-    "description": "Add dark mode toggle"
-  }
-}
-```
+# Generate track ID from description
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESCRIPTION"
 
-**Scaffold Track Directory:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold dark-mode-toggle_20260121 --type feature --description "Add dark mode toggle"
-```
-Output:
-```json
-{
-  "success": true,
-  "data": {
-    "track_id": "dark-mode-toggle_20260121",
-    "track_type": "feature",
-    "track_dir": "conductor/tracks/dark-mode-toggle_20260121",
-    "created_files": [
-      "conductor/tracks/dark-mode-toggle_20260121/index.md",
-      "conductor/tracks/dark-mode-toggle_20260121/metadata.json",
-      "conductor/tracks/dark-mode-toggle_20260121/spec.md",
-      "conductor/tracks/dark-mode-toggle_20260121/plan.md",
-      "conductor/tracks/dark-mode-toggle_20260121/decisions.md"
-    ]
-  }
-}
-```
+# Create track directory with templates
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold TRACK_ID --type TYPE --description "DESC"
 
-**Register Track:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register dark-mode-toggle_20260121 --description "Add dark mode toggle"
+# Register track in conductor/tracks.md
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register TRACK_ID --description "DESC"
 ```
 
 ### Track Types
 
-Valid track types for `--type`:
-- `feature` (default) - New functionality
-- `bugfix` - Bug fixes
-- `refactor` - Code refactoring
-- `docs` - Documentation changes
-- `chore` - Maintenance tasks
-
-### When to Use CLI vs Direct Tool Calls
-
-| Operation | Use CLI | Use Direct Tool Calls |
-|-----------|---------|----------------------|
-| Generate track ID | Yes - `generate-id` | No |
-| Create directory structure | Yes - `scaffold` | Fallback only |
-| Write template files (index, metadata, decisions) | Yes - `scaffold` | Fallback only |
-| Write spec.md with generated content | No | Yes - use Write tool to overwrite template |
-| Write plan.md with generated content | No | Yes - use Write tool to overwrite template |
-| Register track in tracks.md | Yes - `register` | Fallback only |
-| Interactive spec/plan generation | N/A | LLM generates content through conversation |
+Valid types: `feature` (default), `bugfix`, `refactor`, `docs`, `chore`
 
 ### Fallback Instructions
 
-If any CLI command fails:
-
-1. **For `generate-id` failure:** Generate manually using format `shortname_YYYYMMDD`:
-   - Extract 3-4 key words from description (skip stop words)
-   - Join with hyphens, lowercase
-   - Append underscore and today's date (YYYYMMDD)
-
-2. **For `scaffold` failure:** Create files manually using Write tool:
-   - Create directory: `conductor/tracks/<track_id>/`
-   - Create `index.md`, `metadata.json`, `spec.md`, `plan.md`, `decisions.md`
-   - Follow the content structures defined in Section 2.4
-
-3. **For `register` failure:** Use Edit tool on `conductor/tracks.md`:
-   - Find "## Active Tracks" section
-   - Append entry: `- [ ] **Track: <description>**\n  *Link: [<track_id>](./tracks/<track_id>/)*`
+1. **For `generate-id` failure:** Generate manually using format `shortname_YYYYMMDD`
+2. **For `scaffold` failure:** Create files manually (index.md, metadata.json, spec.md, plan.md, decisions.md)
+3. **For `register` failure:** Edit `conductor/tracks.md` directly
 
 ---
 

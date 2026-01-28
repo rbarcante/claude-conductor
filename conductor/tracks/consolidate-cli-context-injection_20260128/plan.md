@@ -59,11 +59,11 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 ## Phase 4: Update newTrack.md
 
-- [ ] Task: Add Context section to newTrack.md
-    - [ ] Add `# Context` section after frontmatter
-    - [ ] Determine which CLI calls can be consolidated for upfront context
-    - [ ] Add `!`backtick`` with appropriate CLI calls
-    - [ ] Update CLI Operations section to reference injected context
+- [x] Task: Add Context section to newTrack.md
+    - [x] Add `# Context` section after frontmatter
+    - [x] Determine which CLI calls can be consolidated for upfront context
+    - [x] Add `!`backtick`` with appropriate CLI calls
+    - [x] Update CLI Operations section to reference injected context
 
 - [ ] Task: Validate newTrack.md changes
     - [ ] Verify command syntax is correct
