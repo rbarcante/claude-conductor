@@ -10,20 +10,20 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 ## Phase 1: Analysis and Design
 
-- [ ] Task: Analyze current CLI call patterns in each command file
-    - [ ] Document all CLI calls in setup.md with their purposes
-    - [ ] Document all CLI calls in newTrack.md with their purposes
-    - [ ] Document all CLI calls in implement.md with their purposes
-    - [ ] Document all CLI calls in status.md with their purposes
-    - [ ] Categorize calls as "read-only context" vs "action/write"
+- [x] Task: Analyze current CLI call patterns in each command file
+    - [x] Document all CLI calls in setup.md with their purposes
+    - [x] Document all CLI calls in newTrack.md with their purposes
+    - [x] Document all CLI calls in implement.md with their purposes
+    - [x] Document all CLI calls in status.md with their purposes
+    - [x] Categorize calls as "read-only context" vs "action/write"
 
-- [ ] Task: Design consolidated context JSON structure
-    - [ ] Define expected JSON output format for setup context
-    - [ ] Define expected JSON output format for newTrack context
-    - [ ] Define expected JSON output format for implement context
-    - [ ] Define expected JSON output format for status context
+- [x] Task: Design consolidated context JSON structure
+    - [x] Define expected JSON output format for setup context
+    - [x] Define expected JSON output format for newTrack context
+    - [x] Define expected JSON output format for implement context
+    - [x] Define expected JSON output format for status context
 
-- [ ] Task: Conductor - User Manual Verification 'Analysis and Design' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Analysis and Design' (Protocol in workflow.md)
 
 ## Phase 2: Update status.md
 
