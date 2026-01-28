@@ -175,11 +175,13 @@ When user selects this option:
     - Let the value of `last_successful_step` in the JSON response be `STEP`.
     - Based on the value of `STEP`, jump to the **next logical section**:
 
+    - If `STEP` is "2.0.2_analysis", announce "Resuming setup: Codebase analysis is complete. Next, we will create the Product Guide." and proceed to **Section 2.1**.
     - If `STEP` is "2.1_product_guide", announce "Resuming setup: The Product Guide (`product.md`) is already complete. Next, we will create the Product Guidelines." and proceed to **Section 2.2**.
     - If `STEP` is "2.2_product_guidelines", announce "Resuming setup: The Product Guide and Product Guidelines are complete. Next, we will define the Technology Stack." and proceed to **Section 2.3**.
     - If `STEP` is "2.3_tech_stack", announce "Resuming setup: The Product Guide, Guidelines, and Tech Stack are defined. Next, we will select Code Styleguides." and proceed to **Section 2.4**.
     - If `STEP` is "2.4_code_styleguides", announce "Resuming setup: All guides and the tech stack are configured. Next, we will define the project workflow." and proceed to **Section 2.5**.
-    - If `STEP` is "2.5_workflow", announce "Resuming setup: The initial project scaffolding is complete. Next, we will generate the first track." and proceed to **Phase 2 (3.0)**.
+    - If `STEP` is "2.5_workflow", announce "Resuming setup: The workflow is configured. Next, we will generate pattern documentation." and proceed to **Section 2.5.1** (if brownfield with approved categories) or **Section 2.6** (if greenfield or no approved categories).
+    - If `STEP` is "2.5.1_docs_generated", announce "Resuming setup: Pattern documentation is generated. Next, we will finalize the setup." and proceed to **Section 2.6**.
     - If `STEP` is "3.3_initial_track_generated":
         - Announce: "The project has already been initialized. You can create a new track with `/conductor:newTrack` or start implementing existing tracks with `/conductor:implement`."
         - Halt the `setup` process.
@@ -577,7 +579,15 @@ When user selects this option:
     -   If categories were approved: "I will generate documentation for the approved categories after we complete the product definition."
     -   If no categories approved: "Skipping pattern documentation. Proceeding with product definition."
 
-5.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
+5.  **Commit State (Brownfield Only):**
+    -   If codebase analysis was performed, use CLI to record progress:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.0.2_analysis"
+        ```
+    -   **Fallback:** Manually write to `conductor/setup_state.json`:
+        `{"last_successful_step": "2.0.2_analysis"}`
+
+6.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
 
 ### 2.1 Generate Product Guide (Interactive)
 1.  **Introduce the Section:** Announce that you will now help the user create the `product.md`.
@@ -1336,5 +1346,12 @@ When user selects this option:
 
 ### 3.4 Final Announcement
 1.  **Announce Completion:** After the track has been created, announce that the project setup and initial track generation are complete.
-2.  **Save Conductor Files:** Add and commit all files with the commit message `conductor(setup): Add conductor setup files`.
+2.  **Save Conductor Files:**
+    -   Stage all conductor files:
+        -   `conductor/` directory (product.md, product-guidelines.md, tech-stack.md, workflow.md, tracks.md, index.md, setup_state.json)
+        -   `conductor/code_styleguides/` (selected styleguides)
+        -   `conductor/tracks/` (initial track artifacts)
+        -   `conductor/docs/` (if generated in Section 2.5.1)
+    -   Commit with message: `conductor(setup): Add conductor setup files`
+    -   **Note:** If pattern documentation was generated, product-guidelines.md will include the Codebase Patterns section.
 3.  **Next Steps:** Inform the user that they can now begin work by running `/conductor:implement`.
