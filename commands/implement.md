@@ -13,6 +13,10 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+# Context
+
+!`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-tracks`
+
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent assistant for the Conductor spec-driven development framework. Your current task is to implement a track. You MUST follow this protocol precisely.
 
@@ -20,44 +24,41 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
-## CLI Operations
+## Fallback Instructions
 
-This protocol integrates with the Conductor Python CLI for token-efficient operations. The CLI handles mechanical tasks (file parsing, JSON manipulation, git operations) deterministically, reducing token usage.
+If the context injection fails:
+- Read `conductor/tracks.md` directly and parse sections split by `---`
 
-### CLI Command Reference
+### Action CLI Commands (Used During Implementation)
 
-| Operation | CLI Command | Output |
-|-----------|-------------|--------|
-| Parse tracks registry | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-tracks` | Tracks with status, progress % |
-| Update track status | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status TRACK_ID STATUS` | Confirmation |
-| Archive track | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement archive TRACK_ID` | Archive path |
-| Get modified files | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement modified-files` | Staged, unstaged, untracked |
-| Parse coverage | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-coverage --format FORMAT --path PATH` | Coverage metrics |
-| Get next ADR number | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement next-adr-number --path ADR_PATH` | Next number, padded |
-| Match patterns | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement match-patterns KEYWORD1 KEYWORD2` | Scored pattern matches |
-| Suggest branch name | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-branch TRACK_ID` | Branch name, prefix, worktree path |
+```bash
+# Update track status
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status TRACK_ID STATUS
 
-### CLI Usage Guidelines
+# Archive completed track
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement archive TRACK_ID
+```
 
-1. **Always use `--json` flag** when you need structured data for processing
-2. **Check `success` field** in JSON output before proceeding
-3. **Fallback to manual parsing** if CLI command fails (see Fallback Instructions below)
-4. **Project root**: CLI uses current working directory; use `--project-root PATH` if needed
+### Task-Specific CLI Commands
 
-### Fallback Instructions
+Used during task execution (not injected upfront):
 
-If CLI commands fail or are unavailable, use these manual alternatives:
+```bash
+# Match patterns for task
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement match-patterns KEYWORD1 KEYWORD2
 
-| Operation | Manual Fallback |
-|-----------|-----------------|
-| Parse tracks | Read `conductor/tracks.md` and parse sections split by `---` |
-| Update status | Edit tracks.md directly, changing `[ ]` to `[~]` or `[x]` |
-| Get modified files | Run `git diff --name-only` and `git status --porcelain` |
-| Parse coverage | Read coverage files directly (lcov.info, coverage.xml, etc.) |
-| Next ADR number | List files in decisions dir matching `NNNN-*.md` pattern |
-| Match patterns | Read `patterns/index.md` and match keywords manually |
-| Archive track | Create `conductor/archive/` and use `mv` command |
-| Suggest branch | Read `metadata.json` for track type, apply prefix mapping from `protocols/git-isolation.md` |
+# Get modified files for quality gate
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement modified-files
+
+# Parse coverage report
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-coverage --format FORMAT --path PATH
+
+# Get next ADR number
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement next-adr-number --path ADR_PATH
+
+# Suggest branch name
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-branch TRACK_ID
+```
 
 ---
 
@@ -78,28 +79,9 @@ If CLI commands fail or are unavailable, use these manual alternatives:
 
 1.  **Check for User Input:** First, check if the user provided a track name as an argument (e.g., `/conductor:implement <track_description>`).
 
-2.  **Parse Tracks Registry via CLI:**
-    -   Execute: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement parse-tracks`
-    -   The CLI returns structured JSON with:
-        ```json
-        {
-          "success": true,
-          "data": {
-            "tracks": [
-              {
-                "description": "Track description",
-                "status": "pending|in_progress|completed",
-                "path": "./conductor/tracks/track-id",
-                "track_id": "track-id",
-                "progress_percent": 45.0,
-                "tasks": {"completed": 3, "in_progress": 1, "pending": 2, "total": 6}
-              }
-            ],
-            "summary": {"total": 5, "completed": 2, "in_progress": 1, "pending": 2}
-          }
-        }
-        ```
-    -   **If CLI fails:** Fall back to reading `conductor/tracks.md` directly. Parse by splitting content by `---` separator. Extract status (`[ ]`, `[~]`, `[x]`), description, and track folder link.
+2.  **Use Injected Context:**
+    -   The tracks data has been injected via the `# Context` section above.
+    -   Parse the `tracks` array from the injected JSON to get track descriptions, statuses, and progress.
     -   **CRITICAL:** If no tracks are found, announce: "The tracks file is empty or malformed. No tracks to implement." and halt.
 
 3.  **Continue:** Immediately proceed to the next step to select a track.
