@@ -57,7 +57,7 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 - [x] Task: Conductor - User Manual Verification 'Update setup.md' (Protocol in workflow.md)
 
-## Phase 4: Update newTrack.md
+## Phase 4: Update newTrack.md [checkpoint: 6016835]
 
 - [x] Task: Add Context section to newTrack.md
     - [x] Add `# Context` section after frontmatter
