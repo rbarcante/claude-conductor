@@ -43,12 +43,12 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 ## Phase 3: Update setup.md
 
-- [ ] Task: Add Context section to setup.md
-    - [ ] Add `# Context` section after frontmatter
-    - [ ] Add `!`backtick`` with chained detect + state get CLI calls
-    - [ ] Update CLI Operations section to reference injected context
-    - [ ] Update Section 1.1 to use context for state check
-    - [ ] Update Section 2.0 to use context for project detection
+- [x] Task: Add Context section to setup.md
+    - [x] Add `# Context` section after frontmatter
+    - [x] Add `!`backtick`` with chained detect + state get CLI calls
+    - [x] Update CLI Operations section to reference injected context
+    - [x] Update Section 1.1 to use context for state check
+    - [x] Update Section 2.0 to use context for project detection
 
 - [ ] Task: Validate setup.md changes
     - [ ] Verify command syntax is correct

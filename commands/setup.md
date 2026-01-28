@@ -12,6 +12,10 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+# Context
+
+!`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get 2>/dev/null; python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect`
+
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent. Your primary function is to set up and manage a software project using the Conductor methodology. This document is your operational protocol. Adhere to these instructions precisely and sequentially. Do not make assumptions.
 
@@ -21,128 +25,26 @@ CRITICAL: When determining model complexity, ALWAYS select the "flash" model, re
 
 ---
 
-## CLI Operations
+## Fallback Instructions
 
-**PROTOCOL: Token-efficient CLI commands for mechanical operations.**
+If the context injection fails:
+1. For state check: Manually read `conductor/setup_state.json` if it exists
+2. For project detection: Manually check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/` directories
 
-The Python CLI provides token-efficient alternatives for mechanical tasks during project setup. Use these commands when performing deterministic operations like project detection, directory scaffolding, state management, and template copying.
+### Action CLI Commands (Used During Setup)
 
-### Available Subcommands
+The following CLI commands are used for write operations during the setup process:
 
-| Subcommand | Purpose | Output Format |
-|------------|---------|---------------|
-| `setup detect` | Auto-detect project type and tech stack | JSON |
-| `setup scaffold` | Create conductor directory structure | JSON |
-| `setup state --get` | Get current setup state | JSON |
-| `setup state --set STEP` | Record setup progress step | JSON |
-| `setup copy-templates --languages LANG1 LANG2` | Copy code styleguides for specified languages | JSON |
-
-### Usage Examples
-
-**Project Detection (Brownfield/Greenfield):**
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect
-```
-
-Expected output:
-```json
-{
-  "project_type": "brownfield",
-  "languages": ["typescript", "python"],
-  "frameworks": ["react", "fastapi"],
-  "ecosystems": ["npm", "pip"],
-  "indicators": {
-    "has_git": true,
-    "has_package_json": true,
-    "has_src_directory": true
-  }
-}
-```
-
-**Directory Scaffolding:**
-```bash
+# Create conductor directory structure
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold
+
+# Record setup progress
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "STEP_NAME"
+
+# Copy code styleguides
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages LANG1 LANG2
 ```
-
-Expected output:
-```json
-{
-  "success": true,
-  "created": [
-    "conductor/",
-    "conductor/tracks/",
-    "conductor/product.md",
-    "conductor/tech-stack.md",
-    "conductor/workflow.md"
-  ]
-}
-```
-
-**Get Setup State:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get
-```
-
-Expected output:
-```json
-{
-  "last_successful_step": "2.3_tech_stack"
-}
-```
-
-**Set Setup State:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"
-```
-
-Expected output:
-```json
-{
-  "success": true,
-  "last_successful_step": "2.4_code_styleguides"
-}
-```
-
-**Copy Code Styleguides:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages typescript python
-```
-
-Expected output:
-```json
-{
-  "success": true,
-  "copied": [
-    "conductor/code_styleguides/typescript.md",
-    "conductor/code_styleguides/python.md"
-  ]
-}
-```
-
-### When to Use CLI vs Direct Tool Calls
-
-| Operation | Use CLI | Use Direct Tool Calls |
-|-----------|---------|----------------------|
-| Detect project type (brownfield/greenfield) | ✓ | |
-| Auto-detect tech stack | ✓ | |
-| Create conductor directory structure | ✓ | |
-| Get/set setup state | ✓ | |
-| Copy code styleguide templates | ✓ | |
-| Interactive user dialogue | | ✓ |
-| Generate custom document content | | ✓ |
-| Read and analyze project files | | ✓ |
-| Write product.md, product-guidelines.md content | | ✓ |
-
-### Fallback Instructions
-
-If the CLI command fails or is unavailable:
-1. Announce: "CLI operation failed. Falling back to direct tool calls."
-2. For `setup detect`: Manually check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/` directories
-3. For `setup scaffold`: Manually execute `mkdir -p conductor/tracks` and write template files
-4. For `setup state --get`: Manually read `conductor/setup_state.json`
-5. For `setup state --set`: Manually write to `conductor/setup_state.json`
-6. For `setup copy-templates`: Manually copy from `${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/`
-7. Continue with the protocol
 
 ---
 
@@ -264,13 +166,10 @@ When user selects this option:
 ## 1.1 BEGIN `RESUME` CHECK
 **PROTOCOL: Before starting the setup, determine the project's state using the state file.**
 
-1.  **Read State File:** Use the CLI to check setup state:
-    ```bash
-    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get
-    ```
-    - If the command fails or returns an error indicating no state file exists, this is a new project setup. Proceed directly to Step 1.2.
-    - If it returns valid JSON, read the `last_successful_step` value.
-    - **Fallback:** If CLI is unavailable, check for the existence of `conductor/setup_state.json` directly. If it does not exist, this is a new project setup. Proceed directly to Step 1.2. If it exists, read its content.
+1.  **Use Injected Context:**
+    -   The state data has been injected via the `# Context` section above.
+    -   Parse the first JSON object to check for `last_successful_step` value.
+    -   If no state JSON was returned (new project), proceed directly to Step 1.2.
 
 2.  **Resume Based on State:**
     - Let the value of `last_successful_step` in the JSON response be `STEP`.
@@ -307,18 +206,15 @@ When user selects this option:
 
 ### 2.0 Project Inception
 1.  **Detect Project Maturity:**
-    -   **Use CLI for Detection:** Execute the CLI command to auto-detect project type:
-        ```bash
-        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect
-        ```
-    -   **Parse CLI Output:** The CLI returns a JSON object with:
+    -   **Use Injected Context:** The project detection data has been injected via the `# Context` section above.
+    -   **Parse Detection Output:** The detection JSON object contains:
         - `project_type`: "brownfield" or "greenfield"
         - `languages`: Array of detected programming languages
         - `frameworks`: Array of detected frameworks
         - `ecosystems`: Array of detected package ecosystems (npm, pip, etc.)
         - `indicators`: Object with detection signals (has_git, has_package_json, etc.)
-    -   **Store Detection Results:** Store the full CLI output for use in Section 2.0.1 (Automatic Stack Detection).
-    -   **Fallback - Manual Classification:** If CLI is unavailable, classify manually:
+    -   **Store Detection Results:** Store the detection output for use in Section 2.0.1 (Automatic Stack Detection).
+    -   **Fallback - Manual Classification:** If context injection failed, classify manually:
         -   **Brownfield Indicators:**
             -   Check for existence of version control directories: `.git`, `.svn`, or `.hg`.
             -   If a `.git` directory exists, execute `git status --porcelain`. If the output is not empty, classify as "Brownfield" (dirty repository).
@@ -405,8 +301,8 @@ When user selects this option:
 **Skip Condition:** This section applies ONLY to brownfield projects. For greenfield projects, skip directly to Section 2.1.
 
 1.  **Retrieve Stack Detection Results:**
-    -   **If CLI was used in Section 2.0:** The detection results are already available from the `setup detect` command output. Use the stored `languages`, `frameworks`, and `ecosystems` arrays.
-    -   **If CLI was not used:** Execute the Stack Detection Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/stack-detection.md`. Follow all steps in the protocol:
+    -   **Use Injected Context:** The detection results are already available from the `# Context` section. Use the stored `languages`, `frameworks`, and `ecosystems` arrays.
+    -   **If context injection failed:** Execute the Stack Detection Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/stack-detection.md`. Follow all steps in the protocol:
         a. Scan for manifest files (package.json, pom.xml, requirements.txt, etc.)
         b. Analyze file extensions to determine language distribution
         c. Detect frameworks from dependency declarations
