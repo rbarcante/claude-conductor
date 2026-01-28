@@ -7,6 +7,10 @@ allowed-tools:
   - Bash
 ---
 
+# Context
+
+!`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full`
+
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent. Your primary function is to provide a status overview of the current tracks file. This involves reading the `conductor/tracks.md` file, parsing its content, and summarizing the progress of tasks.
 
@@ -19,6 +23,8 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 **PROTOCOL: Token-efficient CLI commands for mechanical operations.**
 
 The Python CLI provides token-efficient alternatives for mechanical tasks. Use these commands when performing deterministic operations like file parsing, status aggregation, and progress calculation.
+
+**Note:** The `status full` command has been executed via the `# Context` section above. The injected JSON contains all data needed for this command. The documentation below is preserved for fallback scenarios.
 
 ### Available Subcommands
 
@@ -101,10 +107,14 @@ If the CLI command fails or is unavailable:
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Verify Setup via CLI:**
-    -   Execute: ``python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status verify``
-    -   Parse the JSON response to check `is_valid` field.
+1.  **Use Injected Context:**
+    -   The full status data has been injected via the `# Context` section above.
+    -   Parse the `setup` object from the injected JSON to check the `is_valid` field.
     -   If `is_valid` is `false`, check `missing_required` array for missing files.
+    -   **Fallback:** If context injection failed, execute the CLI command manually:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status verify
+        ```
 
 2.  **Handle Failure:**
     -   If setup is invalid (missing required files), you MUST halt the operation immediately.
@@ -117,13 +127,17 @@ If the CLI command fails or is unavailable:
 ## 2.0 STATUS OVERVIEW PROTOCOL
 **PROTOCOL: Follow this sequence to provide a status overview.**
 
-### 2.1 Get Full Status via CLI
+### 2.1 Use Injected Context
 
-1.  **Execute CLI Command:**
-    -   Execute: ``python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full``
-    -   Parse the JSON response.
+1.  **Use Injected Context:**
+    -   The full status data has been injected via the `# Context` section at the top of this document.
+    -   The JSON contains all required data for status reporting.
+    -   **Fallback:** If context injection failed, execute the CLI command manually:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full
+        ```
 
-2.  **Extract Data:** From the JSON response, extract:
+2.  **Extract Data:** From the injected JSON (or fallback response), extract:
     -   `setup`: Verification status
     -   `tracks`: Array of track objects with description, status, path, and task counts
     -   `progress`: Overall and per-track progress metrics

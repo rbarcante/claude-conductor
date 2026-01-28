@@ -27,12 +27,12 @@ This plan outlines the implementation tasks for consolidating CLI context inject
 
 ## Phase 2: Update status.md
 
-- [ ] Task: Add Context section to status.md
-    - [ ] Add `# Context` section after frontmatter
-    - [ ] Add `!`backtick`` with `status full` CLI call
-    - [ ] Update CLI Operations section to reference injected context
-    - [ ] Update Section 1.1 to use context instead of separate verify call
-    - [ ] Update Section 2.1 to use context instead of separate full call
+- [x] Task: Add Context section to status.md
+    - [x] Add `# Context` section after frontmatter
+    - [x] Add `!`backtick`` with `status full` CLI call
+    - [x] Update CLI Operations section to reference injected context
+    - [x] Update Section 1.1 to use context instead of separate verify call
+    - [x] Update Section 2.1 to use context instead of separate full call
 
 - [ ] Task: Validate status.md changes
     - [ ] Verify command syntax is correct
