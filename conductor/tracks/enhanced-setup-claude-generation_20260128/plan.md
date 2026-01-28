@@ -97,11 +97,17 @@ Final integration, testing, and project documentation updates.
     - [ ] Verify documentation generation quality
     - [ ] Test product-guidelines.md merge scenario
 
-- [ ] Task: Update project documentation
-    - [ ] Update README.md with new feature
-    - [ ] Update product.md with new capability
+- [x] Task: Update spec.md with requirement changes [162efb2]
+    - [x] Update FR-2.1 to describe product-guidelines.md
+    - [x] Update FR-2.3 cross-references
+    - [x] Update FR-3.2 handling description
+    - [x] Update acceptance criteria
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Finalization & Testing' (Protocol in workflow.md)
+- [x] Task: Update project documentation [47ab653]
+    - [x] Update README.md with new feature
+    - [x] Update product.md with new capability
+
+- [~] Task: Conductor - User Manual Verification 'Phase 4: Finalization & Testing' (Protocol in workflow.md)
 
 ---
 
