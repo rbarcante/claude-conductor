@@ -954,12 +954,12 @@ When user selects this option:
 
 **Skip Condition:** This section applies ONLY if `codebase_analyzed = true` AND `approved_categories` is not empty. Otherwise, skip to Section 2.6.
 
-**Template Reference:** Use templates from `${CLAUDE_PLUGIN_ROOT}/templates/claude-md.md` and `${CLAUDE_PLUGIN_ROOT}/templates/docs/`.
+**Template Reference:** Use templates from `${CLAUDE_PLUGIN_ROOT}/templates/docs/` for category documentation files. Pattern documentation will be appended to the existing `conductor/product-guidelines.md`.
 
-#### Step 1: Generate CLAUDE.md
+#### Step 1: Generate Product Guidelines with Pattern Documentation
 
-1.  **Check for Existing CLAUDE.md:**
-    -   Check if `CLAUDE.md` exists in the project root.
+1.  **Check for Existing Product Guidelines:**
+    -   Check if `conductor/product-guidelines.md` already exists.
     -   If exists, set `merge_mode = true`.
     -   If not exists, set `merge_mode = false`.
 
@@ -1018,8 +1018,8 @@ When user selects this option:
         - [Configuration](conductor/docs/configuration.md) - Config files, env vars
         ```
 
-6.  **Handle CLAUDE.md Merge (if `merge_mode = true`):**
-    -   Read existing `CLAUDE.md` content.
+6.  **Handle Product Guidelines Merge (if `merge_mode = true`):**
+    -   Read existing `conductor/product-guidelines.md` content.
     -   Identify sections:
         -   **Auto-generated sections:** Marked with `<!-- AUTO-GENERATED -->` comments
         -   **User sections:** Everything after `<!-- USER SECTION -->` marker
@@ -1120,7 +1120,7 @@ When user selects this option:
     -   List the files created:
         ```
         Generated Documentation:
-        ├── CLAUDE.md (Progressive Disclosure overview)
+        ├── conductor/product-guidelines.md (updated with pattern docs)
         └── conductor/docs/
             ├── code-conventions.md (8 patterns)
             ├── architecture.md (5 patterns)
@@ -1129,8 +1129,8 @@ When user selects this option:
             └── configuration.md (5 patterns)
         ```
 
-2.  **Show CLAUDE.md Preview:**
-    -   Display the Quick Reference section of CLAUDE.md for review:
+2.  **Show Product Guidelines Preview:**
+    -   Display the Quick Reference section of product-guidelines.md for review:
         ```markdown
         ## Quick Reference Preview:
 
@@ -1163,8 +1163,8 @@ When user selects this option:
 
 #### Step 4: Write Files
 
-1.  **Write CLAUDE.md:**
-    -   Write (or merge) to `CLAUDE.md` in project root.
+1.  **Write Product Guidelines:**
+    -   Write (or merge) to `conductor/product-guidelines.md`.
 
 2.  **Write conductor/docs/ Files:**
     -   Write each approved category file to `conductor/docs/`.
@@ -1207,7 +1207,7 @@ When user selects this option:
 2.  **Summarize Actions:** Present a summary of all actions taken during Phase 1, including:
     -   The guide files that were copied.
     -   The workflow file that was copied.
-    -   The documentation files generated (if applicable): CLAUDE.md and conductor/docs/.
+    -   The documentation files generated (if applicable): updated product-guidelines.md and conductor/docs/.
 3.  **Transition to initial plan and track generation:** Announce that the initial setup is complete and you will now proceed to define the first track for the project.
 
 ---

@@ -6,7 +6,7 @@
 <!-- Last analyzed: {{ANALYZED_AT}} -->
 <!-- Confidence: {{CONFIDENCE}} -->
 
-[Back to CLAUDE.md](../CLAUDE.md)
+[Back to Product Guidelines](../product-guidelines.md)
 
 ---
 
