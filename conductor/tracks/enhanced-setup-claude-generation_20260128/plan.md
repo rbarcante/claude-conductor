@@ -38,17 +38,17 @@ Create the codebase analysis protocol document that defines how to detect patter
 ### Objective
 Integrate the analysis into the existing setup.md flow with a single consolidated review.
 
-- [ ] Task: Add codebase analysis section to setup.md (Section 2.0.2)
-    - [ ] Add analysis workflow after stack detection
-    - [ ] Execute all pattern detection categories
-    - [ ] Collect all detected patterns into a structured result
-    - [ ] Calculate confidence levels for each category
+- [x] Task: Add codebase analysis section to setup.md (Section 2.0.2) [1abc467]
+    - [x] Add analysis workflow after stack detection
+    - [x] Execute all pattern detection categories
+    - [x] Collect all detected patterns into a structured result
+    - [x] Calculate confidence levels for each category
 
-- [ ] Task: Add single consolidated review step
-    - [ ] Present all analysis results to user in formatted summary
-    - [ ] Add single AskUserQuestion with multi-select for category approval
-    - [ ] Options: Each detected category as a selectable option (e.g., "Code Conventions (8 patterns)", "Architecture (3 patterns)")
-    - [ ] Allow user to approve all, select specific categories, or skip
+- [x] Task: Add single consolidated review step [1abc467]
+    - [x] Present all analysis results to user in formatted summary
+    - [x] Add single AskUserQuestion with multi-select for category approval
+    - [x] Options: Each detected category as a selectable option (e.g., "Code Conventions (8 patterns)", "Architecture (3 patterns)")
+    - [x] Allow user to approve all, select specific categories, or skip
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Integration into Setup Command' (Protocol in workflow.md)
 
