@@ -175,11 +175,13 @@ When user selects this option:
     - Let the value of `last_successful_step` in the JSON response be `STEP`.
     - Based on the value of `STEP`, jump to the **next logical section**:
 
+    - If `STEP` is "2.0.2_analysis", announce "Resuming setup: Codebase analysis is complete. Next, we will create the Product Guide." and proceed to **Section 2.1**.
     - If `STEP` is "2.1_product_guide", announce "Resuming setup: The Product Guide (`product.md`) is already complete. Next, we will create the Product Guidelines." and proceed to **Section 2.2**.
     - If `STEP` is "2.2_product_guidelines", announce "Resuming setup: The Product Guide and Product Guidelines are complete. Next, we will define the Technology Stack." and proceed to **Section 2.3**.
     - If `STEP` is "2.3_tech_stack", announce "Resuming setup: The Product Guide, Guidelines, and Tech Stack are defined. Next, we will select Code Styleguides." and proceed to **Section 2.4**.
     - If `STEP` is "2.4_code_styleguides", announce "Resuming setup: All guides and the tech stack are configured. Next, we will define the project workflow." and proceed to **Section 2.5**.
-    - If `STEP` is "2.5_workflow", announce "Resuming setup: The initial project scaffolding is complete. Next, we will generate the first track." and proceed to **Phase 2 (3.0)**.
+    - If `STEP` is "2.5_workflow", announce "Resuming setup: The workflow is configured. Next, we will generate pattern documentation." and proceed to **Section 2.5.1** (if brownfield with approved categories) or **Section 2.6** (if greenfield or no approved categories).
+    - If `STEP` is "2.5.1_docs_generated", announce "Resuming setup: Pattern documentation is generated. Next, we will finalize the setup." and proceed to **Section 2.6**.
     - If `STEP` is "3.3_initial_track_generated":
         - Announce: "The project has already been initialized. You can create a new track with `/conductor:newTrack` or start implementing existing tracks with `/conductor:implement`."
         - Halt the `setup` process.
@@ -421,7 +423,171 @@ When user selects this option:
         -   User will manually specify the stack in Section 2.3.
         -   Proceed to Section 2.1.
 
-5.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
+5.  **Continue:** Proceed to Section 2.0.2 (Codebase Analysis) if brownfield, or Section 2.1 if greenfield.
+
+### 2.0.2 Codebase Analysis (Brownfield Only)
+**PROTOCOL: For brownfield projects, analyze existing codebase patterns for documentation generation.**
+
+**Skip Condition:** This section applies ONLY to brownfield projects. For greenfield projects, skip directly to Section 2.1.
+
+**Protocol Reference:** This section executes the Codebase Analysis Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/codebase-analysis.md`.
+
+1.  **Announce Analysis:**
+    -   Inform the user: "I will now analyze your codebase to detect established patterns and conventions. This will be used to generate documentation that helps AI assistants understand your project's practices."
+
+2.  **Execute Pattern Detection:**
+    For each of the six analysis categories, execute the detection algorithms defined in the protocol:
+
+    **Category 1: Code Conventions**
+    -   Detect file naming conventions (kebab-case, camelCase, PascalCase, snake_case)
+    -   Detect directory structure patterns (feature-based, layer-based, etc.)
+    -   Detect import patterns (relative, absolute, path aliases)
+    -   Detect module organization (barrel exports, co-location)
+
+    **Category 2: Architecture Patterns**
+    -   Detect design patterns (Repository, Factory, Observer, etc.)
+    -   Detect layer organization (Clean Architecture, Hexagonal, MVC, etc.)
+    -   Detect dependency injection patterns
+    -   Detect state management patterns (for frontend projects)
+
+    **Category 3: Testing Patterns**
+    -   Detect test file naming conventions
+    -   Detect test framework usage
+    -   Detect mocking patterns
+    -   Detect test organization (co-located, centralized, type-separated)
+
+    **Category 4: Annotations & Decorators**
+    -   Detect custom decorators and their purposes
+    -   Detect framework-specific decorators
+    -   Detect documentation patterns (JSDoc, docstrings, etc.)
+
+    **Category 5: API Patterns**
+    -   Detect REST endpoint conventions
+    -   Detect response format patterns
+    -   Detect error handling conventions
+    -   Detect API versioning strategy
+
+    **Category 6: Configuration Patterns**
+    -   Detect configuration file formats
+    -   Detect environment variable patterns
+    -   Detect build tool configuration
+    -   Detect CI/CD pipeline patterns
+
+3.  **Calculate Confidence Levels:**
+    -   For each category, calculate confidence score per protocol:
+        -   **HIGH (80-100):** Multiple strong indicators, consistent patterns
+        -   **MEDIUM (50-79):** Some indicators found, minor inconsistencies
+        -   **LOW (20-49):** Few indicators, patterns unclear
+        -   **UNCERTAIN (<20):** Insufficient data for reliable detection
+    -   Count total patterns detected per category
+
+4.  **Store Analysis Results:**
+    -   Store the complete analysis results internally as a JSON structure.
+    -   This will be used in Section 2.0.3 for documentation generation.
+    -   Set internal flag `codebase_analyzed = true`.
+
+5.  **Continue:** Proceed to Section 2.0.2.1 (Consolidated Review).
+
+### 2.0.2.1 Consolidated Pattern Review
+**PROTOCOL: Present all analysis results in a single review step for user approval.**
+
+1.  **Present Analysis Summary:**
+    -   Display all detected patterns in a formatted summary:
+
+    ```
+    ═══════════════════════════════════════════════════════════
+    **Codebase Analysis Results**
+    ═══════════════════════════════════════════════════════════
+
+    **Code Conventions** (Confidence: HIGH)
+    • File naming: kebab-case (75% of files)
+    • Directory structure: feature-based
+    • Imports: absolute with @/ alias
+    • Module organization: barrel exports
+    Patterns detected: 8
+
+    **Architecture** (Confidence: MEDIUM)
+    • Design patterns: Repository, Factory
+    • Layer organization: Clean Architecture
+    • Dependency injection: NestJS framework DI
+    Patterns detected: 5
+
+    **Testing** (Confidence: HIGH)
+    • Test naming: *.test.ts suffix
+    • Framework: Vitest
+    • Mocking: vi.mock() inline
+    • Organization: co-located
+    Patterns detected: 6
+
+    **API Patterns** (Confidence: HIGH)
+    • REST: plural nouns, kebab-case
+    • Versioning: /api/v1/ prefix
+    • Response: envelope pattern
+    • Errors: custom exception classes
+    Patterns detected: 7
+
+    **Configuration** (Confidence: MEDIUM)
+    • Config format: TypeScript
+    • Env vars: SCREAMING_SNAKE_CASE with APP_ prefix
+    • Build tool: Vite
+    • CI/CD: GitHub Actions
+    Patterns detected: 5
+
+    **Annotations** (Confidence: LOW)
+    • Documentation: JSDoc (partial coverage)
+    Patterns detected: 2
+
+    ═══════════════════════════════════════════════════════════
+    Total patterns detected: 33
+    ═══════════════════════════════════════════════════════════
+    ```
+
+2.  **User Category Selection:**
+    -   Use the `AskUserQuestion` tool with `multiSelect: true` for category approval:
+        ```json
+        {
+          "questions": [{
+            "question": "Which pattern categories should be included in the generated documentation?",
+            "header": "Categories",
+            "options": [
+              {"label": "All categories (Recommended)", "description": "Include all detected patterns in documentation"},
+              {"label": "Code Conventions", "description": "File naming, imports, module organization (8 patterns)"},
+              {"label": "Architecture", "description": "Design patterns, layers, DI (5 patterns)"},
+              {"label": "Testing", "description": "Test patterns, framework, mocking (6 patterns)"}
+            ],
+            "multiSelect": true
+          }]
+        }
+        ```
+    -   **Note:** Due to 4-option limit, present categories in batches or use "All categories" as primary option.
+    -   If more than 4 categories have patterns, present a second question for remaining categories.
+
+3.  **Handle User Selection:**
+    -   **If User Selects "All categories":**
+        -   Store all categories as approved for documentation generation.
+        -   Set internal flag `approved_categories = ["code_conventions", "architecture", "testing", "annotations", "api_patterns", "configuration"]`.
+
+    -   **If User Selects Specific Categories:**
+        -   Store only selected categories as approved.
+        -   Set internal flag `approved_categories = [<selected categories>]`.
+
+    -   **If User Selects Nothing (via "Other" to skip):**
+        -   Set internal flag `approved_categories = []`.
+        -   Skip documentation generation in Section 2.0.3.
+
+4.  **Announce Next Steps:**
+    -   If categories were approved: "I will generate documentation for the approved categories after we complete the product definition."
+    -   If no categories approved: "Skipping pattern documentation. Proceeding with product definition."
+
+5.  **Commit State (Brownfield Only):**
+    -   If codebase analysis was performed, use CLI to record progress:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.0.2_analysis"
+        ```
+    -   **Fallback:** Manually write to `conductor/setup_state.json`:
+        `{"last_successful_step": "2.0.2_analysis"}`
+
+6.  **Continue:** Proceed to Section 2.1 (Generate Product Guide).
 
 ### 2.1 Generate Product Guide (Interactive)
 1.  **Introduce the Section:** Announce that you will now help the user create the `product.md`.
@@ -793,6 +959,236 @@ When user selects this option:
         **Fallback:** If CLI is unavailable, manually write to `conductor/setup_state.json` with the exact content:
         `{"last_successful_step": "2.5_workflow"}`
 
+### 2.5.1 Documentation Generation (Brownfield Only)
+**PROTOCOL: Generate Progressive Disclosure documentation based on approved analysis categories.**
+
+**Skip Condition:** This section applies ONLY if `codebase_analyzed = true` AND `approved_categories` is not empty. Otherwise, skip to Section 2.6.
+
+**Template Reference:** Use templates from `${CLAUDE_PLUGIN_ROOT}/templates/docs/` for category documentation files. Pattern documentation will be appended to the existing `conductor/product-guidelines.md`.
+
+#### Step 1: Generate Product Guidelines with Pattern Documentation
+
+1.  **Check for Existing Product Guidelines:**
+    -   Check if `conductor/product-guidelines.md` already exists.
+    -   If exists, set `merge_mode = true`.
+    -   If not exists, set `merge_mode = false`.
+
+2.  **Generate Project Overview:**
+    -   Read `conductor/product.md` to extract:
+        -   Project name (from first heading)
+        -   Project description (from first paragraph or "Overview" section)
+    -   Format as single paragraph summary.
+
+3.  **Generate Quick Reference Rules:**
+    -   From the analysis results stored in Section 2.0.2, extract the highest-confidence patterns.
+    -   Select 5-10 key rules from approved categories, prioritizing:
+        1. File naming conventions (from Code Conventions)
+        2. Import patterns (from Code Conventions)
+        3. Test file naming (from Testing)
+        4. Error handling conventions (from API Patterns)
+        5. Key architectural patterns (from Architecture)
+    -   Format as bullet points:
+        ```markdown
+        ## Quick Reference
+
+        Follow these core rules when working in this codebase:
+
+        - **File naming:** Use kebab-case for all files (e.g., `user-profile.ts`)
+        - **Imports:** Use absolute imports with `@/` alias
+        - **Tests:** Co-locate tests using `.test.ts` suffix
+        - **Errors:** Use custom exception classes (ValidationError, NotFoundError)
+        - **API routes:** Use plural nouns with `/api/v1/` prefix
+        ```
+
+4.  **Generate Directory Structure:**
+    -   From the directory structure analysis, create a simplified tree:
+        ```markdown
+        ## Project Structure
+
+        ```
+        src/
+        ├── components/    # React components
+        ├── services/      # Business logic
+        ├── utils/         # Shared utilities
+        └── types/         # TypeScript types
+        ```
+        ```
+
+5.  **Generate Documentation Links:**
+    -   For each category in `approved_categories`, add a link:
+        ```markdown
+        ## Detailed Documentation
+
+        For detailed guidance on specific topics, see:
+
+        - [Code Conventions](conductor/docs/code-conventions.md) - Naming, imports, organization
+        - [Architecture](conductor/docs/architecture.md) - Design patterns, layers
+        - [Testing](conductor/docs/testing.md) - Test patterns, framework usage
+        - [API Patterns](conductor/docs/api-patterns.md) - REST conventions, errors
+        - [Configuration](conductor/docs/configuration.md) - Config files, env vars
+        ```
+
+6.  **Handle Product Guidelines Merge (if `merge_mode = true`):**
+    -   Read existing `conductor/product-guidelines.md` content.
+    -   Identify sections:
+        -   **Auto-generated sections:** Marked with `<!-- AUTO-GENERATED -->` comments
+        -   **User sections:** Everything after `<!-- USER SECTION -->` marker
+    -   Merge strategy:
+        -   Replace auto-generated sections with new content
+        -   Preserve all user sections unchanged
+        -   If no markers exist in old file, append new content after existing content with clear separator
+
+7.  **Add Auto-Generated Markers:**
+    -   Wrap generated sections with markers:
+        ```markdown
+        <!-- AUTO-GENERATED: This section was generated by Conductor setup -->
+        <!-- Last analyzed: 2026-01-28T10:30:00Z -->
+
+        [Generated content here]
+
+        <!-- END AUTO-GENERATED -->
+        ```
+
+#### Step 2: Generate conductor/docs/ Files
+
+1.  **Create Directory:**
+    -   Create `conductor/docs/` directory if it doesn't exist.
+
+2.  **Generate Category Files:**
+    -   For each category in `approved_categories`:
+
+    **code-conventions.md:**
+    -   Include file naming patterns with examples from analysis
+    -   Include import patterns with actual examples
+    -   Include module organization patterns
+    -   Add confidence indicator: `<!-- Confidence: HIGH -->`
+
+    **architecture.md:**
+    -   Include detected design patterns with file examples
+    -   Include layer organization description
+    -   Include dependency injection patterns
+    -   Include state management (if frontend)
+
+    **testing.md:**
+    -   Include test framework and features
+    -   Include test file naming with examples
+    -   Include mocking patterns
+    -   Include test organization structure
+
+    **api-patterns.md:**
+    -   Include REST conventions with endpoint examples
+    -   Include response format structure
+    -   Include error handling patterns
+    -   Include versioning strategy
+
+    **configuration.md:**
+    -   Include configuration file locations
+    -   Include environment variable patterns
+    -   Include build tool configuration
+    -   Include CI/CD pipeline structure
+
+    **annotations.md:** (only if annotations were detected)
+    -   Include custom decorators with usage examples
+    -   Include documentation patterns
+    -   Include framework decorators
+
+3.  **Include Code Examples:**
+    -   For each pattern, include actual code examples from the analysis:
+        ```markdown
+        ### File Naming
+
+        **Convention:** kebab-case
+        **Confidence:** HIGH
+
+        **Examples from this codebase:**
+        - `src/components/user-profile.tsx`
+        - `src/services/api-client.ts`
+        - `src/utils/date-formatter.ts`
+        ```
+
+4.  **Add Cross-References:**
+    -   At the end of each file, add related documentation links:
+        ```markdown
+        ## Related Documentation
+
+        - [Code Conventions](./code-conventions.md) - Naming and organization
+        - [Architecture](./architecture.md) - Design patterns
+        ```
+
+5.  **Add Auto-Generated Markers:**
+    -   Each file should start with:
+        ```markdown
+        <!-- AUTO-GENERATED: This file was generated by Conductor setup -->
+        <!-- Last analyzed: 2026-01-28T10:30:00Z -->
+        <!-- Confidence: HIGH -->
+        ```
+
+#### Step 3: User Confirmation
+
+1.  **Present Generated Documentation:**
+    -   Announce: "I have generated the following documentation based on your approved patterns:"
+    -   List the files created:
+        ```
+        Generated Documentation:
+        ├── conductor/product-guidelines.md (updated with pattern docs)
+        └── conductor/docs/
+            ├── code-conventions.md (8 patterns)
+            ├── architecture.md (5 patterns)
+            ├── testing.md (6 patterns)
+            ├── api-patterns.md (7 patterns)
+            └── configuration.md (5 patterns)
+        ```
+
+2.  **Show Product Guidelines Preview:**
+    -   Display the Quick Reference section of product-guidelines.md for review:
+        ```markdown
+        ## Quick Reference Preview:
+
+        - **File naming:** Use kebab-case for all files
+        - **Imports:** Use absolute imports with @/ alias
+        - [... rest of rules ...]
+        ```
+
+3.  **Request Confirmation:**
+    -   Use `AskUserQuestion` to confirm:
+        ```json
+        {
+          "questions": [{
+            "question": "Does this generated documentation look correct?",
+            "header": "Review",
+            "options": [
+              {"label": "Approve", "description": "Write the documentation files"},
+              {"label": "Regenerate", "description": "Regenerate with different patterns"},
+              {"label": "Skip", "description": "Skip documentation generation"}
+            ],
+            "multiSelect": false
+          }]
+        }
+        ```
+
+4.  **Handle Response:**
+    -   **If "Approve":** Write all files and proceed.
+    -   **If "Regenerate":** Return to Section 2.0.2.1 to re-select categories.
+    -   **If "Skip":** Skip writing files and proceed to Section 2.6.
+
+#### Step 4: Write Files
+
+1.  **Write Product Guidelines:**
+    -   Write (or merge) to `conductor/product-guidelines.md`.
+
+2.  **Write conductor/docs/ Files:**
+    -   Write each approved category file to `conductor/docs/`.
+
+3.  **Commit State:**
+    -   Use CLI to record progress:
+        ```bash
+        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5.1_docs_generated"
+        ```
+    -   **Fallback:** Manually write to `conductor/setup_state.json`:
+        `{"last_successful_step": "2.5.1_docs_generated"}`
+
+4.  **Continue:** Proceed to Section 2.6 (Finalization).
+
 ### 2.6 Finalization
 1.  **Generate Index File:**
     -   Create `conductor/index.md` with the following content:
@@ -808,15 +1204,20 @@ When user selects this option:
         - [Workflow](./workflow.md)
         - [Code Style Guides](./code_styleguides/)
 
+        ## Documentation (if generated)
+        - [Pattern Documentation](./docs/) - Auto-generated pattern docs
+
         ## Management
         - [Tracks Registry](./tracks.md)
         - [Tracks Directory](./tracks/)
         ```
+    -   **Note:** Only include the "Documentation" section if `conductor/docs/` was generated in Section 2.5.1.
     -   **Announce:** "Created `conductor/index.md` to serve as the project context index."
 
 2.  **Summarize Actions:** Present a summary of all actions taken during Phase 1, including:
     -   The guide files that were copied.
     -   The workflow file that was copied.
+    -   The documentation files generated (if applicable): updated product-guidelines.md and conductor/docs/.
 3.  **Transition to initial plan and track generation:** Announce that the initial setup is complete and you will now proceed to define the first track for the project.
 
 ---
@@ -945,5 +1346,12 @@ When user selects this option:
 
 ### 3.4 Final Announcement
 1.  **Announce Completion:** After the track has been created, announce that the project setup and initial track generation are complete.
-2.  **Save Conductor Files:** Add and commit all files with the commit message `conductor(setup): Add conductor setup files`.
+2.  **Save Conductor Files:**
+    -   Stage all conductor files:
+        -   `conductor/` directory (product.md, product-guidelines.md, tech-stack.md, workflow.md, tracks.md, index.md, setup_state.json)
+        -   `conductor/code_styleguides/` (selected styleguides)
+        -   `conductor/tracks/` (initial track artifacts)
+        -   `conductor/docs/` (if generated in Section 2.5.1)
+    -   Commit with message: `conductor(setup): Add conductor setup files`
+    -   **Note:** If pattern documentation was generated, product-guidelines.md will include the Codebase Patterns section.
 3.  **Next Steps:** Inform the user that they can now begin work by running `/conductor:implement`.
