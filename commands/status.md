@@ -18,82 +18,10 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
-## CLI Operations
+## Fallback Instructions
 
-**PROTOCOL: Token-efficient CLI commands for mechanical operations.**
-
-The Python CLI provides token-efficient alternatives for mechanical tasks. Use these commands when performing deterministic operations like file parsing, status aggregation, and progress calculation.
-
-**Note:** The `status full` command has been executed via the `# Context` section above. The injected JSON contains all data needed for this command. The documentation below is preserved for fallback scenarios.
-
-### Available Subcommands
-
-| Subcommand | Purpose | Output Format |
-|------------|---------|---------------|
-| `status verify` | Verify conductor setup is valid | JSON |
-| `status tracks` | Parse all tracks with metadata and task counts | JSON |
-| `status progress` | Calculate aggregate project progress | JSON |
-| `status full` | Complete status report (verify + tracks + progress + git) | JSON |
-
-### Usage Examples
-
-**Verify Setup:**
-```
-`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status verify`
-```
-
-Expected output:
-```json
-{
-  "is_valid": true,
-  "setup_complete": true,
-  "missing_required": [],
-  "checks": {
-    "required": {"product": {"path": "conductor/product.md", "exists": true}, ...}
-  }
-}
-```
-
-**Get Full Status (Recommended for this command):**
-```
-`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full`
-```
-
-Expected output:
-```json
-{
-  "setup": {"is_valid": true, ...},
-  "tracks": [{"description": "...", "status": "in_progress", "tasks": {...}}, ...],
-  "progress": {"overall": {"total": 10, "completed": 5, "progress_percent": 50.0}},
-  "git": {"branch": "main", "has_changes": false}
-}
-```
-
-**Parse Tracks Only:**
-```
-`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status tracks`
-```
-
-**Calculate Progress Only:**
-```
-`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status progress`
-```
-
-### When to Use CLI vs Direct Tool Calls
-
-| Operation | Use CLI | Use Direct Tool Calls |
-|-----------|---------|----------------------|
-| Verify setup files exist | ✓ | |
-| Parse tracks.md and extract track metadata | ✓ | |
-| Count task status markers in plan.md files | ✓ | |
-| Calculate progress percentages | ✓ | |
-| Format output for display | | ✓ (use JSON data) |
-| Handle errors and user communication | | ✓ |
-
-### Fallback Instructions
-
-If the CLI command fails or is unavailable:
-1. Announce: "CLI operation failed. Falling back to direct tool calls."
+If the context injection fails or returns an error:
+1. Announce: "Context injection failed. Falling back to direct tool calls."
 2. Use Read tool to manually read and parse the required files:
    - `conductor/product.md`, `conductor/tech-stack.md`, `conductor/workflow.md` for setup verification
    - `conductor/tracks.md` for track registry
@@ -111,10 +39,6 @@ If the CLI command fails or is unavailable:
     -   The full status data has been injected via the `# Context` section above.
     -   Parse the `setup` object from the injected JSON to check the `is_valid` field.
     -   If `is_valid` is `false`, check `missing_required` array for missing files.
-    -   **Fallback:** If context injection failed, execute the CLI command manually:
-        ```bash
-        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status verify
-        ```
 
 2.  **Handle Failure:**
     -   If setup is invalid (missing required files), you MUST halt the operation immediately.
@@ -132,12 +56,8 @@ If the CLI command fails or is unavailable:
 1.  **Use Injected Context:**
     -   The full status data has been injected via the `# Context` section at the top of this document.
     -   The JSON contains all required data for status reporting.
-    -   **Fallback:** If context injection failed, execute the CLI command manually:
-        ```bash
-        python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full
-        ```
 
-2.  **Extract Data:** From the injected JSON (or fallback response), extract:
+2.  **Extract Data:** From the injected JSON, extract:
     -   `setup`: Verification status
     -   `tracks`: Array of track objects with description, status, path, and task counts
     -   `progress`: Overall and per-track progress metrics
