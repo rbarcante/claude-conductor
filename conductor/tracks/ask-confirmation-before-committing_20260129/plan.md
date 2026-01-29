@@ -8,7 +8,7 @@ This plan implements commit confirmation prompts in the `/conductor:newTrack` an
 
 ---
 
-## Phase 1: Update newTrack Command
+## Phase 1: Update newTrack Command [checkpoint: c411774]
 
 - [x] Task: Add commit confirmation step to newTrack.md [f93885c]
     - [x] Read current Section 2.4 structure in commands/newTrack.md
@@ -17,7 +17,7 @@ This plan implements commit confirmation prompts in the `/conductor:newTrack` an
     - [x] Add conditional logic: if "Commit now" proceed to Step 6, if "Skip commit" skip to Step 7
     - [x] Update Step 7 announcement to reflect commit status (committed vs uncommitted)
 
-- [~] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md) [c411774]
 
 ## Phase 2: Update Workflow Task Lifecycle
 
