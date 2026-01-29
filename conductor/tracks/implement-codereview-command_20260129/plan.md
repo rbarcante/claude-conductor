@@ -19,14 +19,14 @@
     - [x] Implement fallback for missing origin/HEAD
 
 ### 1.3 Parallel Execution Architecture
-- [ ] Task: Write Tests - AskUserQuestion for parallel execution preference
-    - [ ] Test question prompts user for execution strategy
-    - [ ] Test handling of both parallel and sequential responses
-- [ ] Task: Implement execution strategy prompt
-    - [ ] Add AskUserQuestion at command start
-    - [ ] Ask: "Run analysis phases in parallel for faster results?"
-    - [ ] Options: "Parallel (Recommended)" vs "Sequential"
-    - [ ] Store user preference for conditional execution
+- [x] Task: Write Tests - AskUserQuestion for parallel execution preference
+    - [x] Test question prompts user for execution strategy
+    - [x] Test handling of both parallel and sequential responses
+- [x] Task: Implement execution strategy prompt
+    - [x] Add AskUserQuestion at command start
+    - [x] Ask: "Run analysis phases in parallel for faster results?"
+    - [x] Options: "Parallel (Recommended)" vs "Sequential"
+    - [x] Store user preference for conditional execution
 
 ### 1.4 Phase Completion
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Command Structure and Setup' (Protocol in workflow.md)
