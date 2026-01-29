@@ -21,12 +21,12 @@ This plan implements commit confirmation prompts in the `/conductor:newTrack` an
 
 ## Phase 2: Update Workflow Task Lifecycle
 
-- [ ] Task: Add commit confirmation step to workflow.md Task Workflow
-    - [ ] Read current Task Workflow structure in conductor/workflow.md
-    - [ ] Insert new Step 7.5 "Confirm Commit" between Step 7 (Document Deviations) and Step 8 (Commit Code Changes)
-    - [ ] Add instruction to use AskUserQuestion tool with commit approval options
-    - [ ] Add conditional logic: if "Commit now" proceed to Step 8, if "Skip commit" skip to Step 9
-    - [ ] Ensure task completion flow works correctly when commit is skipped (plan update should still happen but may not be committed)
+- [x] Task: Add commit confirmation step to workflow.md Task Workflow [ba47230]
+    - [x] Read current Task Workflow structure in conductor/workflow.md
+    - [x] Insert new Step 8 "Confirm Commit" between Step 7 (Document Deviations) and Commit Code Changes
+    - [x] Add instruction to use AskUserQuestion tool with commit approval options
+    - [x] Add conditional logic: if "Commit now" proceed to Step 9, if "Skip commit" skip to Step 12
+    - [x] Ensure task completion flow works correctly when commit is skipped (plan update marks task as [uncommitted])
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
