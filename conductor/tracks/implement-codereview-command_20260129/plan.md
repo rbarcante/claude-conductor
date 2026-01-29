@@ -3,10 +3,10 @@
 ## Phase 1: Command Structure and Setup
 
 ### 1.1 Create Command File
-- [ ] Task: Create `commands/codeReview.md` with proper YAML frontmatter
-    - [ ] Add command name, description, and invocations
-    - [ ] Define command arguments structure (optional branch parameter)
-    - [ ] Set up command categories/tags
+- [x] Task: Create `commands/codeReview.md` with proper YAML frontmatter [61b5bf0]
+    - [x] Add command name, description, and invocations
+    - [x] Define command arguments structure (optional branch parameter)
+    - [x] Set up command categories/tags
 
 ### 1.2 Implement Context Injection
 - [ ] Task: Write Tests - Context injection for git diff output
