@@ -9,14 +9,14 @@
     - [x] Set up command categories/tags
 
 ### 1.2 Implement Context Injection
-- [ ] Task: Write Tests - Context injection for git diff output
-    - [ ] Test that `# Context` section correctly invokes `git diff origin/HEAD`
-    - [ ] Test handling of empty diff (no changes)
-    - [ ] Test error handling when origin/HEAD doesn't exist
-- [ ] Task: Implement context injection in command file
-    - [ ] Add `# Context` section with git diff command
-    - [ ] Add git command to detect if diff is empty
-    - [ ] Implement fallback for missing origin/HEAD
+- [x] Task: Write Tests - Context injection for git diff output
+    - [x] Test that `# Context` section correctly invokes `git diff origin/HEAD`
+    - [x] Test handling of empty diff (no changes)
+    - [x] Test error handling when origin/HEAD doesn't exist
+- [x] Task: Implement context injection in command file
+    - [x] Add `# Context` section with git diff command
+    - [x] Add git command to detect if diff is empty
+    - [x] Implement fallback for missing origin/HEAD
 
 ### 1.3 Parallel Execution Architecture
 - [ ] Task: Write Tests - AskUserQuestion for parallel execution preference
