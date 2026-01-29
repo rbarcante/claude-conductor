@@ -494,7 +494,31 @@ This appends the track entry to `conductor/tracks.md` in the Active Tracks secti
    ```
 4. Write updated content back
 
-#### Step 5: Commit Changes
+#### Step 5: Confirm Commit
+
+Before committing, ask the user for confirmation using AskUserQuestion:
+
+```json
+{
+  "questions": [{
+    "question": "The track files have been created. Would you like to commit them now?",
+    "header": "Commit",
+    "options": [
+      {"label": "Commit now", "description": "Stage and commit all track files"},
+      {"label": "Skip commit", "description": "Leave files uncommitted for now"}
+    ],
+    "multiSelect": false
+  }]
+}
+```
+
+**Handle Response:**
+- **If "Commit now":** Proceed to Step 6 (Commit Changes)
+- **If "Skip commit":** Skip Step 6 and proceed directly to Step 7 (Final Announcement)
+
+#### Step 6: Commit Changes (Conditional)
+
+**Only execute this step if user confirmed "Commit now" in Step 5.**
 
 Stage all the new files and commit:
 ```bash
@@ -507,7 +531,12 @@ git add conductor/tracks/<track_id>/spec.md \
 git commit -m "conductor(track): Create track '<track description>'"
 ```
 
-#### Step 6: Final Announcement
+#### Step 7: Final Announcement
 
-Announce successful creation:
-> "Track '<track description>' has been created successfully. You can now begin implementation with `/conductor:implement` or review the plan at `conductor/tracks/<track_id>/plan.md`."
+Announce the result based on whether commit was made:
+
+**If commit was made (Step 6 executed):**
+> "Track '<track description>' has been created and committed successfully. You can now begin implementation with `/conductor:implement` or review the plan at `conductor/tracks/<track_id>/plan.md`."
+
+**If commit was skipped:**
+> "Track '<track description>' has been created. The files are on disk but not yet committed. You can commit them manually or they will be committed when you run `/conductor:implement`. You can review the plan at `conductor/tracks/<track_id>/plan.md`."
