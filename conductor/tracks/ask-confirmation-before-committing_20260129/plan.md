@@ -10,12 +10,12 @@ This plan implements commit confirmation prompts in the `/conductor:newTrack` an
 
 ## Phase 1: Update newTrack Command
 
-- [ ] Task: Add commit confirmation step to newTrack.md
-    - [ ] Read current Section 2.4 structure in commands/newTrack.md
-    - [ ] Insert new Step 4.5 "Confirm Commit" between Step 4 (Register Track) and Step 5 (Commit Changes)
-    - [ ] Add AskUserQuestion tool call with commit approval options
-    - [ ] Add conditional logic: if "Commit now" proceed to Step 5, if "Skip commit" skip to Step 6
-    - [ ] Update Step 6 announcement to reflect commit status (committed vs uncommitted)
+- [x] Task: Add commit confirmation step to newTrack.md [f93885c]
+    - [x] Read current Section 2.4 structure in commands/newTrack.md
+    - [x] Insert new Step 5 "Confirm Commit" between Step 4 (Register Track) and Commit Changes
+    - [x] Add AskUserQuestion tool call with commit approval options
+    - [x] Add conditional logic: if "Commit now" proceed to Step 6, if "Skip commit" skip to Step 7
+    - [x] Update Step 7 announcement to reflect commit status (committed vs uncommitted)
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
