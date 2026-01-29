@@ -58,8 +58,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
-- [x] **Track: Ask confirmation before committing track files**
-  *Link: [ask-confirmation-before-committing_20260129](./conductor/tracks/ask-confirmation-before-committing_20260129/)*
 - [x] **Track: rename the project as claude-conductor, replace all instances of old names with claude-conductor and Claude Conductor respectively**
   *Link: [rename-project-claude-conductor_20260123](./conductor/tracks/rename-project-claude-conductor_20260123/)*
 - [ ] **Track: Add suggest-branch subcommand to implement CLI**
