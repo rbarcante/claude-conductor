@@ -1,7 +1,7 @@
 ---
 name: conductor:codeReview
 description: Performs comprehensive code review of changes in the current branch
-argument-hint: "[branch] (default: origin/HEAD)"
+argument-hint: "(no arguments)"
 allowed-tools:
   - Read
   - Bash
@@ -10,10 +10,6 @@ allowed-tools:
   - AskUserQuestion
   - Task
 ---
-
-# Context
-
-!`git diff origin/main...HEAD 2>/dev/null || git diff origin/master...HEAD 2>/dev/null || git diff main...HEAD 2>/dev/null || git diff master...HEAD 2>/dev/null || echo "DIFF_ERROR: Unable to compare against base branch (tried origin/main, origin/master, main, master)"`
 
 ## 1.0 SYSTEM DIRECTIVE
 
@@ -39,63 +35,61 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ---
 
-## 2.0 DIFF ANALYSIS
+## 2.0 BRANCH SELECTION AND UPDATE
 
-**PROTOCOL: Parse and validate the injected diff context.**
+**PROTOCOL: Ask user for base branch and update before comparison.**
 
-### 2.1 Check Diff Status
+### 2.1 Select Base Branch
 
-1.  **Parse Injected Context:** Examine the `# Context` section above.
-
-2.  **Detect Error Conditions:**
-    -   If context contains `DIFF_ERROR:` -> Unable to find base branch (main/master)
-    -   If context is empty or contains only whitespace -> No changes detected (likely on base branch)
-
-3.  **Handle No Changes:** If diff is empty, the user is likely on main/master. Execute the **Branch Selection Protocol** (Section 2.2) to select the feature branch to review.
-
-4.  **Handle Git Error:** If diff error occurred:
-    -   Announce: "Unable to find base branch for comparison. Tried origin/main, origin/master, main, and master."
-    -   Execute the **Branch Selection Protocol** (Section 2.2) to manually specify branches.
-
-### 2.2 Branch Selection Protocol
-
-**PROTOCOL: Prompt user to select the feature branch containing changes to review.**
-
-When no changes are detected, it's likely because the user is on the base branch (main/master). The review should compare a feature branch against the base branch.
-
-1.  **Detect Available Branches:** Execute `git branch --list` to get local branches.
-
-2.  **Use AskUserQuestion:** Present branch options to the user:
+1.  **Use AskUserQuestion:** Prompt user to select the base branch for comparison:
 
     ```json
     {
       "questions": [{
-        "question": "No changes detected on current branch. Which branch contains the changes you want to review?",
-        "header": "Feature Branch",
+        "question": "Which base branch would you like to compare against?",
+        "header": "Base Branch",
         "options": [
-          {"label": "List recent branches", "description": "Show branches with recent commits to choose from"},
-          {"label": "Enter branch name", "description": "Specify the feature branch name manually"}
+          {"label": "master", "description": "Compare current branch against master"},
+          {"label": "develop", "description": "Compare current branch against develop"},
+          {"label": "main", "description": "Compare current branch against main"}
         ],
         "multiSelect": false
       }]
     }
     ```
 
-3.  **Handle User Response:**
-    -   If "List recent branches": Execute `git branch --sort=-committerdate --list | head -10` and present as options
-    -   If user provides a branch name: Validate it exists with `git rev-parse --verify <branch>`
-    -   Once branch is selected, execute: `git diff main...<selected_branch>` (or `master` if main doesn't exist)
-    -   Parse the new diff output and continue with analysis.
+2.  **Store Selection:** Keep the selected base branch for use in subsequent steps.
 
-4.  **Handle Invalid Branch:**
-    -   If branch doesn't exist: "Branch `<branch>` not found. Please check the branch name."
+### 2.2 Update Branches
+
+1.  **Fetch Latest:** Execute git fetch to update remote references:
+    ```bash
+    git fetch origin
+    ```
+
+2.  **Verify Base Branch Exists:** Check that the selected base branch exists:
+    ```bash
+    git rev-parse --verify origin/<base_branch>
+    ```
+
+3.  **Handle Missing Branch:**
+    -   If branch doesn't exist: "Branch `origin/<base_branch>` not found. Please verify the branch name exists on remote."
     -   Re-prompt with branch selection.
 
-5.  **Handle Empty Diff After Selection:**
-    -   If diff is still empty: "No changes found between base branch and `<branch>`. The branches appear identical."
+### 2.3 Generate Diff
+
+1.  **Execute Diff:** Compare current branch against selected base branch:
+    ```bash
+    git diff origin/<base_branch>...HEAD
+    ```
+
+2.  **Handle Empty Diff:**
+    -   If diff is empty: "No changes found between `origin/<base_branch>` and your current branch. Your branch appears to be up-to-date with the base branch."
     -   Halt and await further user instructions.
 
-### 2.3 Parse Diff Statistics
+3.  **Store Diff Output:** Keep the diff output for analysis in subsequent sections.
+
+### 2.4 Parse Diff Statistics
 
 1.  **Extract Statistics:**
     -   Count files changed (lines starting with `diff --git`)
@@ -291,7 +285,7 @@ Output the report in this structure:
 ```markdown
 # Code Review Report
 
-**Branch:** `<current_branch>` vs `<comparison_branch>`
+**Branch:** `<current_branch>` vs `origin/<base_branch>`
 **Generated:** <timestamp>
 
 ---
