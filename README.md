@@ -126,6 +126,7 @@ During implementation, you can also:
 | `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
+| `/conductor:codeReview` | Performs comprehensive code review of changes against a base branch. | None (generates report) |
 | `/conductor:patterns` | Browse and search the Pattern Reference Layer. | Reads `patterns/index.md` |
 | `/conductor:skills` | Manage and explore Conductor skills (list, info, enable, disable). | Reads/writes `skills/skill-registry.json`, `conductor/settings.json` |
 | `/conductor:snippet` | Browse, search, and display code snippets from the Snippet Library. | Reads `snippets/index.md` |

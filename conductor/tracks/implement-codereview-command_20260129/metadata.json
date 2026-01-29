@@ -1,0 +1,8 @@
+{
+  "track_id": "implement-codereview-command_20260129",
+  "type": "feature",
+  "status": "completed",
+  "created_at": "2026-01-29T18:38:29.301028Z",
+  "updated_at": "2026-01-29T19:05:54.510363Z",
+  "description": "Implement codeReview command for comprehensive code review"
+}
