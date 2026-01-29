@@ -1,7 +1,7 @@
 ---
 name: conductor:codeReview
 description: Performs comprehensive code review of changes in the current branch
-argument-hint: "(no arguments)"
+argument-hint: "<base_branch> (e.g., master, develop, main)"
 allowed-tools:
   - Read
   - Bash
@@ -37,11 +37,15 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 ## 2.0 BRANCH SELECTION AND UPDATE
 
-**PROTOCOL: Ask user for base branch and update before comparison.**
+**PROTOCOL: Determine base branch and update before comparison.**
 
 ### 2.1 Select Base Branch
 
-1.  **Use AskUserQuestion:** Prompt user to select the base branch for comparison:
+1.  **Check Command Argument:** Parse `{{args}}` for the base branch name.
+    -   If argument provided (e.g., `/conductor:codeReview master`): Use the provided branch name.
+    -   If no argument provided: Prompt the user (Step 2).
+
+2.  **Prompt if No Argument:** Use AskUserQuestion only when no base branch was specified:
 
     ```json
     {
@@ -58,7 +62,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
     }
     ```
 
-2.  **Store Selection:** Keep the selected base branch for use in subsequent steps.
+3.  **Store Selection:** Keep the selected base branch for use in subsequent steps.
 
 ### 2.2 Update Branches
 
