@@ -44,25 +44,51 @@ All tasks follow a strict lifecycle:
    - Add dated note explaining the change
    - Resume implementation
 
-8. **Commit Code Changes:**
+8. **Confirm Commit:**
+   Before committing, ask the user for confirmation using AskUserQuestion:
+   ```json
+   {
+     "questions": [{
+       "question": "The task implementation is complete. Would you like to commit the changes now?",
+       "header": "Commit",
+       "options": [
+         {"label": "Commit now", "description": "Stage and commit all code changes"},
+         {"label": "Skip commit", "description": "Leave changes uncommitted for now"}
+       ],
+       "multiSelect": false
+     }]
+   }
+   ```
+   - **If "Commit now":** Proceed to Step 9 (Commit Code Changes)
+   - **If "Skip commit":** Skip to Step 12 (Update Plan Status), marking the task complete without a commit SHA
+
+9. **Commit Code Changes (Conditional):**
+   **Only execute this step if user confirmed "Commit now" in Step 8.**
    - Stage all code changes related to the task.
    - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
    - Perform the commit.
 
-9. **Attach Task Summary with Git Notes:**
-   - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
-   - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
-     ```bash
-     # The note content from the previous step is passed via the -m flag.
-     git notes add -m "<note content>" <commit_hash>
-     ```
+10. **Attach Task Summary with Git Notes (Conditional):**
+    **Only execute this step if Step 9 was executed.**
+    - **Step 10.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
+    - **Step 10.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
+    - **Step 10.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
+      ```bash
+      # The note content from the previous step is passed via the -m flag.
+      git notes add -m "<note content>" <commit_hash>
+      ```
 
-10. **Get and Record Task Commit SHA:**
-    - **Step 10.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
-    - **Step 10.2: Write Plan:** Write the updated content back to `plan.md`.
+11. **Get Task Commit SHA (Conditional):**
+    **Only execute this step if Step 9 was executed.**
+    - Obtain the first 7 characters of the commit hash for use in the next step.
 
-11. **Commit Plan Update:**
+12. **Update Plan Status:**
+    - **Step 12.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`.
+      - **If Step 9 was executed:** Append the first 7 characters of the commit hash (e.g., `- [x] Task: Description [abc1234]`).
+      - **If commit was skipped:** Mark complete without SHA (e.g., `- [x] Task: Description [uncommitted]`).
+    - **Step 12.2: Write Plan:** Write the updated content back to `plan.md`.
+
+13. **Commit Plan Update:**
     - **Action:** Stage the modified `plan.md` file.
     - **Action:** Commit this change with a descriptive message (e.g., `conductor(plan): Mark task 'Create user model' as complete`).
 
