@@ -13,7 +13,7 @@ allowed-tools:
 
 # Context
 
-!`git diff origin/HEAD 2>/dev/null || echo "DIFF_ERROR: Unable to compare with origin/HEAD"`
+!`git diff origin/main...HEAD 2>/dev/null || git diff origin/master...HEAD 2>/dev/null || git diff main...HEAD 2>/dev/null || git diff master...HEAD 2>/dev/null || echo "DIFF_ERROR: Unable to compare against base branch (tried origin/main, origin/master, main, master)"`
 
 ## 1.0 SYSTEM DIRECTIVE
 
@@ -48,42 +48,51 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 1.  **Parse Injected Context:** Examine the `# Context` section above.
 
 2.  **Detect Error Conditions:**
-    -   If context contains `DIFF_ERROR:` -> origin/HEAD doesn't exist or git error occurred
-    -   If context is empty or contains only whitespace -> No changes detected
+    -   If context contains `DIFF_ERROR:` -> Unable to find base branch (main/master)
+    -   If context is empty or contains only whitespace -> No changes detected (likely on base branch)
 
-3.  **Handle No Changes:** If diff is empty, execute the **Branch Selection Protocol** (Section 2.2).
+3.  **Handle No Changes:** If diff is empty, the user is likely on main/master. Execute the **Branch Selection Protocol** (Section 2.2) to select the feature branch to review.
 
 4.  **Handle Git Error:** If diff error occurred:
-    -   Announce: "Unable to compare with origin/HEAD. This might be a new repository or origin is not configured."
-    -   Execute the **Branch Selection Protocol** (Section 2.2).
+    -   Announce: "Unable to find base branch for comparison. Tried origin/main, origin/master, main, and master."
+    -   Execute the **Branch Selection Protocol** (Section 2.2) to manually specify branches.
 
 ### 2.2 Branch Selection Protocol
 
-**PROTOCOL: Prompt user for alternative comparison branch when default fails.**
+**PROTOCOL: Prompt user to select the feature branch containing changes to review.**
 
-1.  **Use AskUserQuestion:** Present branch options to the user:
+When no changes are detected, it's likely because the user is on the base branch (main/master). The review should compare a feature branch against the base branch.
+
+1.  **Detect Available Branches:** Execute `git branch --list` to get local branches.
+
+2.  **Use AskUserQuestion:** Present branch options to the user:
 
     ```json
     {
       "questions": [{
-        "question": "No changes found compared to origin/HEAD. Which branch would you like to compare against?",
-        "header": "Branch",
+        "question": "No changes detected on current branch. Which branch contains the changes you want to review?",
+        "header": "Feature Branch",
         "options": [
-          {"label": "main", "description": "Compare against main branch"},
-          {"label": "master", "description": "Compare against master branch"},
-          {"label": "develop", "description": "Compare against develop branch"}
+          {"label": "List recent branches", "description": "Show branches with recent commits to choose from"},
+          {"label": "Enter branch name", "description": "Specify the feature branch name manually"}
         ],
         "multiSelect": false
       }]
     }
     ```
 
-2.  **Handle User Response:**
-    -   If user selects a branch or provides a custom branch name, execute: `git diff <selected_branch>`
+3.  **Handle User Response:**
+    -   If "List recent branches": Execute `git branch --sort=-committerdate --list | head -10` and present as options
+    -   If user provides a branch name: Validate it exists with `git rev-parse --verify <branch>`
+    -   Once branch is selected, execute: `git diff main...<selected_branch>` (or `master` if main doesn't exist)
     -   Parse the new diff output and continue with analysis.
 
-3.  **Handle Empty Diff After Selection:**
-    -   If diff is still empty after user selection: "No changes found compared to `<branch>`. Your current branch appears identical to the comparison branch."
+4.  **Handle Invalid Branch:**
+    -   If branch doesn't exist: "Branch `<branch>` not found. Please check the branch name."
+    -   Re-prompt with branch selection.
+
+5.  **Handle Empty Diff After Selection:**
+    -   If diff is still empty: "No changes found between base branch and `<branch>`. The branches appear identical."
     -   Halt and await further user instructions.
 
 ### 2.3 Parse Diff Statistics
