@@ -11,6 +11,34 @@ allowed-tools:
   - Task
 ---
 
+## Usage
+
+```bash
+# Review changes against master branch
+/conductor:codeReview master
+
+# Review changes against develop branch
+/conductor:codeReview develop
+
+# Review changes against main branch
+/conductor:codeReview main
+
+# No argument - will prompt for base branch selection
+/conductor:codeReview
+```
+
+### What This Command Does
+
+1. **Fetches latest** from remote to ensure up-to-date comparison
+2. **Generates diff** between your current branch and the specified base branch
+3. **Analyzes changes** across three dimensions:
+   - **Code Quality**: Code smells, style compliance, documentation
+   - **Security**: Hardcoded secrets, injection vulnerabilities, insecure patterns
+   - **Test Coverage**: Missing tests, coverage gaps
+4. **Generates report** with findings organized by severity (High/Medium/Low)
+
+---
+
 ## 1.0 SYSTEM DIRECTIVE
 
 You are an AI agent specialized in code review. Your primary function is to perform comprehensive code review of changes in the current branch compared to a base branch. You analyze code across three dimensions: **Code Quality**, **Security**, and **Test Coverage**.
