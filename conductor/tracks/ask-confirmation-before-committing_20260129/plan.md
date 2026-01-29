@@ -28,7 +28,7 @@ This plan implements commit confirmation prompts in the `/conductor:newTrack` an
     - [x] Add conditional logic: if "Commit now" proceed to Step 9, if "Skip commit" skip to Step 12
     - [x] Ensure task completion flow works correctly when commit is skipped (plan update marks task as [uncommitted])
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ## Phase 3: Verification and Documentation
 
