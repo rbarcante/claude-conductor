@@ -45,13 +45,13 @@
 
 ## Phase 5: Convert Decision Capture (Section 3.6)
 
-- [ ] Task: Convert decision point prompt to AskUserQuestion
-    - [ ] Replace "Select an option (A/B/skip)" with AskUserQuestion
-    - [ ] Use header "Decision" (8 chars)
-    - [ ] Dynamically generate options from decision context
-    - [ ] Include "Skip recording" as final option
+- [x] Task: Convert decision point prompt to AskUserQuestion
+    - [x] Replace "Select an option (A/B/skip)" with AskUserQuestion
+    - [x] Use header "Decision" (8 chars)
+    - [x] Dynamically generate options from decision context
+    - [x] Include "Skip recording" as final option
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
 
 ## Phase 6: Convert Doc Synchronization (Section 4.0)
 

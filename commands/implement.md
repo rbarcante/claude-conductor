@@ -701,7 +701,7 @@ A decision is significant and should be captured when:
 
 ### Step 3: Present Decision (if significant)
 
-When a significant decision is detected, present to the user:
+When a significant decision is detected, present the context and use AskUserQuestion:
 
 ```
 ---
@@ -719,10 +719,27 @@ B. **[Option Name]**
    [Description]
    - Pros: [List]
    - Cons: [List]
-
-Select an option (A/B/skip):
 ---
 ```
+
+Then prompt using AskUserQuestion (dynamically generate options from the decision context):
+```json
+{
+  "questions": [{
+    "question": "Which approach would you like to take for this decision?",
+    "header": "Decision",
+    "options": [
+      {"label": "Option A: [Name] (Recommended)", "description": "[Key benefit and main tradeoff]"},
+      {"label": "Option B: [Name]", "description": "[Key benefit and main tradeoff]"},
+      {"label": "Skip recording", "description": "Proceed without recording this decision"}
+    ],
+    "multiSelect": false
+  }]
+}
+```
+
+-   **If "Option A" or "Option B":** Record the decision (Step 4)
+-   **If "Skip recording":** Continue implementation without recording
 
 ### Step 4: Record Decision
 
