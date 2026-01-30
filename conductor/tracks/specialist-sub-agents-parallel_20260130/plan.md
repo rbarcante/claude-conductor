@@ -78,7 +78,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
 
-## Phase 6: Command Integration - setup and newTrack [checkpoint: ]
+## Phase 6: Command Integration - setup and newTrack [checkpoint: ad6347c]
 
 - [x] Task: Update setup.md with parallel pattern detection
     - [x] Read current setup.md implementation
@@ -90,7 +90,7 @@
     - [x] Analyzed - agent not needed (existing docs from setup suffice)
     - [x] Updated to reference existing pattern documentation instead
 
-- [~] Task: Conductor - User Manual Verification 'Phase 6' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 6' (Protocol in workflow.md)
 
 ## Phase 7: Verification and Documentation [checkpoint: ]
 
