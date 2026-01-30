@@ -1,5 +1,5 @@
 ---
-name: conductor:security-scanner
+name: security-scanner
 description: Detect security vulnerabilities, hardcoded secrets, and injection risks in code changes. Use this agent for parallel security analysis during code review or quality gates.
 model: inherit
 color: red

@@ -1,5 +1,5 @@
 ---
-name: conductor:test-coverage-analyzer
+name: test-coverage-analyzer
 description: Map test files to source files and identify coverage gaps in code changes. Use this agent for parallel test coverage analysis during code review or quality gates.
 model: haiku
 color: green

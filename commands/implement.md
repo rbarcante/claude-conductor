@@ -303,11 +303,11 @@ Default to **Parallel Agent Mode** for efficiency.
 
     ```
     Task 1: code-quality-analyzer
-    - subagent_type: "conductor:code-quality-analyzer"
+    - subagent_type: "code-quality-analyzer"
     - prompt: <input JSON>
 
     Task 2: security-scanner
-    - subagent_type: "conductor:security-scanner"
+    - subagent_type: "security-scanner"
     - prompt: <input JSON>
     ```
 
