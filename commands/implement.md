@@ -583,17 +583,46 @@ Action Required: Fix the issue(s) listed above, then the quality gate will re-ru
 ⚠️ **Quality Gate: Issues Detected**
 
 [Table of findings by severity]
-
-Options:
-1. Fix issues and re-run quality gate
-2. Skip with documented reasons
-3. View anti-pattern details for guidance
-
-Enter choice (1/2/3):
 ```
 
+Use AskUserQuestion to prompt for action:
+```json
+{
+  "questions": [{
+    "question": "Issues detected during quality analysis. How would you like to proceed?",
+    "header": "Action",
+    "options": [
+      {"label": "Fix issues (Recommended)", "description": "Address the issues and re-run quality gate"},
+      {"label": "Skip with reasons", "description": "Document reasons and proceed anyway"},
+      {"label": "View details", "description": "See anti-pattern details for guidance"}
+    ],
+    "multiSelect": false
+  }]
+}
+```
+
+-   **If "Fix issues":** Wait for user to fix, then re-run quality gate
+-   **If "View details":** Display anti-pattern details, then re-prompt
+-   **If "Skip with reasons":** Prompt for skip reasons (see below)
+
 **If User Chooses Skip:**
--   Prompt for reason for each high-severity item
+
+Use AskUserQuestion to collect skip reasons:
+```json
+{
+  "questions": [{
+    "question": "Why are you skipping these issues?",
+    "header": "Skip Reason",
+    "options": [
+      {"label": "Intentional design", "description": "The pattern is used deliberately for a specific purpose"},
+      {"label": "Deferred fix", "description": "Will be addressed in a future task or track"},
+      {"label": "False positive", "description": "The detection is incorrect for this context"}
+    ],
+    "multiSelect": true
+  }]
+}
+```
+
 -   Record skip decisions in the task completion documentation
 -   Proceed with task completion
 

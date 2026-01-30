@@ -30,18 +30,18 @@
 
 ## Phase 4: Convert Quality Gate (Section 3.5)
 
-- [ ] Task: Convert quality gate options prompt to AskUserQuestion
-    - [ ] Replace "Enter choice (1/2/3)" with AskUserQuestion
-    - [ ] Use header "Action" (6 chars)
-    - [ ] Options: "Fix issues" / "Skip with reasons" / "View details"
+- [x] Task: Convert quality gate options prompt to AskUserQuestion
+    - [x] Replace "Enter choice (1/2/3)" with AskUserQuestion
+    - [x] Use header "Action" (6 chars)
+    - [x] Options: "Fix issues" / "Skip with reasons" / "View details"
 
-- [ ] Task: Convert skip reason prompt to AskUserQuestion
-    - [ ] Replace text prompt for reasons with AskUserQuestion
-    - [ ] Use header "Skip Reason" (11 chars)
-    - [ ] Options: common reasons (Intentional, Deferred, False positive)
-    - [ ] multiSelect: true to allow multiple reasons
+- [x] Task: Convert skip reason prompt to AskUserQuestion
+    - [x] Replace text prompt for reasons with AskUserQuestion
+    - [x] Use header "Skip Reason" (11 chars)
+    - [x] Options: common reasons (Intentional, Deferred, False positive)
+    - [x] multiSelect: true to allow multiple reasons
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
 ## Phase 5: Convert Decision Capture (Section 3.6)
 
