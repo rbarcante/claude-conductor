@@ -391,19 +391,31 @@ If skill registry is missing or no always-active skills exist, proceed silently 
             ```
         -   **If CLI fails:** Fall back to reading `patterns/index.md` and manually matching keywords against pattern names and frontmatter.
     c. **Surface Decision:**
-        -   If any patterns have `score >= 1.0`, announce them using this format:
+        -   If any patterns have `score >= 1.0`, announce them and prompt using AskUserQuestion:
           ```
           📚 **Relevant Patterns Detected:**
 
           1. **[Pattern Name]** (patterns/core/<name>.md)
              > <Pattern's one-line description>
-
-          [Apply patterns? (Y)es / (S)kip / (V)iew first]
+          ```
+          ```json
+          {
+            "questions": [{
+              "question": "Relevant patterns detected. How would you like to proceed?",
+              "header": "Patterns",
+              "options": [
+                {"label": "Apply patterns (Recommended)", "description": "Use pattern guidance during implementation"},
+                {"label": "View first", "description": "Show pattern details before deciding"},
+                {"label": "Skip", "description": "Proceed without applying patterns"}
+              ],
+              "multiSelect": false
+            }]
+          }
           ```
         -   Maximum 3 patterns per task, sorted by score descending
-        -   If user chooses "View", display the AI Quick Reference section
-        -   If user chooses "Skip", proceed without applying patterns
-        -   If user chooses "Yes" or confirms, keep pattern guidance in mind during implementation
+        -   **If "View first":** Display the AI Quick Reference section, then re-prompt
+        -   **If "Skip":** Proceed without applying patterns
+        -   **If "Apply patterns":** Keep pattern guidance in mind during implementation
     d. **No Matches:** If no patterns score >= 1.0, continue silently without announcement.
 
 5.  **Execute Tasks and Update Track Plan:**

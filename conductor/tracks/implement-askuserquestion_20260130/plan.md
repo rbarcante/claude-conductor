@@ -21,12 +21,12 @@
 
 ## Phase 3: Convert Pattern Surfacing (Section 3.0)
 
-- [ ] Task: Convert pattern application prompt to AskUserQuestion
-    - [ ] Replace "Apply patterns? (Y)es / (S)kip / (V)iew first" with AskUserQuestion
-    - [ ] Use header "Patterns" (8 chars)
-    - [ ] Options: "Apply patterns" / "View first" / "Skip"
+- [x] Task: Convert pattern application prompt to AskUserQuestion
+    - [x] Replace "Apply patterns? (Y)es / (S)kip / (V)iew first" with AskUserQuestion
+    - [x] Use header "Patterns" (8 chars)
+    - [x] Options: "Apply patterns" / "View first" / "Skip"
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ## Phase 4: Convert Quality Gate (Section 3.5)
 
