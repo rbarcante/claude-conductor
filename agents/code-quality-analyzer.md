@@ -24,7 +24,9 @@ You will receive input in the following JSON format via the Task prompt:
   "project_context": {
     "tech_stack": "typescript|java|python|etc",
     "styleguide_path": "path/to/styleguide",
-    "styleguide_content": "Optional: Pre-loaded styleguide content"
+    "styleguide_content": "Optional: Pre-loaded styleguide content",
+    "product_guidelines_path": "conductor/product-guidelines.md",
+    "product_guidelines_content": "Optional: Pre-loaded product guidelines content"
   }
 }
 ```
@@ -64,11 +66,19 @@ Extract and validate:
 
 ### 2. Load Style Standards
 
+**Code Styleguide:**
 If `styleguide_path` or `styleguide_content` is provided:
 - Use provided standards for style compliance checks
 - Apply language-specific conventions
 
-If no styleguide provided:
+**Product Guidelines:**
+If `product_guidelines_path` or `product_guidelines_content` is provided:
+- Extract documentation standards (prose style, naming conventions)
+- Apply naming conventions from product guidelines
+- Check code comments against documentation standards
+- Validate API documentation format if specified
+
+If no styleguide or product guidelines provided:
 - Apply universal best practices
 
 ### 3. Analyze Code Quality
