@@ -71,19 +71,19 @@
 
 ## Phase 7: Convert Track Cleanup (Section 5.0)
 
-- [ ] Task: Convert cleanup options prompt to AskUserQuestion
-    - [ ] Replace "A/B/C" text prompt with AskUserQuestion
-    - [ ] Use header "Cleanup" (7 chars)
-    - [ ] Options: "Archive" / "Delete" / "Skip cleanup"
-    - [ ] Include descriptions for each option
+- [x] Task: Convert cleanup options prompt to AskUserQuestion
+    - [x] Replace "A/B/C" text prompt with AskUserQuestion
+    - [x] Use header "Cleanup" (7 chars)
+    - [x] Options: "Archive" / "Delete" / "Skip cleanup"
+    - [x] Include descriptions for each option
 
-- [ ] Task: Convert delete confirmation to AskUserQuestion
-    - [ ] Replace "yes/no" with AskUserQuestion
-    - [ ] Use header "Confirm" (7 chars)
-    - [ ] Include WARNING in question text
-    - [ ] Options: "Yes, delete permanently" / "Cancel deletion"
+- [x] Task: Convert delete confirmation to AskUserQuestion
+    - [x] Replace "yes/no" with AskUserQuestion
+    - [x] Use header "Confirm" (7 chars)
+    - [x] Include WARNING in question text
+    - [x] Options: "Yes, delete permanently" / "Cancel deletion"
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 7' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 7' (Protocol in workflow.md)
 
 ## Phase 8: Final Verification
 

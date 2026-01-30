@@ -918,15 +918,24 @@ After recording (or skipping), continue with the task implementation.
 
 1.  **Execution Trigger:** This protocol MUST only be executed after the current track has been successfully implemented and the `SYNCHRONIZE PROJECT DOCUMENTATION` step is complete.
 
-2.  **Ask for User Choice:** You MUST prompt the user with the available options for the completed track.
-    > "Track '<track_description>' is now complete. What would you like to do?
-    > A.  **Archive:** Move the track's folder to `conductor/tracks/archive/` and remove it from the tracks file.
-    > B.  **Delete:** Permanently delete the track's folder and remove it from the tracks file.
-    > C.  **Skip:** Do nothing and leave it in the tracks file.
-    > Please enter the number of your choice (A, B, or C)."
+2.  **Ask for User Choice:** You MUST prompt the user using AskUserQuestion:
+    ```json
+    {
+      "questions": [{
+        "question": "Track '<track_description>' is complete. What would you like to do with it?",
+        "header": "Cleanup",
+        "options": [
+          {"label": "Archive (Recommended)", "description": "Move to archive folder and remove from tracks file"},
+          {"label": "Delete permanently", "description": "Permanently delete the track folder"},
+          {"label": "Skip cleanup", "description": "Leave the track in the tracks file"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
 
 3.  **Handle User Response:**
-    *   **If user chooses "A" (Archive):**
+    *   **If user chooses "Archive":**
         i.   **Archive via CLI:** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement archive <track_id>`
         ii.  The CLI automatically:
              - Creates `conductor/tracks/archive/` if it doesn't exist
@@ -938,16 +947,28 @@ After recording (or skipping), continue with the task implementation.
         iv.  **Remove from Tracks File:** Read the content of `conductor/tracks.md`, remove the entire section for the completed track (the part that starts with `---` and contains the track description), and write the modified content back to the file.
         v.   **Commit Changes:** Stage `conductor/tracks.md` and `conductor/tracks/archive/`. Commit with the message `chore(conductor): Archive track '<track_description>'`.
         vi.  **Announce Success:** Announce: "Track '<track_description>' has been successfully archived."
-    *   **If user chooses "B" (Delete):**
-        i. **CRITICAL WARNING:** Before proceeding, you MUST ask for a final confirmation due to the irreversible nature of the action.
-            > "WARNING: This will permanently delete the track folder and all its contents. This action cannot be undone. Are you sure you want to proceed? (yes/no)"
+    *   **If user chooses "Delete permanently":**
+        i. **CRITICAL WARNING:** Before proceeding, you MUST ask for a final confirmation using AskUserQuestion:
+            ```json
+            {
+              "questions": [{
+                "question": "WARNING: This will permanently delete the track folder and all its contents. This action cannot be undone. Are you sure?",
+                "header": "Confirm",
+                "options": [
+                  {"label": "Yes, delete permanently", "description": "Proceed with irreversible deletion"},
+                  {"label": "Cancel deletion", "description": "Keep the track, do not delete"}
+                ],
+                "multiSelect": false
+              }]
+            }
+            ```
         ii. **Handle Confirmation:**
-            - **If 'yes'**:
+            - **If "Yes, delete permanently"**:
                 a. **Delete Track Folder:** Permanently delete the track's folder from `conductor/tracks/<track_id>`.
                 b. **Remove from Tracks File:** Read the content of `conductor/tracks.md`, remove the entire section for the completed track, and write the modified content back to the file.
                 c. **Commit Changes:** Stage `conductor/tracks.md` and the deletion of `conductor/tracks/<track_id>`. Commit with the message `chore(conductor): Delete track '<track_description>'`.
                 d. **Announce Success:** Announce: "Track '<track_description>' has been permanently deleted."
-            - **If 'no' (or anything else)**:
+            - **If "Cancel deletion"**:
                 a. **Announce Cancellation:** Announce: "Deletion cancelled. The track has not been changed."
-    *   **If user chooses "C" (Skip) or provides any other input:**
+    *   **If user chooses "Skip cleanup":**
         *   Announce: "Okay, the completed track will remain in your tracks file for now."
