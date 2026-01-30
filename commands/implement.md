@@ -63,6 +63,161 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-b
 
 ---
 
+## AskUserQuestion Tool Protocol
+
+**PROTOCOL: Use the AskUserQuestion tool for all interactive user prompts.**
+
+All questions to the user during implementation MUST be asked using the `AskUserQuestion` tool. This provides a structured, consistent user experience with clickable options.
+
+### Tool Structure
+
+```json
+{
+  "questions": [
+    {
+      "question": "The complete question text ending with ?",
+      "header": "Short label",  // Max 12 characters
+      "options": [
+        {"label": "Option label", "description": "What this option means"},
+        {"label": "Another option", "description": "Explanation of this choice"}
+      ],
+      "multiSelect": false  // true if user can select multiple options
+    }
+  ]
+}
+```
+
+### Key Rules
+
+1. **Header Constraint:** Maximum 12 characters (e.g., "Confirm", "Action", "Cleanup")
+2. **Options Constraint:** Minimum 2, maximum 4 options per question
+3. **multiSelect:** Set to `true` for "Additive" questions where multiple selections are valid; `false` for "Exclusive Choice" questions
+4. **Sequential Questions:** Ask one question at a time. Wait for user response before asking the next question
+5. **"Other" Option:** Users can always select "Other" to provide custom text input - do NOT add this as an explicit option
+6. **Recommendations:** When recommending an option, add "(Recommended)" to the label and make it the first option
+
+### Question Type Mapping
+
+| Question Type | multiSelect | Example Use Case |
+|--------------|-------------|------------------|
+| **Additive** (multiple valid answers) | `true` | "Which reasons apply for skipping this issue?" |
+| **Exclusive Choice** (single answer) | `false` | "How would you like to proceed?" |
+| **Approval** (approve/reject) | `false` | "Do you approve these changes?" |
+| **Confirmation** (yes/no with consequence) | `false` | "Are you sure you want to delete?" |
+
+### Standard Option Patterns for implement
+
+**Track Confirmation (Section 2.0):**
+```json
+{
+  "question": "I found track '<track_description>'. Is this the correct track to implement?",
+  "header": "Confirm",
+  "options": [
+    {"label": "Yes, proceed", "description": "Begin implementing this track"},
+    {"label": "No, let me clarify", "description": "I want to select a different track"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Pattern Application (Section 3.0):**
+```json
+{
+  "question": "Relevant patterns detected. How would you like to proceed?",
+  "header": "Patterns",
+  "options": [
+    {"label": "Apply patterns (Recommended)", "description": "Use pattern guidance during implementation"},
+    {"label": "View first", "description": "Show pattern details before deciding"},
+    {"label": "Skip", "description": "Proceed without applying patterns"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Quality Gate Options (Section 3.5):**
+```json
+{
+  "question": "Issues detected during quality analysis. How would you like to proceed?",
+  "header": "Action",
+  "options": [
+    {"label": "Fix issues (Recommended)", "description": "Address the issues and re-run quality gate"},
+    {"label": "Skip with reasons", "description": "Document reasons and proceed anyway"},
+    {"label": "View details", "description": "See anti-pattern details for guidance"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Skip Reason Selection (Section 3.5):**
+```json
+{
+  "question": "Why are you skipping these issues?",
+  "header": "Skip Reason",
+  "options": [
+    {"label": "Intentional design", "description": "The pattern is used deliberately for a specific purpose"},
+    {"label": "Deferred fix", "description": "Will be addressed in a future task or track"},
+    {"label": "False positive", "description": "The detection is incorrect for this context"}
+  ],
+  "multiSelect": true
+}
+```
+
+**Decision Capture (Section 3.6):**
+```json
+{
+  "question": "A significant decision point was detected. Which approach would you like to take?",
+  "header": "Decision",
+  "options": [
+    {"label": "Option A: <name>", "description": "<Brief description with key tradeoffs>"},
+    {"label": "Option B: <name>", "description": "<Brief description with key tradeoffs>"},
+    {"label": "Skip recording", "description": "Proceed without recording this decision"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Documentation Approval (Section 4.0):**
+```json
+{
+  "question": "Do you approve the proposed updates to the <Document Name>?",
+  "header": "Approve",
+  "options": [
+    {"label": "Approve changes", "description": "Apply the proposed updates to the document"},
+    {"label": "Reject changes", "description": "Keep the document unchanged"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Track Cleanup (Section 5.0):**
+```json
+{
+  "question": "Track '<track_description>' is complete. What would you like to do with it?",
+  "header": "Cleanup",
+  "options": [
+    {"label": "Archive (Recommended)", "description": "Move to archive folder and remove from tracks file"},
+    {"label": "Delete permanently", "description": "Permanently delete the track folder"},
+    {"label": "Skip cleanup", "description": "Leave the track in the tracks file"}
+  ],
+  "multiSelect": false
+}
+```
+
+**Delete Confirmation (Section 5.0):**
+```json
+{
+  "question": "WARNING: This will permanently delete the track folder and all its contents. This action cannot be undone. Are you sure?",
+  "header": "Confirm",
+  "options": [
+    {"label": "Yes, delete permanently", "description": "Proceed with irreversible deletion"},
+    {"label": "Cancel deletion", "description": "Keep the track, do not delete"}
+  ],
+  "multiSelect": false
+}
+```
+
+---
+
 ## 1.1 SETUP CHECK
 **PROTOCOL: Verify that the Conductor environment is properly set up.**
 

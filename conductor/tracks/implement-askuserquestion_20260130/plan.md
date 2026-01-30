@@ -2,13 +2,13 @@
 
 ## Phase 1: Add Protocol Documentation
 
-- [ ] Task: Add AskUserQuestion Tool Protocol section to implement.md
-    - [ ] Copy the protocol section from newTrack.md as reference
-    - [ ] Place after the "Fallback Instructions" section
-    - [ ] Include Tool Structure, Key Rules, and Standard Option Patterns
-    - [ ] Adapt examples for implement.md use cases (track selection, quality gate, etc.)
+- [x] Task: Add AskUserQuestion Tool Protocol section to implement.md
+    - [x] Copy the protocol section from newTrack.md as reference
+    - [x] Place after the "Fallback Instructions" section
+    - [x] Include Tool Structure, Key Rules, and Standard Option Patterns
+    - [x] Adapt examples for implement.md use cases (track selection, quality gate, etc.)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Convert Track Selection (Section 2.0)
 
