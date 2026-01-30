@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/rbarcante/claude-conductor/compare/v1.0.0...v1.0.1) (2026-01-30)
+
+
+### Bug Fixes
+
+* **ci:** Sync plugin.json version with releases ([e9f6c0c](https://github.com/rbarcante/claude-conductor/commit/e9f6c0cce9d7224aacc123992aecb7ae1395f1f0))
+* **ci:** Sync plugin.json version with releases, remove redundant VERSION file ([5df5eae](https://github.com/rbarcante/claude-conductor/commit/5df5eae4e8815b7bf4e6b67d98a7c2fef439d3c0))
+
 ## 1.0.0 (2026-01-30)
 
 
