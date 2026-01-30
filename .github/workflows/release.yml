@@ -1,0 +1,52 @@
+# Automatic Semantic Versioning and Changelog Generation
+# Triggers on every push to master/main and creates Release PRs
+# Uses conventional commits to determine version bumps:
+#   - feat: -> minor version bump
+#   - fix: -> patch version bump
+#   - feat!: or fix!: or BREAKING CHANGE -> major version bump
+
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Release Please
+        uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # Use simple release type for non-package projects
+          release-type: simple
+          # Token for creating releases and PRs
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Output release information for downstream jobs
+      - name: Output Release Info
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          echo "Release created: ${{ steps.release.outputs.tag_name }}"
+          echo "Version: ${{ steps.release.outputs.version }}"
+          echo "SHA: ${{ steps.release.outputs.sha }}"
+
+      # Optional: Create additional artifacts or notifications on release
+      - name: Checkout code
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+
+      - name: Post-release actions
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          echo "Release ${{ steps.release.outputs.tag_name }} has been created!"
+          echo "View it at: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release.outputs.tag_name }}"
