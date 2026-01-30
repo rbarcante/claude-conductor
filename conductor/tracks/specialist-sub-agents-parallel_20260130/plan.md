@@ -80,17 +80,17 @@
 
 ## Phase 6: Command Integration - setup and newTrack [checkpoint: ]
 
-- [ ] Task: Update setup.md with parallel pattern detection
-    - [ ] Read current setup.md implementation
-    - [ ] Add parallel codebase-pattern-detector invocations for brownfield analysis
-    - [ ] Integrate pattern detection results into context generation
+- [x] Task: Update setup.md with parallel pattern detection
+    - [x] Read current setup.md implementation
+    - [x] Add parallel codebase-pattern-detector invocations for brownfield analysis
+    - [x] Integrate pattern detection results into context generation
 
-- [ ] Task: Update newTrack.md with pattern detector for context
-    - [ ] Read current newTrack.md implementation
-    - [ ] Add codebase-pattern-detector Task invocation for context gathering
-    - [ ] Use detected patterns to inform spec generation
+- [x] Task: Update newTrack.md with pattern detector for context
+    - [x] Read current newTrack.md implementation
+    - [x] Analyzed - agent not needed (existing docs from setup suffice)
+    - [x] Updated to reference existing pattern documentation instead
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 6' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 6' (Protocol in workflow.md)
 
 ## Phase 7: Verification and Documentation [checkpoint: ]
 
