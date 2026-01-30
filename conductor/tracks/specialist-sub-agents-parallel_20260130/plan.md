@@ -35,21 +35,21 @@
 
 ## Phase 3: Utility Agents [checkpoint: ]
 
-- [ ] Task: Implement git-history-analyst agent
-    - [ ] Write agent definition with YAML frontmatter (name, description, model: haiku, color: cyan)
-    - [ ] Define allowed-tools with pattern-based Bash constraints (git log:*, git show:*, git diff:*, git status:*, git branch:*, git rev-parse:*)
-    - [ ] Write system prompt for commit analysis and revert list building
-    - [ ] Include track/task ID pattern matching
-    - [ ] Specify read-only git operations constraint
+- [x] Task: Implement git-history-analyst agent
+    - [x] Write agent definition with YAML frontmatter (name, description, model: haiku, color: cyan)
+    - [x] Define allowed-tools with pattern-based Bash constraints (git log:*, git show:*, git diff:*, git status:*, git branch:*, git rev-parse:*)
+    - [x] Write system prompt for commit analysis and revert list building
+    - [x] Include track/task ID pattern matching
+    - [x] Specify read-only git operations constraint
 
-- [ ] Task: Implement codebase-pattern-detector agent
-    - [ ] Write agent definition with YAML frontmatter (name, description, model: haiku, color: magenta)
-    - [ ] Define allowed-tools: Read, Glob, Grep
-    - [ ] Write system prompt for architecture and convention detection
-    - [ ] Include naming conventions, testing patterns, API patterns analysis
-    - [ ] Document skill injection placeholder (parent command may inject api-design or other relevant skill)
+- [x] Task: Implement codebase-pattern-detector agent
+    - [x] Write agent definition with YAML frontmatter (name, description, model: haiku, color: magenta)
+    - [x] Define allowed-tools: Read, Glob, Grep
+    - [x] Write system prompt for architecture and convention detection
+    - [x] Include naming conventions, testing patterns, API patterns analysis
+    - [x] Document skill injection placeholder (parent command may inject api-design or other relevant skill)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ## Phase 4: Command Integration - codeReview [checkpoint: ]
 
