@@ -10,6 +10,7 @@ allowed-tools:
   - Glob
   - Grep
   - AskUserQuestion
+  - Task
 ---
 
 # Context
@@ -432,10 +433,92 @@ When user selects this option:
 
 **Protocol Reference:** This section executes the Codebase Analysis Protocol defined in `${CLAUDE_PLUGIN_ROOT}/protocols/codebase-analysis.md`.
 
+#### Execution Methods
+
+You may use either:
+- **Agent Mode:** Launch `codebase-pattern-detector` agent for comprehensive parallel analysis
+- **Inline Mode:** Execute pattern detection directly (fallback if agent unavailable)
+
+Default to **Agent Mode** for faster, more comprehensive analysis.
+
 1.  **Announce Analysis:**
     -   Inform the user: "I will now analyze your codebase to detect established patterns and conventions. This will be used to generate documentation that helps AI assistants understand your project's practices."
 
-2.  **Execute Pattern Detection:**
+#### Agent-Based Pattern Detection (Preferred)
+
+2a. **Launch Pattern Detector Agents in Parallel:**
+
+Send a single message with FOUR Task tool calls to run them concurrently:
+
+```
+Task 1: codebase-pattern-detector (naming-conventions)
+- subagent_type: "codebase-pattern-detector"
+- prompt: {
+    "operation": "naming-conventions",
+    "scope": {
+      "directories": ["src/", "lib/", "app/", "pkg/"],
+      "exclude": ["node_modules/", "dist/", "vendor/", "build/", ".git/"],
+      "file_types": ["<detected from tech stack>"]
+    },
+    "context": {"tech_stack": "<detected tech stack>"}
+  }
+
+Task 2: codebase-pattern-detector (architecture)
+- subagent_type: "codebase-pattern-detector"
+- prompt: {
+    "operation": "architecture",
+    "scope": {...same as above...},
+    "context": {"tech_stack": "<detected tech stack>"}
+  }
+
+Task 3: codebase-pattern-detector (testing-patterns)
+- subagent_type: "codebase-pattern-detector"
+- prompt: {
+    "operation": "testing-patterns",
+    "scope": {...same as above...},
+    "context": {"tech_stack": "<detected tech stack>"}
+  }
+
+Task 4: codebase-pattern-detector (api-conventions)
+- subagent_type: "codebase-pattern-detector"
+- prompt: {
+    "operation": "api-conventions",
+    "scope": {...same as above...},
+    "context": {"tech_stack": "<detected tech stack>"}
+  }
+```
+
+**Merge Agent Results:**
+
+Each agent returns its specific pattern analysis:
+```json
+{
+  "operation": "<specific operation>",
+  "patterns": {
+    "<category>": {...}
+  },
+  "summary": {...},
+  "success": true
+}
+```
+
+Merge the `patterns` objects from all four agents into a combined result for documentation generation.
+
+**Handle Agent Failures:**
+
+If any agent fails:
+1. Log the failure with error details
+2. Fall back to Inline Mode for that specific category only
+3. Continue with results from successful agents
+4. Include partial results in documentation
+
+If agent returns successfully for all categories, skip to Section 2.0.2.1.
+
+If all agents fail, fall back to Inline Mode below.
+
+#### Inline Pattern Detection (Fallback)
+
+2b. **Execute Pattern Detection:**
     For each of the six analysis categories, execute the detection algorithms defined in the protocol:
 
     **Category 1: Code Conventions**

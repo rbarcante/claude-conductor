@@ -136,25 +136,112 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 
 **PROTOCOL: Determine execution strategy for analysis phases.**
 
-1.  **Prompt User for Preference:**
+### 3.1 Prompt User for Preference
 
-    ```json
+```json
+{
+  "questions": [{
+    "question": "How would you like to run the analysis phases?",
+    "header": "Execution",
+    "options": [
+      {"label": "Parallel (Recommended)", "description": "Run all analysis phases simultaneously using specialist agents"},
+      {"label": "Sequential", "description": "Run analysis phases one at a time inline"}
+    ],
+    "multiSelect": false
+  }]
+}
+```
+
+### 3.2 Execute Based on Preference
+
+#### If Parallel Execution Selected
+
+Use the `Task` tool to launch all three specialist agents **simultaneously** in a single message with multiple tool calls.
+
+**Prepare Agent Input:**
+
+Build the input JSON for all agents using the collected diff and context:
+
+```json
+{
+  "diff_content": "<stored diff output from Section 2.3>",
+  "file_list": ["<list of changed files from diff>"],
+  "project_context": {
+    "tech_stack": "<detected from conductor/tech-stack.md or file extensions>",
+    "styleguide_path": "conductor/code_styleguides/<language>.md",
+    "product_guidelines_path": "conductor/product-guidelines.md",
+    "framework": "<detected framework if any>"
+  }
+}
+```
+
+**Include Product Guidelines:**
+
+If `conductor/product-guidelines.md` exists, read and include its relevant sections:
+- Documentation standards (prose style, naming conventions)
+- Code commenting requirements
+- API documentation format
+
+This context enables agents to check compliance with project-specific standards.
+
+**Launch Agents in Parallel:**
+
+You MUST send a single message with THREE Task tool calls to run them concurrently:
+
+```
+Task 1: code-quality-analyzer
+- subagent_type: "code-quality-analyzer"
+- prompt: <input JSON above>
+
+Task 2: security-scanner
+- subagent_type: "security-scanner"
+- prompt: <input JSON above>
+
+Task 3: test-coverage-analyzer
+- subagent_type: "test-coverage-analyzer"
+- prompt: <input JSON above>
+```
+
+**Collect Agent Results:**
+
+Each agent returns structured JSON output:
+
+```json
+{
+  "findings": [
     {
-      "questions": [{
-        "question": "How would you like to run the analysis phases?",
-        "header": "Execution",
-        "options": [
-          {"label": "Parallel (Recommended)", "description": "Run all analysis phases simultaneously for faster results"},
-          {"label": "Sequential", "description": "Run analysis phases one at a time"}
-        ],
-        "multiSelect": false
-      }]
+      "severity": "high|medium|low",
+      "category": "...",
+      "file": "path/to/file",
+      "line": 42,
+      "issue": "...",
+      "recommendation": "..."
     }
-    ```
+  ],
+  "summary": {
+    "high": N,
+    "medium": N,
+    "low": N
+  }
+}
+```
 
-2.  **Execute Based on Preference:**
-    -   **Parallel:** Use the `Task` tool to launch Code Quality, Security, and Test Coverage analysis agents concurrently
-    -   **Sequential:** Execute each analysis phase inline, one after another
+Store the results from each agent for aggregation in Section 7.0.
+
+**Handle Agent Failures:**
+
+If any agent fails:
+1. Log the failure with error details
+2. Fall back to inline analysis for that specific dimension (see Sections 4.0, 5.0, or 6.0)
+3. Continue with results from successful agents
+4. Include partial results note in final report
+
+#### If Sequential Execution Selected
+
+Execute each analysis phase inline:
+1. Code Quality Analysis (Section 4.0)
+2. Security Analysis (Section 5.0)
+3. Test Coverage Analysis (Section 6.0)
 
 ---
 
@@ -300,13 +387,21 @@ Record each finding with:
 
 ### 7.1 Aggregate Findings
 
-1.  **Collect Results:** Gather findings from:
-    -   Code Quality Analysis (Section 4)
-    -   Security Analysis (Section 5)
-    -   Test Coverage Analysis (Section 6)
+1.  **Collect Results:**
+
+    **If Parallel Execution (Agent Results):**
+    - Parse JSON output from each agent
+    - Merge `findings` arrays from:
+      - `code-quality-analyzer` results
+      - `security-scanner` results
+      - `test-coverage-analyzer` results
+    - Sum severity counts from each agent's `summary` object
+
+    **If Sequential Execution (Inline Results):**
+    - Gather findings recorded during Sections 4, 5, and 6
 
 2.  **Count by Severity:**
-    -   High severity findings
+    -   High severity findings (includes "critical" from security-scanner)
     -   Medium severity findings
     -   Low severity findings
 
@@ -393,18 +488,50 @@ Output the report in this structure:
 
 **PROTOCOL: Handle errors gracefully throughout the review process.**
 
-1.  **Git Errors:**
-    -   If git commands fail, provide clear error message
-    -   Suggest common fixes (configure origin, check branch names)
+### 8.1 Git Errors
 
-2.  **File Read Errors:**
-    -   If project context files cannot be read, continue with generic standards
-    -   Log which files were unavailable
+-   If git commands fail, provide clear error message
+-   Suggest common fixes (configure origin, check branch names)
 
-3.  **Analysis Errors:**
-    -   If one analysis phase fails, continue with others
-    -   Include partial results in report with note about incomplete analysis
+### 8.2 File Read Errors
 
-4.  **Timeout Handling:**
-    -   For large diffs (>5000 lines), warn user about extended analysis time
-    -   Consider summarizing instead of line-by-line analysis for very large diffs
+-   If project context files cannot be read, continue with generic standards
+-   Log which files were unavailable
+
+### 8.3 Agent Failures (Parallel Execution)
+
+When using parallel execution with specialist agents:
+
+1.  **Single Agent Failure:**
+    -   Log the agent name and error message
+    -   Fall back to inline analysis for that dimension only
+    -   Continue with results from successful agents
+    -   Add note to report: "⚠️ [Agent Name] analysis ran in fallback mode"
+
+2.  **Multiple Agent Failures:**
+    -   If 2+ agents fail, switch to full sequential execution
+    -   Announce: "Multiple agents failed. Switching to sequential analysis mode."
+    -   Execute Sections 4.0, 5.0, 6.0 inline
+
+3.  **Invalid Agent Output:**
+    -   If agent returns non-JSON or malformed response
+    -   Treat as agent failure (fallback to inline)
+    -   Log the invalid response for debugging
+
+**Fallback Mapping:**
+| Failed Agent | Fallback Section |
+|--------------|------------------|
+| code-quality-analyzer | Section 4.0 |
+| security-scanner | Section 5.0 |
+| test-coverage-analyzer | Section 6.0 |
+
+### 8.4 Analysis Errors (Sequential Execution)
+
+-   If one analysis phase fails, continue with others
+-   Include partial results in report with note about incomplete analysis
+
+### 8.5 Timeout Handling
+
+-   For large diffs (>5000 lines), warn user about extended analysis time
+-   Consider summarizing instead of line-by-line analysis for very large diffs
+-   Agent tasks have built-in timeout handling; if exceeded, fall back to inline
