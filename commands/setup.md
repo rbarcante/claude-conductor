@@ -452,7 +452,7 @@ Send a single message with FOUR Task tool calls to run them concurrently:
 
 ```
 Task 1: codebase-pattern-detector (naming-conventions)
-- subagent_type: "conductor:codebase-pattern-detector"
+- subagent_type: "codebase-pattern-detector"
 - prompt: {
     "operation": "naming-conventions",
     "scope": {
@@ -464,7 +464,7 @@ Task 1: codebase-pattern-detector (naming-conventions)
   }
 
 Task 2: codebase-pattern-detector (architecture)
-- subagent_type: "conductor:codebase-pattern-detector"
+- subagent_type: "codebase-pattern-detector"
 - prompt: {
     "operation": "architecture",
     "scope": {...same as above...},
@@ -472,7 +472,7 @@ Task 2: codebase-pattern-detector (architecture)
   }
 
 Task 3: codebase-pattern-detector (testing-patterns)
-- subagent_type: "conductor:codebase-pattern-detector"
+- subagent_type: "codebase-pattern-detector"
 - prompt: {
     "operation": "testing-patterns",
     "scope": {...same as above...},
@@ -480,7 +480,7 @@ Task 3: codebase-pattern-detector (testing-patterns)
   }
 
 Task 4: codebase-pattern-detector (api-conventions)
-- subagent_type: "conductor:codebase-pattern-detector"
+- subagent_type: "codebase-pattern-detector"
 - prompt: {
     "operation": "api-conventions",
     "scope": {...same as above...},

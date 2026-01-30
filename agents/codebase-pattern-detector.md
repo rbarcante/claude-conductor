@@ -1,5 +1,5 @@
 ---
-name: conductor:codebase-pattern-detector
+name: codebase-pattern-detector
 description: Detect architectural patterns, naming conventions, and coding standards in existing codebases. Use this agent for brownfield analysis during setup or context gathering for new tracks.
 model: haiku
 color: magenta

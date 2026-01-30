@@ -154,7 +154,7 @@ Use the `git-history-analyst` agent for comprehensive commit analysis:
 
 ```
 Task: git-history-analyst
-- subagent_type: "conductor:git-history-analyst"
+- subagent_type: "git-history-analyst"
 - prompt: {
     "operation": "build-revert-list",
     "target": {

@@ -1,5 +1,5 @@
 ---
-name: conductor:code-quality-analyzer
+name: code-quality-analyzer
 description: Analyze code for code smells, style compliance, and maintainability issues. Use this agent for parallel code quality analysis during code review or quality gates.
 model: inherit
 color: blue
