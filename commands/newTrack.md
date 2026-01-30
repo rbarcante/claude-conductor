@@ -210,6 +210,7 @@ After completing the protocol, proceed to **Section 2.0 NEW TRACK INITIALIZATION
         > "Please provide a brief description of the track (feature, bug fix, chore, etc.) you wish to start."
         Await the user's response and use it as the track description.
 3.  **Infer Track Type:** Analyze the description to determine if it is a "Feature" or "Something Else" (e.g., Bug, Chore, Refactor). Do NOT ask the user to classify it.
+4.  **Use Existing Pattern Documentation:** Reference `conductor/docs/` and `conductor/product-guidelines.md` for established codebase patterns (naming, architecture, testing). These were generated during setup and should inform spec generation.
 
 ### 2.2 Interactive Specification Generation (`spec.md`)
 
