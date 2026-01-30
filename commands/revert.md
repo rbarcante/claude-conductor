@@ -9,6 +9,7 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+  - Task
 ---
 
 ## 1.0 SYSTEM DIRECTIVE
@@ -137,6 +138,65 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py revert <subcommand> [args]
 
 ## 3.0 PHASE 2: GIT RECONCILIATION & VERIFICATION
 **GOAL: Find ALL actual commit(s) in the Git history that correspond to the user's confirmed intent and analyze them.**
+
+### Execution Methods
+
+You may use either:
+- **Agent Mode:** Launch `git-history-analyst` agent for comprehensive analysis
+- **CLI Mode:** Use CLI commands for specific operations
+- **Manual Mode:** Direct git commands (fallback)
+
+Default to **Agent Mode** for complex history analysis (e.g., full track reverts with multiple phases/tasks).
+
+### Agent-Based History Analysis (Preferred for Complex Reverts)
+
+Use the `git-history-analyst` agent for comprehensive commit analysis:
+
+```
+Task: git-history-analyst
+- subagent_type: "conductor:git-history-analyst"
+- prompt: {
+    "operation": "build-revert-list",
+    "target": {
+      "type": "track|phase|task",
+      "track_id": "<track_id>",
+      "phase_name": "<if applicable>",
+      "task_name": "<if applicable>"
+    },
+    "options": {
+      "branch": "<current branch>",
+      "include_plan_commits": true
+    }
+  }
+```
+
+The agent returns:
+```json
+{
+  "operation": "build-revert-list",
+  "result": {
+    "commits": [
+      {
+        "sha": "abc1234567890",
+        "short_sha": "abc1234",
+        "message": "feat(ui): Create login form",
+        "type": "implementation",
+        "related_to": "Task: Create login form"
+      }
+    ],
+    "revert_order": ["sha1", "sha2", "sha3"],
+    "warnings": ["any issues detected"],
+    "summary": {...}
+  },
+  "success": true
+}
+```
+
+If agent returns successfully, use the `revert_order` array directly for Phase 3 execution. Skip to Section 4.0.
+
+If agent fails, fall back to CLI or Manual methods below.
+
+### CLI-Based Identification (Standard Method)
 
 1.  **Identify Implementation Commits (CLI-Assisted):**
     *   **Primary Method - Use CLI:**

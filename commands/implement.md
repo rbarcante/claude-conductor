@@ -11,6 +11,7 @@ allowed-tools:
   - Grep
   - TodoWrite
   - AskUserQuestion
+  - Task
 ---
 
 # Context
@@ -249,7 +250,17 @@ If skill registry is missing or no always-active skills exist, proceed silently 
 
 This section runs after task implementation but before the task is marked complete. Follow the **Quality Analysis Protocol** (`protocols/quality-analysis.md`) and **Coverage Intelligence Protocol** (`protocols/coverage-intelligence.md`).
 
-### Step 1: Run Anti-Pattern Detection
+### Step 0: Choose Execution Mode
+
+For quality gate analysis, you may use either:
+- **Parallel Agent Mode:** Launch specialist agents for faster concurrent analysis
+- **Inline Mode:** Perform analysis directly (fallback if agents unavailable)
+
+Default to **Parallel Agent Mode** for efficiency.
+
+### Step 1: Run Quality Analysis
+
+#### Parallel Agent Mode (Preferred)
 
 1.  **Identify Modified Files via CLI:**
     -   Execute: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement modified-files`
@@ -269,6 +280,51 @@ This section runs after task implementation but before the task is marked comple
     -   **If CLI fails:** Fall back to `git diff --name-only HEAD~1` and `git status --porcelain`
     -   Filter to include only code files (exclude `.md`, `.json`, `.yaml`, etc.)
 
+2.  **Generate Diff Content:**
+    -   Execute: `git diff HEAD` to get diff of all modified files
+    -   Store for agent input
+
+3.  **Prepare Agent Input:**
+    ```json
+    {
+      "diff_content": "<diff output>",
+      "file_list": ["<list of modified code files>"],
+      "project_context": {
+        "tech_stack": "<from conductor/tech-stack.md>",
+        "styleguide_path": "conductor/code_styleguides/<language>.md",
+        "product_guidelines_path": "conductor/product-guidelines.md"
+      }
+    }
+    ```
+
+4.  **Launch Analysis Agents in Parallel:**
+
+    Send a single message with TWO Task tool calls:
+
+    ```
+    Task 1: code-quality-analyzer
+    - subagent_type: "conductor:code-quality-analyzer"
+    - prompt: <input JSON>
+
+    Task 2: security-scanner
+    - subagent_type: "conductor:security-scanner"
+    - prompt: <input JSON>
+    ```
+
+5.  **Collect and Merge Results:**
+    -   Parse JSON output from each agent
+    -   Merge findings arrays
+    -   Sum severity counts
+
+6.  **Handle Agent Failures:**
+    -   If an agent fails, fall back to inline detection for that category
+    -   Code quality failure → Fall back to Step 1 (Inline Mode) subsection 2-4
+    -   Security failure → Fall back to Step 1 (Inline Mode) subsection 5 (manual security check)
+
+#### Inline Mode (Fallback)
+
+1.  **Identify Modified Files via CLI:** (same as above)
+
 2.  **Load Applicable Anti-Patterns:**
     -   Read `patterns/anti-patterns/index.md` to get list of anti-patterns
     -   For each modified file, load anti-patterns matching the file extension
@@ -282,6 +338,11 @@ This section runs after task implementation but before the task is marked comple
 4.  **Report Findings:**
     -   Group findings by severity (critical, high, medium)
     -   Display using the Quality Gate Output Format (see below)
+
+5.  **Manual Security Check (if security agent failed):**
+    -   Scan for hardcoded secrets patterns
+    -   Check for injection vulnerability patterns
+    -   Review authentication/authorization code
 
 ### Step 2: Run Coverage Intelligence (if coverage report exists)
 

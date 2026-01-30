@@ -65,18 +65,18 @@
 
 ## Phase 5: Command Integration - implement and revert [checkpoint: ]
 
-- [ ] Task: Update implement.md with quality gate sub-agent calls
-    - [ ] Read current implement.md implementation
-    - [ ] Add quality gate checkpoint using analysis agents
-    - [ ] Integrate git-history-analyst for commit tracking
-    - [ ] Add error handling for agent failures
+- [x] Task: Update implement.md with quality gate sub-agent calls
+    - [x] Read current implement.md implementation
+    - [x] Add quality gate checkpoint using analysis agents
+    - [x] Integrate git-history-analyst for commit tracking (deferred - more applicable in revert)
+    - [x] Add error handling for agent failures
 
-- [ ] Task: Update revert.md with git-history-analyst
-    - [ ] Read current revert.md implementation
-    - [ ] Add git-history-analyst Task invocation for commit identification
-    - [ ] Integrate revert list building from agent output
+- [x] Task: Update revert.md with git-history-analyst
+    - [x] Read current revert.md implementation
+    - [x] Add git-history-analyst Task invocation for commit identification
+    - [x] Integrate revert list building from agent output
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
 
 ## Phase 6: Command Integration - setup and newTrack [checkpoint: ]
 
