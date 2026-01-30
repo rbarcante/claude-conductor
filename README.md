@@ -1,6 +1,7 @@
 # Claude Conductor for Claude Code
 
 [![CI](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml/badge.svg)](https://github.com/rbarcante/claude-conductor/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/rbarcante/claude-conductor)](https://github.com/rbarcante/claude-conductor/releases/latest)
 
 **Measure twice, code once.**
 
