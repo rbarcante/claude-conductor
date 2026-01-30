@@ -1,6 +1,6 @@
 # Implementation Plan: Specialist Sub-Agents for Claude Conductor
 
-## Phase 1: Agent Directory Structure and First Agent [checkpoint: ]
+## Phase 1: Agent Directory Structure and First Agent [checkpoint: 7285f00]
 
 - [x] Task: Create agents directory structure
     - [x] Create `agents/` directory at plugin root
@@ -13,7 +13,7 @@
     - [x] Include code smell detection, style compliance, and maintainability analysis focus
     - [x] Document skill injection placeholder (parent command injects relevant language skill based on detected stack)
 
-- [~] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Analysis Agents [checkpoint: ]
 
