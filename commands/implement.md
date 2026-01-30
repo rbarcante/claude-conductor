@@ -245,7 +245,22 @@ All questions to the user during implementation MUST be asked using the `AskUser
 4.  **Select Track:**
     -   **If a track name was provided:**
         1.  Perform an exact, case-insensitive match for the provided name against the track descriptions from the parsed data.
-        2.  If a unique match is found, confirm the selection with the user: "I found track '<track_description>'. Is this correct?"
+        2.  If a unique match is found, confirm the selection using AskUserQuestion:
+            ```json
+            {
+              "questions": [{
+                "question": "I found track '<track_description>'. Is this the correct track to implement?",
+                "header": "Confirm",
+                "options": [
+                  {"label": "Yes, proceed", "description": "Begin implementing this track"},
+                  {"label": "No, let me clarify", "description": "I want to select a different track"}
+                ],
+                "multiSelect": false
+              }]
+            }
+            ```
+            - **If "Yes, proceed":** Continue with this track
+            - **If "No, let me clarify":** Ask for clarification and suggest the next available track
         3.  If no match is found, or if the match is ambiguous, inform the user and ask for clarification. Suggest the next available track as below.
     -   **If no track name was provided (or if the previous step failed):**
         1.  **Identify Next Track:** From the parsed tracks, find the first track where `status` is NOT `completed`.
