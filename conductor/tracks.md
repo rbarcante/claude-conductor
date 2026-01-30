@@ -60,7 +60,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
-- [ ] **Track: Implement AskUserQuestion standardization in implement.md**
+- [x] **Track: Implement AskUserQuestion standardization in implement.md**
   *Link: [implement-askuserquestion_20260130](./conductor/tracks/implement-askuserquestion_20260130/)*
 - [x] **Track: Specialist sub-agents for parallel analysis**
   *Link: [specialist-sub-agents-parallel_20260130](./conductor/tracks/specialist-sub-agents-parallel_20260130/)*
