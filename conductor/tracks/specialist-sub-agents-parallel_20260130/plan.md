@@ -17,21 +17,21 @@
 
 ## Phase 2: Analysis Agents [checkpoint: ]
 
-- [ ] Task: Implement security-scanner agent
-    - [ ] Write agent definition with YAML frontmatter (name, description, model: inherit, color: red)
-    - [ ] Define allowed-tools: Read, Glob, Grep
-    - [ ] Write system prompt for security vulnerability detection
-    - [ ] Include hardcoded secrets, injection risks, OWASP patterns
-    - [ ] Specify JSON output contract with severity levels
+- [x] Task: Implement security-scanner agent
+    - [x] Write agent definition with YAML frontmatter (name, description, model: inherit, color: red)
+    - [x] Define allowed-tools: Read, Glob, Grep
+    - [x] Write system prompt for security vulnerability detection
+    - [x] Include hardcoded secrets, injection risks, OWASP patterns
+    - [x] Specify JSON output contract with severity levels
 
-- [ ] Task: Implement test-coverage-analyzer agent
-    - [ ] Write agent definition with YAML frontmatter (name, description, model: haiku, color: green)
-    - [ ] Define allowed-tools: Read, Glob, Grep
-    - [ ] Write system prompt for test coverage analysis
-    - [ ] Include test-to-source file mapping logic
-    - [ ] Document skill injection placeholder (parent command may inject testing-strategies or other relevant skill)
+- [x] Task: Implement test-coverage-analyzer agent
+    - [x] Write agent definition with YAML frontmatter (name, description, model: haiku, color: green)
+    - [x] Define allowed-tools: Read, Glob, Grep
+    - [x] Write system prompt for test coverage analysis
+    - [x] Include test-to-source file mapping logic
+    - [x] Document skill injection placeholder (parent command may inject testing-strategies or other relevant skill)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ## Phase 3: Utility Agents [checkpoint: ]
 
