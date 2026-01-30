@@ -834,8 +834,22 @@ After recording (or skipping), continue with the task implementation.
             > ```diff
             > [Proposed changes here, ideally in a diff format]
             > ```
-            > "Do you approve these changes? (yes/no)"
-        iii. **Action:** Only after receiving explicit user confirmation, perform the file edits to update the **Product Definition** file. Keep a record of whether this file was changed.
+
+            Use AskUserQuestion for approval:
+            ```json
+            {
+              "questions": [{
+                "question": "Do you approve the proposed updates to the Product Definition?",
+                "header": "Approve",
+                "options": [
+                  {"label": "Approve changes", "description": "Apply the proposed updates to the document"},
+                  {"label": "Reject changes", "description": "Keep the document unchanged"}
+                ],
+                "multiSelect": false
+              }]
+            }
+            ```
+        iii. **Action:** Only after user selects "Approve changes", perform the file edits to update the **Product Definition** file. Keep a record of whether this file was changed.
     c.  **Update Tech Stack:**
         i. **Condition for Update:** Similarly, you MUST determine if significant changes in the technology stack are detected as a result of the completed track.
         ii. **Propose and Confirm Changes:** If an update is needed, generate the proposed changes. Then, present them to the user for confirmation:
@@ -843,8 +857,22 @@ After recording (or skipping), continue with the task implementation.
             > ```diff
             > [Proposed changes here, ideally in a diff format]
             > ```
-            > "Do you approve these changes? (yes/no)"
-        iii. **Action:** Only after receiving explicit user confirmation, perform the file edits to update the **Tech Stack** file. Keep a record of whether this file was changed.
+
+            Use AskUserQuestion for approval:
+            ```json
+            {
+              "questions": [{
+                "question": "Do you approve the proposed updates to the Tech Stack?",
+                "header": "Approve",
+                "options": [
+                  {"label": "Approve changes", "description": "Apply the proposed updates to the document"},
+                  {"label": "Reject changes", "description": "Keep the document unchanged"}
+                ],
+                "multiSelect": false
+              }]
+            }
+            ```
+        iii. **Action:** Only after user selects "Approve changes", perform the file edits to update the **Tech Stack** file. Keep a record of whether this file was changed.
     d. **Update Product Guidelines (Strictly Controlled):**
         i. **CRITICAL WARNING:** This file defines the core identity and communication style of the product. It should be modified with extreme caution and ONLY in cases of significant strategic shifts, such as a product rebrand or a fundamental change in user engagement philosophy. Routine feature updates or bug fixes should NOT trigger changes to this file.
         ii. **Condition for Update:** You may ONLY propose an update to this file if the track's **Specification** explicitly describes a change that directly impacts branding, voice, tone, or other core product guidelines.
@@ -853,8 +881,22 @@ After recording (or skipping), continue with the task implementation.
             > ```diff
             > [Proposed changes here, ideally in a diff format]
             > ```
-            > "Do you approve these critical changes to the **Product Guidelines**? (yes/no)"
-        iv. **Action:** Only after receiving explicit user confirmation, perform the file edits. Keep a record of whether this file was changed.
+
+            Use AskUserQuestion for approval (with warning in question):
+            ```json
+            {
+              "questions": [{
+                "question": "WARNING: Do you approve these critical changes to the Product Guidelines? This affects core product identity.",
+                "header": "Approve",
+                "options": [
+                  {"label": "Approve critical changes", "description": "Apply the proposed updates to Product Guidelines"},
+                  {"label": "Reject changes", "description": "Keep the Product Guidelines unchanged"}
+                ],
+                "multiSelect": false
+              }]
+            }
+            ```
+        iv. **Action:** Only after user selects "Approve critical changes", perform the file edits. Keep a record of whether this file was changed.
 
 6.  **Final Report:** Announce the completion of the synchronization process and provide a summary of the actions taken.
     - **Construct the Message:** Based on the records of which files were changed, construct a summary message.
