@@ -2,18 +2,18 @@
 
 ## Phase 1: Agent Directory Structure and First Agent [checkpoint: ]
 
-- [ ] Task: Create agents directory structure
-    - [ ] Create `agents/` directory at plugin root
-    - [ ] Verify directory is created successfully
+- [x] Task: Create agents directory structure
+    - [x] Create `agents/` directory at plugin root
+    - [x] Verify directory is created successfully
 
-- [ ] Task: Implement code-quality-analyzer agent
-    - [ ] Write agent definition with YAML frontmatter (name, description, model: inherit, color: blue)
-    - [ ] Define allowed-tools: Read, Glob, Grep
-    - [ ] Write system prompt specifying input/output JSON contract
-    - [ ] Include code smell detection, style compliance, and maintainability analysis focus
-    - [ ] Document skill injection placeholder (parent command injects relevant language skill based on detected stack)
+- [x] Task: Implement code-quality-analyzer agent
+    - [x] Write agent definition with YAML frontmatter (name, description, model: inherit, color: blue)
+    - [x] Define allowed-tools: Read, Glob, Grep
+    - [x] Write system prompt specifying input/output JSON contract
+    - [x] Include code smell detection, style compliance, and maintainability analysis focus
+    - [x] Document skill injection placeholder (parent command injects relevant language skill based on detected stack)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Analysis Agents [checkpoint: ]
 
