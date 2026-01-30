@@ -190,15 +190,15 @@ You MUST send a single message with THREE Task tool calls to run them concurrent
 
 ```
 Task 1: code-quality-analyzer
-- subagent_type: "conductor:code-quality-analyzer"
+- subagent_type: "code-quality-analyzer"
 - prompt: <input JSON above>
 
 Task 2: security-scanner
-- subagent_type: "conductor:security-scanner"
+- subagent_type: "security-scanner"
 - prompt: <input JSON above>
 
 Task 3: test-coverage-analyzer
-- subagent_type: "conductor:test-coverage-analyzer"
+- subagent_type: "test-coverage-analyzer"
 - prompt: <input JSON above>
 ```
 

@@ -1,5 +1,5 @@
 ---
-name: conductor:git-history-analyst
+name: git-history-analyst
 description: Analyze git history to find commits by track/task ID, build revert lists, and understand commit patterns. Use this agent for git history analysis during revert operations or commit tracking.
 model: haiku
 color: cyan
