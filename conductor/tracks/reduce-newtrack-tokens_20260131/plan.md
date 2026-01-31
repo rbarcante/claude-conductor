@@ -2,11 +2,40 @@
 
 ## Summary
 
-This plan addresses token optimization through modularization, consolidation, and lazy loading strategies. The goal is a 50% reduction in context tokens for the newTrack workflow.
+This plan addresses token optimization through modularization and lazy loading strategies. The primary target is reducing `implement.md` (684 lines) which is loaded when user runs implement after clearing context.
+
+**Key Insight**: User workflow is `newTrack → clean context → implement`. The implement command must reload everything from scratch.
 
 ---
 
-# Phase 1: Modularize CLAUDE.md
+# Phase 1: Modularize implement.md (HIGHEST PRIORITY)
+
+**Goal**: Extract inline protocols from implement.md (684 lines → <250 lines)
+
+- [ ] Task: Extract Quality Gate Protocol to separate file
+    - [ ] Create `protocols/quality-gate.md` with full quality gate content (lines 248-459)
+    - [ ] Include parallel agent mode and inline mode instructions
+    - [ ] Include quality gate output format
+
+- [ ] Task: Refactor implement.md section 3.5 QUALITY GATE
+    - [ ] Replace ~211 lines of inline protocol with 15-line summary
+    - [ ] Add reference: "Follow protocol in `protocols/quality-gate.md`"
+    - [ ] Keep only essential trigger conditions and output format
+
+- [ ] Task: Refactor implement.md section 3.6 DECISION CAPTURE
+    - [ ] Protocol already exists at `protocols/decision-capture.md`
+    - [ ] Replace ~111 lines with 10-line summary + reference
+    - [ ] Keep only decision point triggers
+
+- [ ] Task: Condense implement.md sections 4.0 and 5.0
+    - [ ] Documentation Sync: reduce verbose examples (~58 lines → ~20 lines)
+    - [ ] Track Cleanup: reduce verbose prompts (~38 lines → ~15 lines)
+
+- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+
+---
+
+# Phase 2: Modularize CLAUDE.md
 
 **Goal**: Extract verbose protocols to separate files, keeping CLAUDE.md as a lightweight pointer.
 
@@ -21,11 +50,11 @@ This plan addresses token optimization through modularization, consolidation, an
     - [ ] Keep Universal File Resolution Protocol (essential, 41 lines)
     - [ ] Target: CLAUDE.md < 150 lines
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ---
 
-# Phase 2: Condense newTrack.md Command
+# Phase 3: Condense newTrack.md Command
 
 **Goal**: Reduce repetitive content in the command definition.
 
@@ -40,16 +69,11 @@ This plan addresses token optimization through modularization, consolidation, an
     - [ ] Remove repeated JSON structures (8+ occurrences → 1 reference)
     - [ ] Target: newTrack.md < 300 lines
 
-- [ ] Task: Consolidate setup check with context loading
-    - [ ] Combine sections 1.1 and 2.1 to avoid duplicate file reads
-    - [ ] Pass resolved context to subsequent phases
-    - [ ] Document which files are read once vs repeatedly
-
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ---
 
-# Phase 3: Optimize conductor-methodology Skill
+# Phase 4: Optimize conductor-methodology Skill
 
 **Goal**: Create lightweight summary for always-active loading.
 
@@ -68,29 +92,6 @@ This plan addresses token optimization through modularization, consolidation, an
     - [ ] Load SKILL-SUMMARY.md by default for always-active skills
     - [ ] Load full SKILL.md only when task requires detailed guidance
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
-
----
-
-# Phase 4: Reduce Redundant File Reads
-
-**Goal**: Ensure each context file is read only once per workflow.
-
-- [ ] Task: Audit newTrack.md for redundant reads
-    - [ ] Map all file read operations in the workflow
-    - [ ] Identify files read multiple times (workflow.md, product.md, etc.)
-    - [ ] Document actual read count vs necessary read count
-
-- [ ] Task: Refactor workflow.md read pattern
-    - [ ] Read workflow.md once during setup check
-    - [ ] Extract "Phase Completion Protocol exists" flag
-    - [ ] Pass flag to plan generation (avoid re-read)
-
-- [ ] Task: Document context passing strategy
-    - [ ] Add section to newTrack.md explaining context reuse
-    - [ ] Specify which values should be cached between phases
-    - [ ] Update protocol to pass context explicitly
-
 - [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
 ---
@@ -106,14 +107,13 @@ This plan addresses token optimization through modularization, consolidation, an
 
 - [ ] Task: Manual testing of workflows
     - [ ] Test newTrack command with feature description
-    - [ ] Test newTrack command with bug description
-    - [ ] Verify spec and plan generation quality unchanged
     - [ ] Test implement command with generated track
+    - [ ] Verify quality gates still work
+    - [ ] Verify decision capture still works
 
 - [ ] Task: Update documentation
-    - [ ] Add optimization notes to CLAUDE.md header
-    - [ ] Document new file structure in conductor/index.md
-    - [ ] Create summary of changes for maintainers
+    - [ ] Document new protocol reference pattern
+    - [ ] Update conductor/index.md with new files
 
 - [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
 
@@ -123,8 +123,8 @@ This plan addresses token optimization through modularization, consolidation, an
 
 | Metric | Baseline | Target | Actual |
 |--------|----------|--------|--------|
+| **implement.md lines** | **684** | **< 250** | TBD |
 | CLAUDE.md lines | 339 | < 150 | TBD |
 | newTrack.md lines | 544 | < 300 | TBD |
 | conductor-methodology summary | 283 | < 50 | TBD |
-| workflow.md reads per newTrack | 2+ | 1 | TBD |
-| Total context lines (newTrack) | ~3,000 | ~1,500 | TBD |
+| **Total implement context** | **~2,500** | **~1,200** | TBD |
