@@ -7,6 +7,7 @@
       "version": "1.0.0",
       "path": "./conductor-methodology",
       "description": "Core Conductor development methodology and context-driven principles",
+      "summary_available": true,
       "activation": {
         "always_active": true
       },
