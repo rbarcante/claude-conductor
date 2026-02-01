@@ -53,116 +53,28 @@ Valid types: `feature` (default), `bugfix`, `refactor`, `docs`, `chore`
 
 **PROTOCOL: Use the AskUserQuestion tool for all interactive user prompts.**
 
-All questions to the user during track creation MUST be asked using the `AskUserQuestion` tool. This provides a structured, consistent user experience with clickable options.
+**Full Pattern Reference:** `templates/askuserquestion-patterns.md`
 
-### Tool Structure
+### Quick Reference
 
-```json
-{
-  "questions": [
-    {
-      "question": "The complete question text ending with ?",
-      "header": "Short label",  // Max 12 characters
-      "options": [
-        {"label": "Option label", "description": "What this option means"},
-        {"label": "Another option", "description": "Explanation of this choice"}
-      ],
-      "multiSelect": false  // true if user can select multiple options
-    }
-  ]
-}
-```
+| Rule | Constraint |
+|------|------------|
+| Header | Max 12 characters |
+| Options | 2-4 per question |
+| Sequential | One question at a time |
+| multiSelect | `true` for additive, `false` for exclusive |
 
-### Key Rules
+### Question Types
 
-1. **Header Constraint:** Maximum 12 characters (e.g., "Interaction", "Data", "Scope")
-2. **Options Constraint:** Minimum 2, maximum 4 options per question
-3. **multiSelect:** Set to `true` for "Additive" questions where multiple selections are valid; `false` for "Exclusive Choice" questions
-4. **Sequential Questions:** Ask one question at a time. Wait for user response before asking the next question
-5. **"Other" Option:** Users can always select "Other" to provide custom text input - do NOT add this as an explicit option
-6. **Recommendations:** When recommending an option, add "(Recommended)" to the label and make it the first option
+| Type | multiSelect | Use Case |
+|------|-------------|----------|
+| Additive | `true` | Multiple valid answers (capabilities, features) |
+| Exclusive | `false` | Single answer (interaction type, approach) |
+| Approval | `false` | Confirm/change decisions |
 
-### Question Type Mapping
+### Auto-Generate Behavior
 
-| Question Type | multiSelect | Example Use Case |
-|--------------|-------------|------------------|
-| **Additive** (multiple valid answers) | `true` | "Which capabilities should this feature include?" |
-| **Exclusive Choice** (single answer) | `false` | "How should users interact with this feature?" |
-| **Approval** (approve/change) | `false` | "Does this specification capture the requirements?" |
-
-### Standard Option Patterns for newTrack
-
-**Approval Questions (Spec/Plan Review):**
-```json
-{
-  "question": "Does this specification accurately capture the requirements?",
-  "header": "Review",
-  "options": [
-    {"label": "Approve", "description": "The document is correct, proceed to next step"},
-    {"label": "Suggest changes", "description": "I want to modify some parts"}
-  ],
-  "multiSelect": false
-}
-```
-
-**Feature Interaction Type (Exclusive):**
-```json
-{
-  "question": "How will users primarily interact with this feature?",
-  "header": "Interaction",
-  "options": [
-    {"label": "UI component", "description": "Visual interface element (button, form, page)"},
-    {"label": "API endpoint", "description": "Backend service or REST/GraphQL endpoint"},
-    {"label": "CLI command", "description": "Command-line interface operation"},
-    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-  ],
-  "multiSelect": false
-}
-```
-
-**Feature Capabilities (Additive):**
-```json
-{
-  "question": "Which capabilities should this feature include?",
-  "header": "Capabilities",
-  "options": [
-    {"label": "Create/Add", "description": "Ability to create new items"},
-    {"label": "Read/View", "description": "Ability to view existing items"},
-    {"label": "Update/Edit", "description": "Ability to modify existing items"},
-    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-  ],
-  "multiSelect": true
-}
-```
-
-**Bug Reproduction (Additive):**
-```json
-{
-  "question": "Which details are available for this bug?",
-  "header": "Bug Info",
-  "options": [
-    {"label": "Steps to reproduce", "description": "I can provide exact reproduction steps"},
-    {"label": "Error message", "description": "I have the error message or stack trace"},
-    {"label": "Expected behavior", "description": "I know what should happen instead"},
-    {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-  ],
-  "multiSelect": true
-}
-```
-
-### Auto-Generate Option
-
-For interactive specification and plan generation, always include an auto-generate option as the last choice:
-
-```json
-{"label": "Auto-generate", "description": "Infer from context and generate the document"}
-```
-
-When user selects this option:
-1. Stop asking questions immediately
-2. Use gathered answers and project context to infer remaining details
-3. Generate the complete document (spec or plan)
-4. Present for review using an Approval question
+When user selects "Auto-generate": stop asking questions, use context to infer remaining details, generate document, present for approval.
 
 ---
 
@@ -214,330 +126,51 @@ After completing the protocol, proceed to **Section 2.0 NEW TRACK INITIALIZATION
 
 ### 2.2 Interactive Specification Generation (`spec.md`)
 
-1.  **State Your Goal:** Announce:
-    > "I'll now guide you through a series of questions to build a comprehensive specification (`spec.md`) for this track."
+**Pattern Examples:** See `templates/askuserquestion-patterns.md` for full JSON examples.
 
-2.  **Questioning Phase:** Ask a series of questions to gather details for the `spec.md`. Tailor questions based on the track type (Feature or Other). **All questions MUST use the AskUserQuestion tool** as defined in the **AskUserQuestion Tool Protocol** section above.
+1.  **Announce Goal:** "I'll now guide you through questions to build a specification for this track."
 
-    *   **General Guidelines:**
-        *   **CRITICAL:** You MUST ask questions sequentially (one by one) using the AskUserQuestion tool. Do not ask multiple questions in a single turn. Wait for the user's response after each question.
-        *   Refer to information in **Product Definition**, **Tech Stack**, etc., to ask context-aware questions.
-        *   Before formulating each question, classify its purpose:
-            *   **Additive** (`multiSelect: true`): For scope definition (capabilities, features, requirements)
-            *   **Exclusive Choice** (`multiSelect: false`): For singular decisions (interaction type, primary approach)
-        *   **Always include "Auto-generate" as the last option** - when selected, stop asking questions and generate the spec from gathered context.
-        *   Follow the key rules from the AskUserQuestion Tool Protocol (header max 12 chars, 2-4 options).
+2.  **Questioning Phase:**
+    -   Ask questions **sequentially** using AskUserQuestion tool
+    -   Refer to **Product Definition**, **Tech Stack** for context-aware questions
+    -   Always include "Auto-generate" as the last option
+    -   **FEATURE:** Ask 3-5 questions (interaction type, capabilities, data flow)
+    -   **BUG/OTHER:** Ask 2-3 questions (reproduction steps, success criteria)
 
-    *   **If FEATURE:**
-        *   **Ask 3-5 relevant questions** to clarify the feature request.
-        *   Tailor questions to what's missing from the description (UI, logic, data flow, etc.).
+3.  **Draft `spec.md`:** Include Overview, Functional Requirements, Non-Functional Requirements, Acceptance Criteria, Out of Scope.
 
-        **Example: Interaction Type Question (Exclusive):**
-        ```json
-        {
-          "questions": [{
-            "question": "How will users primarily interact with this feature?",
-            "header": "Interaction",
-            "options": [
-              {"label": "UI component", "description": "Visual interface element (button, form, page)"},
-              {"label": "API endpoint", "description": "Backend service or REST/GraphQL endpoint"},
-              {"label": "CLI command", "description": "Command-line interface operation"},
-              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-            ],
-            "multiSelect": false
-          }]
-        }
-        ```
-
-        **Example: Capability Selection Question (Additive):**
-        ```json
-        {
-          "questions": [{
-            "question": "Which capabilities should this feature include?",
-            "header": "Capabilities",
-            "options": [
-              {"label": "Create/Add", "description": "Ability to create new items"},
-              {"label": "Read/View", "description": "Ability to view existing items"},
-              {"label": "Update/Edit", "description": "Ability to modify existing items"},
-              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-            ],
-            "multiSelect": true
-          }]
-        }
-        ```
-
-        **Example: Data/Input Question (Additive):**
-        ```json
-        {
-          "questions": [{
-            "question": "What data or inputs does this feature need to handle?",
-            "header": "Data",
-            "options": [
-              {"label": "User input", "description": "Form fields, text entry, selections"},
-              {"label": "External API", "description": "Data from third-party services"},
-              {"label": "Database", "description": "Stored records and relationships"},
-              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-            ],
-            "multiSelect": true
-          }]
-        }
-        ```
-
-    *   **If SOMETHING ELSE (Bug, Chore, etc.):**
-        *   **Ask 2-3 relevant questions** to obtain necessary details.
-
-        **Example: Bug Information Question (Additive):**
-        ```json
-        {
-          "questions": [{
-            "question": "Which details are available for this bug?",
-            "header": "Bug Info",
-            "options": [
-              {"label": "Steps to reproduce", "description": "I can provide exact reproduction steps"},
-              {"label": "Error message", "description": "I have the error message or stack trace"},
-              {"label": "Expected behavior", "description": "I know what should happen instead"},
-              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-            ],
-            "multiSelect": true
-          }]
-        }
-        ```
-
-        **Example: Scope/Success Criteria Question (Additive):**
-        ```json
-        {
-          "questions": [{
-            "question": "What defines success for this task?",
-            "header": "Success",
-            "options": [
-              {"label": "Specific files changed", "description": "I know exactly which files need modification"},
-              {"label": "Test passes", "description": "Existing or new tests should pass"},
-              {"label": "Behavior change", "description": "Observable change in application behavior"},
-              {"label": "Auto-generate", "description": "Infer from context and generate the spec"}
-            ],
-            "multiSelect": true
-          }]
-        }
-        ```
-
-    *   **Auto-Generate Behavior:** If the user selects "Auto-generate" at any point:
-        1. Stop asking questions immediately
-        2. Use all gathered answers plus project context (**Product Definition**, **Tech Stack**) to infer remaining details
-        3. Generate the complete `spec.md` document
-        4. Present for review using the Approval pattern (step 4)
-
-3.  **Draft `spec.md`:** Once sufficient information is gathered (or auto-generate selected), draft the content for the track's `spec.md` file, including sections like Overview, Functional Requirements, Non-Functional Requirements (if any), Acceptance Criteria, and Out of Scope.
-
-4.  **User Confirmation:** Present the drafted `spec.md` content to the user and use the AskUserQuestion tool for approval:
-
-    > "I've drafted the specification for this track. Please review:"
-    >
-    > ```markdown
-    > [Drafted spec.md content here]
-    > ```
-
-    **Use AskUserQuestion for approval:**
-    ```json
-    {
-      "questions": [{
-        "question": "Does this specification accurately capture the requirements?",
-        "header": "Review",
-        "options": [
-          {"label": "Approve", "description": "The specification is correct, proceed to plan generation"},
-          {"label": "Suggest changes", "description": "I want to modify some parts before proceeding"}
-        ],
-        "multiSelect": false
-      }]
-    }
-    ```
-
-    **Handle Response:**
-    *   **If "Approve":** Proceed to Section 2.3 (Interactive Plan Generation)
-    *   **If "Suggest changes":** Ask the user what changes they want, revise the spec, and present for approval again
+4.  **User Confirmation:** Present draft and use Approval pattern (Approve/Suggest changes)
+    -   **Approve:** Proceed to Section 2.3
+    -   **Suggest changes:** Revise and present again
 
 ### 2.3 Interactive Plan Generation (`plan.md`)
 
-1.  **State Your Goal:** Once `spec.md` is approved, announce:
-    > "Now I will create an implementation plan (plan.md) based on the specification."
+1.  **Announce Goal:** "Now I will create an implementation plan based on the specification."
 
 2.  **Generate Plan:**
-    *   Read the confirmed `spec.md` content for this track.
-    *   Resolve and read the **Workflow** file (via the **Universal File Resolution Protocol** using the project's index file).
-    *   Generate a `plan.md` with a hierarchical list of Phases, Tasks, and Sub-tasks.
-    *   **CRITICAL:** The plan structure MUST adhere to the methodology in the **Workflow** file (e.g., TDD tasks for "Write Tests" and "Implement").
-    *   Include status markers `[ ]` for **EVERY** task and sub-task. The format must be:
-        - Parent Task: `- [ ] Task: ...`
-        - Sub-task: `    - [ ] ...`
-    *   **CRITICAL: Inject Phase Completion Tasks.** Determine if a "Phase Completion Verification and Checkpointing Protocol" is defined in the **Workflow**. If this protocol exists, then for each **Phase** that you generate in `plan.md`, you MUST append a final meta-task to that phase. The format for this meta-task is: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
+    -   Read confirmed `spec.md` and **Workflow** file
+    -   Generate hierarchical structure: Phases → Tasks → Sub-tasks
+    -   Include status markers `[ ]` for every task
+    -   **CRITICAL:** Adhere to **Workflow** methodology (TDD structure)
+    -   **CRITICAL:** Append verification task to each phase: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`
 
-3.  **User Confirmation:** Present the drafted `plan.md` to the user and use the AskUserQuestion tool for approval:
-
-    > "I've drafted the implementation plan. Please review:"
-    >
-    > ```markdown
-    > [Drafted plan.md content here]
-    > ```
-
-    **Use AskUserQuestion for approval:**
-    ```json
-    {
-      "questions": [{
-        "question": "Does this plan accurately reflect the implementation steps?",
-        "header": "Review",
-        "options": [
-          {"label": "Approve", "description": "The plan is correct, proceed to create the track"},
-          {"label": "Suggest changes", "description": "I want to modify some parts before proceeding"}
-        ],
-        "multiSelect": false
-      }]
-    }
-    ```
-
-    **Handle Response:**
-    *   **If "Approve":** Proceed to Section 2.4 (Create and Register Track)
-    *   **If "Suggest changes":** Ask the user what changes they want, revise the plan, and present for approval again
+3.  **User Confirmation:** Present draft and use Approval pattern (Approve/Suggest changes)
 
 ### 2.4 Create and Register Track
 
-**PROTOCOL: Use CLI commands for mechanical operations. Fall back to direct tool calls only if CLI fails.**
+**PROTOCOL: Use CLI commands for operations. Fall back to direct tool calls only if CLI fails.**
 
-#### Step 1: Generate Track ID (CLI)
+| Step | CLI Command | Fallback |
+|------|-------------|----------|
+| 1. Generate ID | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESC"` | Manual: `shortname_YYYYMMDD` |
+| 2. Scaffold | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold ID --type TYPE --description "DESC"` | Create files with Write tool |
+| 3. Write Content | Use Write tool to save confirmed spec.md and plan.md | - |
+| 4. Register | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register ID --description "DESC"` | Edit `conductor/tracks.md` directly |
 
-Execute the CLI command to generate a unique track ID:
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "<track description>"
-```
+**Files created:** `conductor/tracks/<track_id>/` containing: index.md, metadata.json, spec.md, plan.md, decisions.md
 
-Parse the JSON response to extract:
-- `track_id`: The generated identifier (format: `shortname_YYYYMMDD`)
-- `shortname`: The base name derived from description
-- `date`: Today's date (YYYYMMDD)
+#### Commit and Finalize
 
-**Fallback:** If CLI fails, manually create ID:
-- Extract 3-4 significant words from description (skip stop words like "a", "the", "and")
-- Join with hyphens, convert to lowercase
-- Append `_` and today's date in YYYYMMDD format
-- Example: "Add dark mode toggle" -> `dark-mode-toggle_20260121`
-
-#### Step 2: Scaffold Track Directory (CLI)
-
-Execute the CLI command to create directory structure and template files:
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold <track_id> --type <track_type> --description "<track description>"
-```
-
-Where `<track_type>` is one of: `feature`, `bugfix`, `refactor`, `docs`, `chore`
-
-This creates:
-- `conductor/tracks/<track_id>/index.md` - Track context links
-- `conductor/tracks/<track_id>/metadata.json` - Track metadata
-- `conductor/tracks/<track_id>/spec.md` - Template (will be overwritten)
-- `conductor/tracks/<track_id>/plan.md` - Template (will be overwritten)
-- `conductor/tracks/<track_id>/decisions.md` - ADR log
-
-**Fallback:** If CLI fails, manually create using Write tool:
-
-1. Create `conductor/tracks/<track_id>/index.md`:
-   ```markdown
-   # Track: <track description>
-
-   > Track ID: `<track_id>`
-
-   ## Contents
-
-   - [Specification](./spec.md) - Requirements and acceptance criteria
-   - [Implementation Plan](./plan.md) - Task breakdown and progress
-   - [Decisions](./decisions.md) - Architecture Decision Records (ADRs)
-   - [Metadata](./metadata.json) - Track metadata and status
-   ```
-
-2. Create `conductor/tracks/<track_id>/metadata.json`:
-   ```json
-   {
-     "track_id": "<track_id>",
-     "type": "<feature|bugfix|refactor|docs|chore>",
-     "status": "new",
-     "created_at": "<ISO timestamp>",
-     "updated_at": "<ISO timestamp>",
-     "description": "<track description>"
-   }
-   ```
-
-3. Create `conductor/tracks/<track_id>/decisions.md`:
-   - Read template from `${CLAUDE_PLUGIN_ROOT}/templates/decisions.md` if available
-   - Otherwise create with header: `# Decisions Log: <Track Description>`
-
-#### Step 3: Write Generated Content
-
-Use the Write tool to overwrite the template files with the user-confirmed content:
-
-1. Write the confirmed `spec.md` content to `conductor/tracks/<track_id>/spec.md`
-2. Write the confirmed `plan.md` content to `conductor/tracks/<track_id>/plan.md`
-
-**Note:** The CLI scaffold creates templates; this step replaces them with the actual generated content from Sections 2.2 and 2.3.
-
-#### Step 4: Register Track (CLI)
-
-Execute the CLI command to register the track in the tracks registry:
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <track_id> --description "<track description>"
-```
-
-This appends the track entry to `conductor/tracks.md` in the Active Tracks section.
-
-**Fallback:** If CLI fails, manually edit `conductor/tracks.md`:
-1. Read current content
-2. Find "## Active Tracks" section
-3. Append entry:
-   ```markdown
-   - [ ] **Track: <Track Description>**
-     *Link: [<track_id>](./tracks/<track_id>/)*
-   ```
-4. Write updated content back
-
-#### Step 5: Confirm Commit
-
-Before committing, ask the user for confirmation using AskUserQuestion:
-
-```json
-{
-  "questions": [{
-    "question": "The track files have been created. Would you like to commit them now?",
-    "header": "Commit",
-    "options": [
-      {"label": "Commit now", "description": "Stage and commit all track files"},
-      {"label": "Skip commit", "description": "Leave files uncommitted for now"}
-    ],
-    "multiSelect": false
-  }]
-}
-```
-
-**Handle Response:**
-- **If "Commit now":** Proceed to Step 6 (Commit Changes)
-- **If "Skip commit":** Skip Step 6 and proceed directly to Step 7 (Final Announcement)
-
-#### Step 6: Commit Changes (Conditional)
-
-**Only execute this step if user confirmed "Commit now" in Step 5.**
-
-Stage all the new files and commit:
-```bash
-git add conductor/tracks/<track_id>/spec.md \
-        conductor/tracks/<track_id>/plan.md \
-        conductor/tracks/<track_id>/decisions.md \
-        conductor/tracks/<track_id>/metadata.json \
-        conductor/tracks/<track_id>/index.md \
-        conductor/tracks.md && \
-git commit -m "conductor(track): Create track '<track description>'"
-```
-
-#### Step 7: Final Announcement
-
-Announce the result based on whether commit was made:
-
-**If commit was made (Step 6 executed):**
-> "Track '<track description>' has been created and committed successfully. You can now begin implementation with `/conductor:implement` or review the plan at `conductor/tracks/<track_id>/plan.md`."
-
-**If commit was skipped:**
-> "Track '<track description>' has been created. The files are on disk but not yet committed. You can commit them manually or they will be committed when you run `/conductor:implement`. You can review the plan at `conductor/tracks/<track_id>/plan.md`."
+5.  **Confirm Commit:** Use AskUserQuestion with Commit pattern (Commit now/Skip commit)
+6.  **Commit (if confirmed):** `git add conductor/tracks/<track_id>/* conductor/tracks.md && git commit -m "conductor(track): Create track '<description>'"`
+7.  **Announce:** Inform user track is created. Next step: `/conductor:implement`
