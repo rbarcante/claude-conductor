@@ -238,7 +238,9 @@ def create_parser() -> argparse.ArgumentParser:
     implement_parser = subparsers.add_parser("implement", help="Implementation helpers")
     implement_subparsers = implement_parser.add_subparsers(dest="subcommand")
 
-    implement_subparsers.add_parser("parse-tracks", help="Parse tracks registry")
+    impl_parse = implement_subparsers.add_parser("parse-tracks", help="Parse tracks registry")
+    impl_parse.add_argument("--track-id", help="Filter to specific track ID")
+    impl_parse.add_argument("--status", choices=["pending", "in-progress", "completed"], help="Filter by status")
 
     impl_update = implement_subparsers.add_parser(
         "update-status", help="Update track status"

@@ -64,14 +64,8 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-b
 ---
 
 ## 1.1 SETUP CHECK
-**PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of:
-    -   **Product Definition**
-    -   **Tech Stack**
-    -   **Workflow**
-
-2.  **Handle Failure:** If ANY of these are missing (or their resolved paths do not exist), Announce: "Conductor is not set up. Please run `/conductor:setup`." and HALT.
+**PROTOCOL: Follow the Verify Setup Protocol in `protocols/verify-setup.md`.**
 
 ---
 
@@ -111,66 +105,64 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-b
 
 **PROTOCOL: Follow the Git Isolation Protocol in `protocols/git-isolation.md`.**
 
-This section ensures track work is properly isolated from the main codebase. Execute the Git Isolation Protocol to create or switch to a dedicated git branch before implementation begins.
+This section ensures track work is properly isolated from the main codebase.
 
-After completing the protocol, proceed to **Section 2.5 SKILL ACTIVATION**.
+### Fast Path Check (Skip Protocol If Already On Track Branch)
+
+Before executing the full protocol, perform a quick check:
+
+1. **Get current branch:** `git branch --show-current`
+2. **Extract track shortname** from the selected track's `track_id` (e.g., `dark-mode-toggle` from `dark-mode-toggle_20260122`)
+3. **If current branch contains the track shortname** (e.g., `feature/dark-mode-toggle`):
+   - Announce: "Already on branch `<branch>` for this track. Proceeding."
+   - **SKIP the full Git Isolation Protocol** and proceed directly to **Section 2.5 SKILL ACTIVATION**
+
+4. **Otherwise:** Execute the full Git Isolation Protocol to create or switch to a dedicated git branch.
+
+After completing (or skipping) the protocol, proceed to **Section 2.5 SKILL ACTIVATION**.
 
 ---
 
-## 2.5 SKILL ACTIVATION
-**PROTOCOL: Load relevant skills before implementation begins.**
+## 2.5 SKILL ACTIVATION (LAZY LOADING)
+**PROTOCOL: Load skills incrementally to minimize upfront token usage.**
 
-This section activates skills that provide domain-specific guidance for the selected track. Follow the **Skill Loading Protocol** defined in CLAUDE.md for detailed scoring rules.
+This section uses a two-phase approach: always-active skills are loaded once upfront, while task-specific skills are loaded lazily during task execution.
+
+### Phase 1: Load Always-Active Skills (Upfront)
 
 1.  **Load Skill Registry:**
     -   Read `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json` to get available skills
     -   If registry doesn't exist, skip skill activation silently and proceed to Track Implementation
 
-2.  **Load Always-Active Skills:**
+2.  **Load Always-Active Skills Only:**
     -   Identify skills with `activation.always_active: true`
     -   Read their SKILL.md files and add guidance to implementation context
+    -   Announce: `🔧 **Skills Activated:** conductor-methodology (always active)`
 
-3.  **Match Skills to Track Context:**
-    -   Extract keywords from track description and current task
-    -   Match against skill `activation.keywords`
-    -   Match project tech stack against skill `activation.tech_stack`
-    -   Match files to be modified against skill `activation.file_patterns`
-    -   Calculate activation scores per Skill Loading Protocol in CLAUDE.md
+3.  **Continue:** Proceed to **Section 3.0 TRACK IMPLEMENTATION**
 
-4.  **Activate Matching Skills:**
-    -   For skills scoring >= 1.5, load their SKILL.md files
-    -   Maximum 5 additional skills (beyond always-active)
-    -   Sort by score descending
+### Phase 2: Load Task-Specific Skills (Deferred to Task Loop)
 
-5.  **Announce Activated Skills:**
-    -   Use the standard skill announcement format (see below)
-    -   List skill name, activation reason, and brief description
-    -   Proceed to Track Implementation after announcement
+Task-specific skill activation happens in Section 3.0, Step 5.c **before each task** executes:
+
+1.  **Extract Keywords:** From the current task description
+2.  **Match Skills:** Against `activation.keywords`, `activation.tech_stack`, and `activation.file_patterns`
+3.  **Activate:** Load SKILL.md for skills scoring >= 1.5 (max 3 per task)
+4.  **Announce:** Only if new skills are activated for this task
 
 ### Skill Announcement Format
 
-When skills are activated, announce to the user:
-
-```
-🔧 **Skills Activated for This Track:**
-
-**Always Active:**
-- conductor-methodology: Core development workflow guidance
-
-**Context-Activated:** (based on track/task matching)
-- [Skill Name] (score: X.X): [Brief description]
-
-Proceeding with implementation using activated skill guidance.
-```
-
-If no additional skills are activated beyond always-active:
+**Upfront (always-active only):**
 ```
 🔧 **Skills Activated:** conductor-methodology (always active)
 ```
 
-If skill registry is missing or no always-active skills exist, proceed silently without announcement.
+**Per-task (if new skills activated):**
+```
+🔧 **Task Skills:** [Skill Name] activated for this task
+```
 
-6.  **Continue:** After skill activation, proceed to **Section 3.0 TRACK IMPLEMENTATION**.
+If skill registry is missing or no always-active skills exist, proceed silently without announcement.
 
 ---
 
@@ -241,8 +233,13 @@ If skill registry is missing or no always-active skills exist, proceed silently 
     a. **Announce:** State that you will now execute the tasks from the track's **Implementation Plan** by following the procedures in the **Workflow**.
     b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
     c. **For Each Task, You MUST:**
-        i. **Defer to Workflow (FROM CACHE):** The **Workflow** file is the **single source of truth** for the entire task lifecycle. Reference the Workflow already loaded in Step 3 above—DO NOT re-read the file. Execute the procedures defined in the "Task Workflow" section. Follow its steps for implementation, testing, and committing precisely.
-        ii. **Capture Decisions:** During implementation, invoke the **Decision Capture Protocol** (Section 3.6) when significant decision points are encountered. Record decisions to the track's `decisions.md` file.
+        i. **Activate Task-Specific Skills (Lazy - Phase 2 from Section 2.5):**
+            - Extract keywords from the current task description
+            - Match against skill registry (skip skills already loaded)
+            - For new matches scoring >= 1.5, load their SKILL.md (max 3 per task)
+            - If new skills activated, announce: `🔧 **Task Skills:** [Name] activated`
+        ii. **Defer to Workflow (FROM CACHE):** The **Workflow** file is the **single source of truth** for the entire task lifecycle. Reference the Workflow already loaded in Step 3 above—DO NOT re-read the file. Execute the procedures defined in the "Task Workflow" section. Follow its steps for implementation, testing, and committing precisely.
+        iii. **Capture Decisions:** During implementation, invoke the **Decision Capture Protocol** (Section 3.6) when significant decision points are encountered. Record decisions to the track's `decisions.md` file.
 
 ---
 
