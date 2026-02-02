@@ -186,12 +186,13 @@ If skill registry is missing or no always-active skills exist, proceed silently 
         -   The track's `metadata.json` with `status` and `updated_at` fields
     -   **If CLI fails:** Fall back to manually editing the **Tracks Registry** file, finding the specific line for the track (e.g., `- [ ] **Track: <Description>**`) and replacing it with `- [~] **Track: <Description>**`.
 
-3.  **Load Track Context:**
+3.  **Load Track Context (CACHE FOR SESSION):**
     a. **Identify Track Folder:** From the tracks data, use the `track_id` to locate the track's folder.
     b. **Read Files:**
         -   **Track Context:** Using the **Universal File Resolution Protocol**, resolve and read the **Specification** and **Implementation Plan** for the selected track.
         -   **Workflow:** Resolve **Workflow** (via the **Universal File Resolution Protocol** using the project's index file).
     c. **Error Handling:** If you fail to read any of these files, you MUST stop and inform the user of the error.
+    d. **IMPORTANT - Context Caching:** The Workflow file is now cached in your context window. DO NOT re-read it during task execution. Reference the content you just loaded for all subsequent tasks in this track.
 
 4.  **Surface Relevant Patterns via CLI:**
     **PROTOCOL: Use CLI pattern matching before each task.**
@@ -240,7 +241,7 @@ If skill registry is missing or no always-active skills exist, proceed silently 
     a. **Announce:** State that you will now execute the tasks from the track's **Implementation Plan** by following the procedures in the **Workflow**.
     b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
     c. **For Each Task, You MUST:**
-        i. **Defer to Workflow:** The **Workflow** file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the **Workflow** file you have in your context. Follow its steps for implementation, testing, and committing precisely.
+        i. **Defer to Workflow (FROM CACHE):** The **Workflow** file is the **single source of truth** for the entire task lifecycle. Reference the Workflow already loaded in Step 3 above—DO NOT re-read the file. Execute the procedures defined in the "Task Workflow" section. Follow its steps for implementation, testing, and committing precisely.
         ii. **Capture Decisions:** During implementation, invoke the **Decision Capture Protocol** (Section 3.6) when significant decision points are encountered. Record decisions to the track's `decisions.md` file.
 
 ---
