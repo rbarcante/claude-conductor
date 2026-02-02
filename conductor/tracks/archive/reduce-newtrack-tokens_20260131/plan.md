@@ -31,7 +31,7 @@ This plan addresses token optimization through modularization and lazy loading s
     - [x] Documentation Sync: reduce verbose examples (~58 lines → ~20 lines)
     - [x] Track Cleanup: reduce verbose prompts (~38 lines → ~15 lines)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ---
 
@@ -50,7 +50,7 @@ This plan addresses token optimization through modularization and lazy loading s
     - [x] Keep Universal File Resolution Protocol (essential, 41 lines)
     - [x] Target: CLAUDE.md < 150 lines (achieved: 86 lines)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ---
 
@@ -69,7 +69,7 @@ This plan addresses token optimization through modularization and lazy loading s
     - [x] Remove repeated JSON structures (8+ occurrences → 1 reference)
     - [x] Target: newTrack.md < 300 lines (achieved: 176 lines)
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ---
 
@@ -92,7 +92,7 @@ This plan addresses token optimization through modularization and lazy loading s
     - [x] Load SKILL-SUMMARY.md by default for always-active skills
     - [x] Load full SKILL.md only when task requires detailed guidance
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
 ---
 
@@ -105,17 +105,17 @@ This plan addresses token optimization through modularization and lazy loading s
     - [x] Compare against baseline measurements
     - [x] Document achieved reduction percentage
 
-- [ ] Task: Manual testing of workflows
-    - [ ] Test newTrack command with feature description
-    - [ ] Test implement command with generated track
-    - [ ] Verify quality gates still work
-    - [ ] Verify decision capture still works
+- [x] Task: Manual testing of workflows
+    - [x] Test newTrack command with feature description
+    - [x] Test implement command with generated track
+    - [x] Verify quality gates still work
+    - [x] Verify decision capture still works
 
-- [ ] Task: Update documentation
-    - [ ] Document new protocol reference pattern
-    - [ ] Update conductor/index.md with new files
+- [x] Task: Update documentation
+    - [x] Document new protocol reference pattern
+    - [x] Update conductor/index.md with new files
 
-- [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
 
 ---
 

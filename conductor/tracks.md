@@ -69,5 +69,5 @@ This file tracks all major tracks for the project. Each track has its own detail
   *Link: [add-suggest-branch-subcommand_20260122](./conductor/tracks/add-suggest-branch-subcommand_20260122/)*
 - [x] **Track: Bug when detecting Brownfield vs Greenfield project**
   *Link: [bug-when-detecting-brownfield_20260122](./conductor/tracks/bug-when-detecting-brownfield_20260122/)*
-- [ ] **Track: Reduce token usage in newTrack → implement workflow**
-  *Link: [reduce-newtrack-tokens_20260131](./tracks/reduce-newtrack-tokens_20260131/)*
+- [x] **Track: Reduce token usage in newTrack → implement workflow**
+  *Link: [reduce-newtrack-tokens_20260131](./conductor/tracks/archive/reduce-newtrack-tokens_20260131/)*
