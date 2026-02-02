@@ -1,0 +1,8 @@
+{
+  "track_id": "reduce-token-usage-setup_20260202",
+  "type": "refactor",
+  "status": "completed",
+  "created_at": "2026-02-02T16:44:38.701531Z",
+  "updated_at": "2026-02-02T20:44:43.576138Z",
+  "description": "Reduce token usage in setup.md to match implement.md and newTrack.md patterns"
+}

@@ -59,6 +59,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
+
+- [x] **Track: Reduce token usage in setup.md to match implement.md and newTrack.md patterns**
+  *Link: [reduce-token-usage-setup_20260202](./conductor/tracks/reduce-token-usage-setup_20260202/)*
 - [x] **Track: Specialist sub-agents for parallel analysis**
   *Link: [specialist-sub-agents-parallel_20260130](./conductor/tracks/specialist-sub-agents-parallel_20260130/)*
 - [x] **Track: Implement codeReview command for comprehensive code review**
@@ -69,3 +72,5 @@ This file tracks all major tracks for the project. Each track has its own detail
   *Link: [add-suggest-branch-subcommand_20260122](./conductor/tracks/add-suggest-branch-subcommand_20260122/)*
 - [x] **Track: Bug when detecting Brownfield vs Greenfield project**
   *Link: [bug-when-detecting-brownfield_20260122](./conductor/tracks/bug-when-detecting-brownfield_20260122/)*
+- [x] **Track: Reduce token usage in newTrack → implement workflow**
+  *Link: [reduce-newtrack-tokens_20260131](./conductor/tracks/archive/reduce-newtrack-tokens_20260131/)*
