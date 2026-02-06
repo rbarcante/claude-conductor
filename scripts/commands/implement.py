@@ -149,7 +149,10 @@ def parse_tracks(
                         track_data["progress_percent"] = 0
 
         # Apply status filter
-        if normalized_status_filter and track_data["status"] != normalized_status_filter:
+        if (
+            normalized_status_filter
+            and track_data["status"] != normalized_status_filter
+        ):
             continue
 
         enriched_tracks.append(track_data)
