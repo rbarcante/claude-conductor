@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/rbarcante/claude-conductor/compare/v1.0.1...v1.1.0) (2026-02-06)
+
+
+### Features
+
+* **agents:** Add 5 specialist sub-agents for parallel code analysis ([812155c](https://github.com/rbarcante/claude-conductor/commit/812155cb1250d695fcbeddf93bbf48508f1d75ff))
+  * code-quality-analyzer - Code quality and maintainability analysis
+  * codebase-pattern-detector - Codebase architecture and pattern detection
+  * git-history-analyst - Git history and change pattern analysis
+  * security-scanner - Security vulnerability scanning
+  * test-coverage-analyzer - Test coverage gap analysis
+* **commands:** Add revert command for track implementation rollback ([812155c](https://github.com/rbarcante/claude-conductor/commit/812155cb1250d695fcbeddf93bbf48508f1d75ff))
+* **commands:** Integrate specialist sub-agents into codeReview command for parallel analysis ([08d16bb](https://github.com/rbarcante/claude-conductor/commit/08d16bbba7fa2e0aeaaf0a75ac64a12f0eea3ff6))
+* **commands:** Integrate specialist sub-agents into implement and setup commands ([8ac2681](https://github.com/rbarcante/claude-conductor/commit/8ac2681cb06f4e5bac9bca2313f26df342633a83))
+* **conductor:** Reduce token usage by 74% across implement.md, newTrack.md, setup.md, and CLAUDE.md ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **protocols:** Add pattern-resolution protocol for automatic pattern surfacing ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **protocols:** Add skill-loading protocol for context-aware skill activation ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **protocols:** Add verify-setup protocol for setup validation ([e430fca](https://github.com/rbarcante/claude-conductor/commit/e430fcaf2c4bd6202affa91b2153edd6f8bb1fb0))
+* **skills:** Add conductor-methodology SKILL-SUMMARY for lightweight skill loading ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **templates:** Add AskUserQuestion patterns template for JSON reference ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **conductor:** Add project index and tracks registry ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+
+
+### Bug Fixes
+
+* apply black formatting to conductor_cli.py and implement.py ([8574bb0](https://github.com/rbarcante/claude-conductor/commit/8574bb01a562eb7d9068e40b130589e93f82fcc0))
+
+
+### Refactoring
+
+* **agents:** Remove 'conductor:' prefix from agent names for simplified references ([c820de1](https://github.com/rbarcante/claude-conductor/commit/c820de195d1e52d8f376158365e77dfb3bb7a08c))
+* **conductor:** Reduce setup.md token usage by 72% ([#16](https://github.com/rbarcante/claude-conductor/issues/16)) ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **commands:** Condense implement.md from 684 to 348 lines (49% reduction) ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **commands:** Condense newTrack.md from 544 to 176 lines (68% reduction) ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+* **conductor:** Condense CLAUDE.md from 339 to 86 lines (75% reduction) ([5644c31](https://github.com/rbarcante/claude-conductor/commit/5644c31b4237dd0dd11624db0035ecb851d1d871))
+
+
+### Documentation
+
+* Add version badge to README ([75328a5](https://github.com/rbarcante/claude-conductor/commit/75328a5e1cc7dd07e386b53d7ef8a68326012ef5))
+
 ## [1.0.1](https://github.com/rbarcante/claude-conductor/compare/v1.0.0...v1.0.1) (2026-01-30)
 
 
