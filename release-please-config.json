@@ -16,7 +16,8 @@
     { "type": "refactor", "section": "Code Refactoring", "hidden": false },
     { "type": "test", "section": "Tests", "hidden": true },
     { "type": "build", "section": "Build System", "hidden": true },
-    { "type": "ci", "section": "Continuous Integration", "hidden": true }
+    { "type": "ci", "section": "Continuous Integration", "hidden": true },
+    { "type": "conductor", "section": "Conductor", "hidden": true }
   ],
   "packages": {
     ".": {

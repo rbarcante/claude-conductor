@@ -39,7 +39,7 @@ Claude Conductor for Claude Code is a derivative work based on the [Conductor Ex
 - Update CHANGELOG if applicable
 
 #### Commit Messages
-Follow the conventional commits format:
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 ```
 <type>(<scope>): <description>
 
@@ -48,13 +48,25 @@ Follow the conventional commits format:
 [optional footer]
 ```
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+**Valid types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `revert`, `test`, `chore`, `build`, `ci`
+
+**Version bump rules** (enforced by Release Please):
+- `feat:` → **minor** version bump (e.g., 1.0.1 → 1.1.0)
+- `fix:` → **patch** version bump (e.g., 1.0.1 → 1.0.2)
+- `feat!:` / `fix!:` / `BREAKING CHANGE:` → **major** version bump (e.g., 1.0.1 → 2.0.0)
+- All other types → no version bump (may appear in changelog)
+
+> **Important:** Only the types listed above are recognized by Release Please. Using
+> non-standard types (e.g., `conductor(track):`) will cause commits to be **completely
+> ignored** for both changelog generation and version bumping. When committing feature
+> work, always use `feat(<scope>):` to ensure proper semantic versioning.
 
 Example:
 ```
-feat(skills): Add new authentication skill
+feat(agents): Add specialist sub-agents for parallel analysis
 
-Add a new skill that provides authentication patterns and best practices.
+Implement dedicated analysis agents that enable parallel processing
+of code review tasks across multiple dimensions.
 
 Closes #123
 ```
