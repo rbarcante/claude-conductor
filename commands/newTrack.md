@@ -79,19 +79,10 @@ When user selects "Auto-generate": stop asking questions, use context to infer r
 ---
 
 ## 1.1 SETUP CHECK
-**PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of:
-    -   **Product Definition**
-    -   **Tech Stack**
-    -   **Workflow**
+**PROTOCOL: Follow the Verify Setup Protocol in `protocols/verify-setup.md`.**
 
-2.  **Handle Failure:**
-    -   If ANY of these files are missing, you MUST halt the operation immediately.
-    -   Announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
-    -   Do NOT proceed.
-
-3.  **Continue:** After setup verification passes, proceed to **Section 1.2 GIT ISOLATION SETUP**.
+After setup verification passes, proceed to **Section 1.2 GIT ISOLATION SETUP**.
 
 ---
 

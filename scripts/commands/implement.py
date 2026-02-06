@@ -44,7 +44,9 @@ def handle(args) -> Dict[str, Any]:
     plugin_root = getattr(args, "plugin_root", None)
 
     if args.subcommand == "parse-tracks":
-        return parse_tracks(project_root)
+        track_id_filter = getattr(args, "track_id", None)
+        status_filter = getattr(args, "status", None)
+        return parse_tracks(project_root, track_id_filter, status_filter)
     elif args.subcommand == "update-status":
         return update_status(project_root, args.track_id, args.status)
     elif args.subcommand == "archive":
@@ -69,12 +71,18 @@ def handle(args) -> Dict[str, Any]:
         }
 
 
-def parse_tracks(project_root: Path) -> Dict[str, Any]:
+def parse_tracks(
+    project_root: Path,
+    track_id_filter: Optional[str] = None,
+    status_filter: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Parse tracks registry and return structured JSON with status.
 
     Args:
         project_root: Project root path
+        track_id_filter: Optional track ID to filter to (returns single track)
+        status_filter: Optional status to filter by (pending, in-progress, completed)
 
     Returns:
         JSON with tracks data including status and progress metrics
@@ -93,6 +101,14 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
 
     tracks = parser.parse_tracks_registry()
 
+    # Map status filter to enum value for comparison
+    status_map = {
+        "pending": "pending",
+        "in-progress": "in_progress",
+        "completed": "completed",
+    }
+    normalized_status_filter = status_map.get(status_filter) if status_filter else None
+
     # Enrich with metadata and progress
     enriched_tracks = []
     for track in tracks:
@@ -107,6 +123,10 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
             track_id = parser.extract_track_id_from_path(track.path)
             if track_id:
                 track_data["track_id"] = track_id
+
+                # Apply track_id filter early to skip unnecessary work
+                if track_id_filter and track_id != track_id_filter:
+                    continue
 
                 # Read metadata
                 metadata = json_mgr.read_track_metadata(track_id)
@@ -128,9 +148,13 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
                     else:
                         track_data["progress_percent"] = 0
 
+        # Apply status filter
+        if normalized_status_filter and track_data["status"] != normalized_status_filter:
+            continue
+
         enriched_tracks.append(track_data)
 
-    # Summary by status
+    # Summary by status (of filtered results)
     summary = {
         "total": len(enriched_tracks),
         "completed": sum(1 for t in enriched_tracks if t["status"] == "completed"),
@@ -138,11 +162,23 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
         "pending": sum(1 for t in enriched_tracks if t["status"] == "pending"),
     }
 
-    return {
+    # Add filter info to response
+    filters_applied = {}
+    if track_id_filter:
+        filters_applied["track_id"] = track_id_filter
+    if status_filter:
+        filters_applied["status"] = status_filter
+
+    result = {
         "success": True,
         "data": {"tracks": enriched_tracks, "summary": summary},
         "message": format_tracks_list(enriched_tracks, summary),
     }
+
+    if filters_applied:
+        result["data"]["filters"] = filters_applied
+
+    return result
 
 
 def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, Any]:
