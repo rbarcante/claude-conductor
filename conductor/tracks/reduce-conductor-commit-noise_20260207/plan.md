@@ -18,9 +18,9 @@ This plan refactors the conductor workflow to reduce commit noise by batching pl
 
 ## Phase 2: Validation and Documentation
 
-- [ ] Task: Audit all commit-related instructions across the 4 files to ensure no orphaned references to removed commit steps
-- [ ] Task: Update step numbering and cross-references in all modified files to maintain internal consistency
-- [ ] Task: Conductor - User Manual Verification 'Validation and Documentation' (Protocol in workflow.md)
+- [x] Task: Audit all commit-related instructions across the 4 files to ensure no orphaned references to removed commit steps [uncommitted]
+- [x] Task: Update step numbering and cross-references in all modified files to maintain internal consistency [uncommitted]
+- [x] Task: Conductor - User Manual Verification 'Validation and Documentation' (Protocol in workflow.md) [verified]
 
 ---
 
