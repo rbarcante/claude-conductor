@@ -10,11 +10,11 @@ This plan refactors the conductor workflow to reduce commit noise by batching pl
 
 ## Phase 1: Core Workflow Refactor
 
-- [ ] Task: Update `templates/workflow.md` - Remove separate plan update commits (steps 10-11), batch plan.md updates into phase checkpoint, mark git notes as optional
-- [ ] Task: Update `conductor/workflow.md` - Apply identical changes as templates/workflow.md to keep project workflow in sync
-- [ ] Task: Update `commands/implement.md` - Remove separate track completion commit (section 3.0 step 6), consolidate into final phase checkpoint
-- [ ] Task: Update `commands/newTrack.md` - Verify no changes needed (track creation commit stays), ensure consistency with updated workflow references
-- [ ] Task: Conductor - User Manual Verification 'Core Workflow Refactor' (Protocol in workflow.md)
+- [x] Task: Update `templates/workflow.md` - Remove separate plan update commits (steps 10-11), batch plan.md updates into phase checkpoint, mark git notes as optional [uncommitted]
+- [x] Task: Update `conductor/workflow.md` - Apply identical changes as templates/workflow.md to keep project workflow in sync [uncommitted]
+- [x] Task: Update `commands/implement.md` - Remove separate track completion commit (section 3.0 step 6), consolidate into final phase checkpoint [uncommitted]
+- [x] Task: Update `commands/newTrack.md` - Verify no changes needed (track creation commit stays), ensure consistency with updated workflow references [no-change]
+- [x] Task: Conductor - User Manual Verification 'Core Workflow Refactor' (Protocol in workflow.md) [verified]
 
 ## Phase 2: Validation and Documentation
 
