@@ -29,7 +29,17 @@ The philosophy behind Conductor is simple: control your code. By treating contex
 
 ## Installation
 
-Install the Conductor plugin by copying it to your Claude Code plugins directory:
+### From the Marketplace (Recommended)
+
+```bash
+# Add the marketplace
+/plugin marketplace add rbarcante/claude-conductor
+
+# Install the plugin
+/plugin install conductor@claude-conductor
+```
+
+### Manual Installation
 
 ```bash
 # Option 1: Project-specific installation
