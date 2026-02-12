@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/rbarcante/claude-conductor/compare/v1.1.0...v1.2.0) (2026-02-12)
+
+
+### Features
+
+* **marketplace:** Add marketplace.json for native plugin installation and updates ([b868880](https://github.com/rbarcante/claude-conductor/commit/b868880f3350fab6b053cf4dbe80d34d6831478a))
+* **marketplace:** Add marketplace.json for native plugin installation and updates ([eccbf76](https://github.com/rbarcante/claude-conductor/commit/eccbf76683a9b91e4b8bc1dd243cc55ed5a0f287))
+
 ## [1.1.0](https://github.com/rbarcante/claude-conductor/compare/v1.0.1...v1.1.0) (2026-02-07)
 
 
