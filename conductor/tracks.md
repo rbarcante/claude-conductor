@@ -49,6 +49,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ## Active Tracks
 
+- [x] **Track: Wiki comprehensive audit and update**
+  *Link: [wiki-comprehensive-audit-update_20260212](./conductor/tracks/wiki-comprehensive-audit-update_20260212/)*
+
 
 
 
