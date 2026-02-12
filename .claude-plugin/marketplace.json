@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-conductor",
+  "description": "Context-driven development framework that enables structured lifecycle for software projects: Context, Spec & Plan, Implement",
+  "owner": {
+    "name": "Ricardo Barcante",
+    "email": "ricardouza@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "conductor",
+      "description": "Context-driven development framework that enables structured lifecycle for software projects: Context, Spec & Plan, Implement",
+      "source": "./"
+    }
+  ]
+}
