@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1](https://github.com/rbarcante/claude-conductor/compare/v1.2.0...v1.2.1) (2026-02-12)
+
+
+### Bug Fixes
+
+* **release:** Point release workflow to config files and sync versions ([4ed13fb](https://github.com/rbarcante/claude-conductor/commit/4ed13fb6eae65e8b32a7f561f4e5f0ee69e140d7))
+
 ## [1.2.0](https://github.com/rbarcante/claude-conductor/compare/v1.1.0...v1.2.0) (2026-02-12)
 
 
