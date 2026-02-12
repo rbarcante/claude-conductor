@@ -297,7 +297,7 @@ Capture decisions when encountering: technology selection, pattern choice, API d
     -   After all tasks in the track's local **Implementation Plan** are completed, you MUST update the track's status.
     -   **Update via CLI:** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
     -   **If CLI fails:** Fall back to manually editing the **Tracks Registry**, finding the specific line (e.g., `- [~] **Track: <Description>**`) and replacing it with `- [x] **Track: <Description>**`.
-    -   **Commit Changes:** Stage the **Tracks Registry** file and commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
+    -   **Commit Changes:** Stage the **Tracks Registry** file along with any uncommitted `plan.md` changes (checkpoint SHA annotations). Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
     -   Announce that the track is fully complete and the tracks file has been updated.
 
 ---
