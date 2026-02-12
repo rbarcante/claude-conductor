@@ -61,6 +61,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
+
+- [ ] **Track: Remove scaffold from newTrack command**
+  *Link: [remove-scaffold-newtrack-command_20260212](./conductor/tracks/remove-scaffold-newtrack-command_20260212/)*
 - [x] **Track: Reduce conductor commit noise by batching plan updates and making git notes optional**
   *Link: [reduce-conductor-commit-noise_20260207](./conductor/tracks/reduce-conductor-commit-noise_20260207/)*
 - [x] **Track: Reduce token usage in setup.md to match implement.md and newTrack.md patterns**
