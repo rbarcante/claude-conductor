@@ -62,6 +62,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
+
+- [ ] **Track: Add marketplace.json for native plugin installation and updates**
+  *Link: [add-marketplace-json-native_20260212](./conductor/tracks/add-marketplace-json-native_20260212/)*
 - [x] **Track: Remove scaffold from newTrack command**
   *Link: [remove-scaffold-newtrack-command_20260212](./conductor/tracks/remove-scaffold-newtrack-command_20260212/)*
 - [x] **Track: Reduce conductor commit noise by batching plan updates and making git notes optional**
