@@ -68,5 +68,5 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 
 ## Active Tracks
 
-- [ ] **Track: Improve newTrack.md with XML tags following Anthropic prompt engineering guidelines**
+- [~] **Track: Improve newTrack.md with XML tags following Anthropic prompt engineering guidelines**
   *Link: [improve-newtrack-xml-tags_20260216](./conductor/tracks/improve-newtrack-xml-tags_20260216/)*
