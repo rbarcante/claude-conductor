@@ -65,3 +65,8 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 
 - [x] **Track: Reduce token usage in newTrack → implement workflow**
   *Link: [./conductor/tracks/archive/reduce-newtrack-tokens_20260131/](./conductor/tracks/archive/reduce-newtrack-tokens_20260131/)*
+
+## Active Tracks
+
+- [ ] **Track: Improve newTrack.md with XML tags following Anthropic prompt engineering guidelines**
+  *Link: [improve-newtrack-xml-tags_20260216](./conductor/tracks/improve-newtrack-xml-tags_20260216/)*
