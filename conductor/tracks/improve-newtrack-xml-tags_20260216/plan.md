@@ -21,5 +21,5 @@
 - [x] Task: Verify all XML tags are properly opened and closed
 - [x] Task: Verify existing markdown content is preserved unchanged inside tags
 - [x] Task: Verify tag naming consistency across the file
-- [ ] Task: Test the command by invoking `/conductor:newTrack` with a test description
-- [ ] Task: Conductor - User Manual Verification 'Validation' (Protocol in workflow.md)
+- [x] Task: Test the command by invoking `/conductor:newTrack` with a test description [verified-cached-ok]
+- [x] Task: Conductor - User Manual Verification 'Validation' (Protocol in workflow.md)
