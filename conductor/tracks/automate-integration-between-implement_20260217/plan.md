@@ -1,6 +1,6 @@
 # Implementation Plan: Automate integration between implement and codeReview commands
 
-## Phase 1: Base Branch Detection Utility
+## Phase 1: Base Branch Detection Utility [checkpoint: 2655d3e]
 
 - [x] Task: Add base branch detection logic to `implement.md`
   - [x] Sub-task: Research git commands for reliably detecting the originating branch (`git merge-base`, `git log --all --oneline`)
@@ -8,7 +8,7 @@
   - [x] Sub-task: Add fallback logic (default branch detection) when originating branch cannot be determined
 - [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Auto-trigger Code Review on Track Completion
+## Phase 2: Auto-trigger Code Review on Track Completion [checkpoint: 2655d3e]
 
 - [x] Task: Modify `implement.md` Section 3.0 Step 6 (Finalize Track) to add code review trigger
   - [x] Sub-task: Add a new step between task completion and track status update that invokes the code review pipeline
@@ -17,7 +17,7 @@
   - [x] Sub-task: Add fallback to sequential execution if parallel fails
 - [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
-## Phase 3: Report Generation and Persistence
+## Phase 3: Report Generation and Persistence [checkpoint: 2655d3e]
 
 - [x] Task: Add review report generation logic to `implement.md`
   - [x] Sub-task: Define the report format (reuse codeReview.md Section 7.0 format)

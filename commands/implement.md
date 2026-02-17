@@ -145,11 +145,12 @@ git reflog show HEAD | grep "branch: Created from" | head -1
 **Step 2: If Step 1 yields no result, inspect remote tracking information**
 
 ```bash
-git log --format="%D" HEAD | tr ',' '\n' | grep "origin/" | head -5
+git log -1 --format="%D" HEAD | tr ',' '\n' | grep "origin/" | head -5
 ```
 
 - Look for a remote-tracking ref that is NOT the current branch (e.g., `origin/master`, `origin/main`, `origin/develop`).
 - Store the branch name (without `origin/` prefix) as `BASE_BRANCH`.
+- Note: The `-1` flag limits inspection to HEAD's decoration only, preventing false matches from ancestors.
 
 **Step 3: If Step 2 yields no result, detect default branch**
 
@@ -168,9 +169,17 @@ git rev-parse --verify origin/develop 2>/dev/null && echo "develop"
 - Set `BASE_BRANCH` to `master` as a last resort.
 - Announce: "Could not automatically detect the base branch. Defaulting to `master`. You can override this during the code review step."
 
+### Validation (Run After Any Step Yields a Result)
+
+Before storing `BASE_BRANCH`, validate the extracted value:
+- **Format check:** Verify it matches the pattern `^[a-zA-Z0-9._/-]+$` (only safe branch name characters).
+- **Existence check:** Run `git rev-parse --verify origin/<BASE_BRANCH>` to confirm the branch exists remotely.
+- If validation fails: treat the result as if the step yielded no output and proceed to the next step.
+- If all steps fail validation: fall back to Step 4 (default `master`).
+
 ### Result
 
-- Store `BASE_BRANCH` in session context for use in **Section 3.7 AUTO CODE REVIEW**.
+- Store the validated `BASE_BRANCH` in session context for use in **Section 3.7 AUTO CODE REVIEW**.
 - Announce (only if detected successfully): "Base branch detected: `<BASE_BRANCH>`."
 
 ---
@@ -410,18 +419,23 @@ git status --porcelain
     ```bash
     git fetch origin
     ```
+    - If `git fetch` fails (offline or no remote): Announce "Unable to fetch from remote. Proceeding with local branches." Use local branch names (e.g., `<BASE_BRANCH>` without `origin/` prefix) in the diff commands in Step 3. Continue with the review.
 
 3. **Generate diff scoped to this track's changes (use the mode selected in Step 0):**
 
     - **All changes (committed + uncommitted):**
       ```bash
       git diff origin/<BASE_BRANCH>
+      # If origin not available (fetch failed):
+      git diff <BASE_BRANCH>
       ```
-      Two-dot syntax compares the base branch against the current working tree, capturing all track changes including uncommitted work.
+      Two-dot syntax compares the base branch against the current working tree. Note: includes all working-tree differences from the base, not only uncommitted files.
 
     - **Committed changes only:**
       ```bash
       git diff origin/<BASE_BRANCH>...HEAD
+      # If origin not available (fetch failed):
+      git diff <BASE_BRANCH>...HEAD
       ```
       Three-dot syntax uses the merge-base, capturing only committed changes on the current branch.
 
@@ -432,14 +446,16 @@ git status --porcelain
     # OR for committed changes only:
     git diff --name-only origin/<BASE_BRANCH>...HEAD
     ```
-    **Filter out Conductor framework files** from the review scope — exclude files matching:
-    - `conductor/tracks/**` (track management files: plan.md, metadata.json, decisions.md, index.md)
-    - Any `.md` or `.json` files that are Conductor workflow artifacts
+    **Filter out Conductor framework files** using path-based exclusion only — exclude files at these specific paths:
+    - `conductor/tracks/**` (track management files: plan.md, metadata.json, decisions.md, index.md, review.md)
+    - `conductor/tracks.md` (master track registry)
+    - `conductor/index.md` (project index)
 
-    Only include product code files (e.g., `.ts`, `.js`, `.py`, `.java`, `.go`, `.rb`, source files) in the analysis.
+    **Include all other files** — this includes source code files (`.ts`, `.js`, `.py`, `.java`, etc.) AND documentation/protocol files that are part of the project's product (e.g., `commands/*.md`, `protocols/*.md`, `skills/**`, `patterns/**`, `templates/**`, `README.md`). For Conductor-type projects, markdown protocol files ARE the product code.
 
-5. **Handle empty diff or no product code files:**
-    - If no product code files changed: Announce "No product code changes detected for this track. Skipping code review." Proceed to track finalization.
+5. **Handle empty diff or no reviewable files:**
+    - If only conductor/tracks/** files changed: Announce "Only track management files changed. No product code review needed." Proceed to finalization.
+    - If no files remain after filtering: Announce "No reviewable changes detected for this track." Proceed to finalization.
 
 6. **Parse diff statistics** (from full diff including all files):
     - Count files changed (lines starting with `diff --git`)
@@ -457,6 +473,7 @@ Prepare the agent input using only the **product code diff** (filtered file list
   "project_context": {
     "tech_stack": "<from conductor/tech-stack.md>",
     "styleguide_path": "conductor/code_styleguides/<language>.md",
+    "product_guidelines_path": "conductor/product-guidelines.md",
     "workflow_path": "conductor/workflow.md"
   }
 }
@@ -469,7 +486,7 @@ Prepare the agent input using only the **product code diff** (filtered file list
 - `subagent_type: "test-coverage-analyzer"` with the agent input
 
 **Handle agent failures:**
-- If any single agent fails: fall back to inline analysis for that dimension (skip inline analysis detail for this auto-review; note the failure in the report).
+- If exactly one agent fails: Note the failure in the report under the relevant section (e.g., "Security analysis unavailable: agent error"). Proceed with results from the remaining two agents. Do not attempt inline analysis for that dimension.
 - If 2+ agents fail: announce "Multiple agents failed. Skipping auto code review." and return to Step 6.
 
 ### 3.7.4 Generate and Save Report
@@ -567,7 +584,7 @@ Prepare the agent input using only the **product code diff** (filtered file list
     -   After the code review step completes (or is skipped), proceed with finalization:
     -   **Update via CLI:** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
     -   **If CLI fails:** Fall back to manually editing the **Tracks Registry**, finding the specific line (e.g., `- [~] **Track: <Description>**`) and replacing it with `- [x] **Track: <Description>**`.
-    -   **Commit Changes:** Stage the **Tracks Registry** file, any uncommitted `plan.md` changes (checkpoint SHA annotations), and the `review.md` file (if generated). Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
+    -   **Commit Changes:** Stage the **Tracks Registry** file, any uncommitted `plan.md` changes (checkpoint SHA annotations), and if code review was run: both `review.md` and `index.md` from the track folder. Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
     -   Announce that the track is fully complete and the tracks file has been updated.
 
 ---
