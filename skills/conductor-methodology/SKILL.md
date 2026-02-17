@@ -38,6 +38,8 @@ Each track lives in `conductor/tracks/<track_id>/`:
 
 - **`spec.md`**: Detailed requirements for the track
 - **`plan.md`**: Hierarchical plan with phases, tasks, and sub-tasks
+- **`decisions.md`**: Architecture Decision Records for track decisions
+- **`review.md`**: Auto-generated code review report on track completion
 - **`metadata.json`**: Track metadata (ID, type, status, timestamps)
 
 ### Track Lifecycle

@@ -105,6 +105,7 @@ Once you approve the plan, run `/conductor:implement`. Your coding agent then wo
 **Updated Artifacts:**
 - `conductor/tracks.md` (Status updates)
 - `conductor/tracks/<track_id>/plan.md` (Status updates)
+- `conductor/tracks/<track_id>/review.md` (Auto code review on completion)
 - Project context files (Synchronized on completion)
 
 ```bash
@@ -134,7 +135,7 @@ During implementation, you can also:
 | :--- | :--- | :--- |
 | `/conductor:setup` | Scaffolds the project and sets up the Conductor environment. Run this once per project. | `conductor/product.md`<br>`conductor/product-guidelines.md`<br>`conductor/tech-stack.md`<br>`conductor/workflow.md`<br>`conductor/tracks.md`<br>`conductor/index.md` |
 | `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md`, `plan.md`, and `decisions.md`. | `conductor/tracks/<id>/spec.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks/<id>/decisions.md`<br>`conductor/tracks/<id>/index.md`<br>`conductor/tracks.md` |
-| `/conductor:implement` | Executes the tasks defined in the current track's plan. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md` |
+| `/conductor:implement` | Executes the tasks defined in the current track's plan. Auto-triggers code review on completion. | `conductor/tracks.md`<br>`conductor/tracks/<id>/plan.md`<br>`conductor/tracks/<id>/review.md` |
 | `/conductor:status` | Displays the current progress of the tracks file and active tracks. | Reads `conductor/tracks.md` |
 | `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. | Reverts git history |
 | `/conductor:codeReview` | Performs comprehensive code review of changes against a base branch. | None (generates report) |

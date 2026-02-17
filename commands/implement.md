@@ -115,11 +115,63 @@ Before executing the full protocol, perform a quick check:
 2. **Extract track shortname** from the selected track's `track_id` (e.g., `dark-mode-toggle` from `dark-mode-toggle_20260122`)
 3. **If current branch contains the track shortname** (e.g., `feature/dark-mode-toggle`):
    - Announce: "Already on branch `<branch>` for this track. Proceeding."
-   - **SKIP the full Git Isolation Protocol** and proceed directly to **Section 2.5 SKILL ACTIVATION**
+   - **SKIP the full Git Isolation Protocol** and proceed directly to **Section 2.2 BASE BRANCH DETECTION**
 
 4. **Otherwise:** Execute the full Git Isolation Protocol to create or switch to a dedicated git branch.
 
-After completing (or skipping) the protocol, proceed to **Section 2.5 SKILL ACTIVATION**.
+After completing (or skipping) the protocol, proceed to **Section 2.2 BASE BRANCH DETECTION**.
+
+---
+
+## 2.2 BASE BRANCH DETECTION
+
+**PROTOCOL: Detect the originating branch of the current track branch for later use in auto code review.**
+
+Execute this once upfront and store the result for use in Section 3.7.
+
+### Detection Algorithm
+
+Execute the steps below in order, stopping as soon as a branch is successfully identified:
+
+**Step 1: Check git reflog for branch creation event**
+
+```bash
+git reflog show HEAD | grep "branch: Created from" | head -1
+```
+
+- If output contains `Created from <branch>`, extract the branch name (strip any `refs/heads/` or `origin/` prefix).
+- Store as `BASE_BRANCH`.
+
+**Step 2: If Step 1 yields no result, inspect remote tracking information**
+
+```bash
+git log --format="%D" HEAD | tr ',' '\n' | grep "origin/" | head -5
+```
+
+- Look for a remote-tracking ref that is NOT the current branch (e.g., `origin/master`, `origin/main`, `origin/develop`).
+- Store the branch name (without `origin/` prefix) as `BASE_BRANCH`.
+
+**Step 3: If Step 2 yields no result, detect default branch**
+
+Try in order:
+```bash
+git rev-parse --verify origin/master 2>/dev/null && echo "master"
+git rev-parse --verify origin/main 2>/dev/null && echo "main"
+git rev-parse --verify origin/develop 2>/dev/null && echo "develop"
+```
+
+- Use the first branch that exists as `BASE_BRANCH`.
+- Announce: "Base branch auto-detection fell back to `<BASE_BRANCH>`. Please verify this is correct."
+
+**Step 4: If all steps fail**
+
+- Set `BASE_BRANCH` to `master` as a last resort.
+- Announce: "Could not automatically detect the base branch. Defaulting to `master`. You can override this during the code review step."
+
+### Result
+
+- Store `BASE_BRANCH` in session context for use in **Section 3.7 AUTO CODE REVIEW**.
+- Announce (only if detected successfully): "Base branch detected: `<BASE_BRANCH>`."
 
 ---
 
@@ -293,11 +345,229 @@ Capture decisions when encountering: technology selection, pattern choice, API d
 
 ---
 
+## 3.7 AUTO CODE REVIEW
+**PROTOCOL: Run automated code review when a track reaches completion.**
+
+**Trigger:** This section is invoked from Step 6 (Finalize Track) when all tasks are complete.
+
+### 3.7.1 Prompt User
+
+Before running the review, ask the user:
+
+```json
+{
+  "questions": [{
+    "question": "All tasks are complete. Would you like to run an automated code review before finalizing the track?",
+    "header": "Code Review",
+    "options": [
+      {"label": "Run code review (Recommended)", "description": "Analyze changes across code quality, security, and test coverage. Report saved to track folder."},
+      {"label": "Skip", "description": "Finalize the track without running a code review"}
+    ],
+    "multiSelect": false
+  }]
+}
+```
+
+- **If "Skip":** Return to Step 6 and proceed with track finalization.
+- **If "Run code review":** Continue with **Section 3.7.2**.
+
+### 3.7.2 Generate Diff
+
+**IMPORTANT: The review is scoped exclusively to code changed for this track.** The three-dot diff syntax ensures only commits on the current branch (not yet in the base branch) are analyzed.
+
+**IMPORTANT: Only committed changes are included in the diff.** Uncommitted changes (staged or unstaged) are NOT captured by `git diff ...HEAD`. Before generating the diff, check for uncommitted changes.
+
+**Step 0: Check for uncommitted changes**
+
+```bash
+git status --porcelain
+```
+
+- If output is **non-empty** (uncommitted staged or unstaged changes exist):
+  - Offer the user a choice:
+    ```json
+    {
+      "questions": [{
+        "question": "Uncommitted changes were found. What should the review include?",
+        "header": "Review Scope",
+        "options": [
+          {"label": "All changes (Recommended)", "description": "Review both committed and uncommitted changes in this track"},
+          {"label": "Committed changes only", "description": "Review only committed changes (HEAD). Uncommitted work is excluded."},
+          {"label": "Skip review", "description": "Skip the code review entirely"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+  - **If "Skip review":** Return to Step 6 and proceed with track finalization.
+  - **If "All changes":** Use `git diff origin/<BASE_BRANCH>` (two-dot, compares base branch against working tree including uncommitted changes) in Step 3 below.
+  - **If "Committed changes only":** Use `git diff origin/<BASE_BRANCH>...HEAD` (three-dot) in Step 3 below.
+- If output is **empty** (no uncommitted changes): Use `git diff origin/<BASE_BRANCH>...HEAD` (three-dot). Proceed directly.
+
+1. **Use stored base branch** from **Section 2.2** (stored as `BASE_BRANCH`).
+
+2. **Fetch latest:**
+    ```bash
+    git fetch origin
+    ```
+
+3. **Generate diff scoped to this track's changes (use the mode selected in Step 0):**
+
+    - **All changes (committed + uncommitted):**
+      ```bash
+      git diff origin/<BASE_BRANCH>
+      ```
+      Two-dot syntax compares the base branch against the current working tree, capturing all track changes including uncommitted work.
+
+    - **Committed changes only:**
+      ```bash
+      git diff origin/<BASE_BRANCH>...HEAD
+      ```
+      Three-dot syntax uses the merge-base, capturing only committed changes on the current branch.
+
+4. **Extract changed file list (product code only):**
+    ```bash
+    # For all changes (working tree):
+    git diff --name-only origin/<BASE_BRANCH>
+    # OR for committed changes only:
+    git diff --name-only origin/<BASE_BRANCH>...HEAD
+    ```
+    **Filter out Conductor framework files** from the review scope — exclude files matching:
+    - `conductor/tracks/**` (track management files: plan.md, metadata.json, decisions.md, index.md)
+    - Any `.md` or `.json` files that are Conductor workflow artifacts
+
+    Only include product code files (e.g., `.ts`, `.js`, `.py`, `.java`, `.go`, `.rb`, source files) in the analysis.
+
+5. **Handle empty diff or no product code files:**
+    - If no product code files changed: Announce "No product code changes detected for this track. Skipping code review." Proceed to track finalization.
+
+6. **Parse diff statistics** (from full diff including all files):
+    - Count files changed (lines starting with `diff --git`)
+    - Count lines added (lines starting with `+` excluding `+++`)
+    - Count lines removed (lines starting with `-` excluding `---`)
+
+### 3.7.3 Run Analysis (Parallel)
+
+Prepare the agent input using only the **product code diff** (filtered file list from Step 4 above):
+
+```json
+{
+  "diff_content": "<diff output filtered to product code files only>",
+  "file_list": ["<product code files changed in this track>"],
+  "project_context": {
+    "tech_stack": "<from conductor/tech-stack.md>",
+    "styleguide_path": "conductor/code_styleguides/<language>.md",
+    "workflow_path": "conductor/workflow.md"
+  }
+}
+```
+
+**Launch all three specialist agents simultaneously** in a single message with three Task tool calls:
+
+- `subagent_type: "code-quality-analyzer"` with the agent input
+- `subagent_type: "security-scanner"` with the agent input
+- `subagent_type: "test-coverage-analyzer"` with the agent input
+
+**Handle agent failures:**
+- If any single agent fails: fall back to inline analysis for that dimension (skip inline analysis detail for this auto-review; note the failure in the report).
+- If 2+ agents fail: announce "Multiple agents failed. Skipping auto code review." and return to Step 6.
+
+### 3.7.4 Generate and Save Report
+
+1. **Aggregate findings** from all agent results (parse JSON, merge `findings` arrays, sum severity counts).
+
+2. **Generate report** following the structure from `codeReview.md` Section 7.2:
+
+    ```markdown
+    # Code Review Report
+
+    **Branch:** `<current_branch>` vs `origin/<BASE_BRANCH>`
+    **Generated:** <timestamp>
+    **Track:** <track_description>
+
+    ---
+
+    ## Summary
+
+    | Metric | Value |
+    |--------|-------|
+    | Files Changed | X |
+    | Lines Added | +Y |
+    | Lines Removed | -Z |
+    | **Findings** | 🔴 High: N \| 🟡 Medium: N \| 🟢 Low: N |
+
+    ---
+
+    ## Code Quality
+
+    ### High Severity
+    [List findings or "No high severity issues found"]
+
+    ### Medium Severity
+    [List findings]
+
+    ### Low Severity
+    [List findings]
+
+    ---
+
+    ## Security Analysis
+
+    ### Critical/High Severity
+    [List security findings or "No security vulnerabilities detected"]
+
+    ### Medium Severity
+    [List findings]
+
+    ---
+
+    ## Test Coverage
+
+    ### Missing Tests
+    [List files without tests or "All changed files have corresponding tests"]
+
+    ### Insufficient Coverage
+    [List coverage gaps]
+
+    ---
+
+    ## Recommendations
+
+    **Priority Actions (address before merging):**
+    1. [High severity items that must be fixed]
+
+    **Suggested Improvements:**
+    1. [Medium/Low severity items to consider]
+
+    ---
+
+    *Auto-review generated by `/conductor:implement` on track completion*
+    ```
+
+3. **Save report to track folder:**
+    - Write the generated report to `conductor/tracks/<track_id>/review.md`.
+
+4. **Update track `index.md`:**
+    - Add a link to the review file in the track's `index.md`:
+      ```markdown
+      - [Code Review Report](./review.md) - Auto-generated review on track completion
+      ```
+
+5. **Display report to user:**
+    - Output the complete report inline.
+    - If high severity findings exist: "⚠️ High severity findings detected. Review the report before merging."
+    - If no high severity findings: "✅ Auto code review passed. No blocking issues found."
+
+6. **Return to Step 6** to proceed with track finalization. The review is **non-blocking** — track completion proceeds regardless of findings.
+
+---
+
 6.  **Finalize Track:**
-    -   After all tasks in the track's local **Implementation Plan** are completed, you MUST update the track's status.
+    -   After all tasks in the track's local **Implementation Plan** are completed, you MUST invoke **Section 3.7 AUTO CODE REVIEW** first.
+    -   After the code review step completes (or is skipped), proceed with finalization:
     -   **Update via CLI:** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
     -   **If CLI fails:** Fall back to manually editing the **Tracks Registry**, finding the specific line (e.g., `- [~] **Track: <Description>**`) and replacing it with `- [x] **Track: <Description>**`.
-    -   **Commit Changes:** Stage the **Tracks Registry** file along with any uncommitted `plan.md` changes (checkpoint SHA annotations). Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
+    -   **Commit Changes:** Stage the **Tracks Registry** file, any uncommitted `plan.md` changes (checkpoint SHA annotations), and the `review.md` file (if generated). Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
     -   Announce that the track is fully complete and the tracks file has been updated.
 
 ---
