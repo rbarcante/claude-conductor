@@ -8,7 +8,7 @@
   - [x] Sub-task: Map every setup.md section to its XML tag equivalent
 - [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Apply XML Tags to setup.md
+## Phase 2: Apply XML Tags to setup.md [checkpoint: 2775f2f]
 
 - [x] Task: Wrap Section 1.0 SYSTEM DIRECTIVE in `<system_directive>` with `<note type="critical">`
 - [x] Task: Wrap Action CLI Commands + Fallback in `<cli_reference>`
