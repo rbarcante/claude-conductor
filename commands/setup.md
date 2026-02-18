@@ -17,12 +17,20 @@ allowed-tools:
 
 !`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --get 2>/dev/null; python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup detect`
 
+<system_directive>
+
 ## 1.0 SYSTEM DIRECTIVE
 You are an AI agent. Your primary function is to set up and manage a software project using the Conductor methodology. Adhere to these instructions precisely and sequentially.
 
+<note type="critical">
 CRITICAL: Validate the success of every tool call. If any fails, halt immediately and await user instructions.
+</note>
+
+</system_directive>
 
 ---
+
+<cli_reference>
 
 ## Action CLI Commands
 
@@ -43,11 +51,17 @@ If context injection fails:
 1. **State check:** Read `conductor/setup_state.json` if it exists
 2. **Project detection:** Check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/`
 
+</cli_reference>
+
 ---
+
+<protocol name="askuserquestion">
 
 ## AskUserQuestion Tool Protocol
 
 **Full Pattern Reference:** `templates/askuserquestion-patterns.md`
+
+<constraints>
 
 ### Quick Reference
 
@@ -67,13 +81,21 @@ If context injection fails:
 | Approval | `false` | Document review (Approve/Suggest changes) |
 | Confirmation | `false` | Yes/No decisions |
 
+</constraints>
+
 ### Auto-Generate Behavior
 
 When user selects "Auto-generate": stop asking questions, use context to infer remaining details, generate document, present for approval.
 
+</protocol>
+
 ---
 
+<phase name="resume_check">
+
 ## 1.1 RESUME CHECK
+
+<instructions>
 
 **PROTOCOL: Check setup state and resume from last successful step.**
 
@@ -94,9 +116,17 @@ When user selects "Auto-generate": stop asking questions, use context to infer r
 
 3. **New Project:** If no state JSON returned, proceed to Section 1.2.
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="pre_init">
+
 ## 1.2 PRE-INITIALIZATION OVERVIEW
+
+<instructions>
 
 Present to user:
 > "Welcome to Conductor. I will guide you through:
@@ -107,9 +137,17 @@ Present to user:
 >
 > Let's get started!"
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="inception">
+
 ## 2.0 PROJECT INCEPTION
+
+<instructions name="detect_maturity">
 
 ### 2.0.1 Detect Project Maturity
 
@@ -135,6 +173,10 @@ Present to user:
    - Write response to `conductor/product.md` under `# Initial Concept`
    - Proceed to Section 2.1
 
+</instructions>
+
+<instructions name="stack_detection">
+
 ### 2.0.2 Automatic Stack Detection (Brownfield Only)
 
 **Full Protocol Reference:** `protocols/stack-detection.md`
@@ -158,6 +200,10 @@ Present to user:
    - **Skip:** Set `stack_auto_detected = false`
 
 4. **Continue:** Proceed to Section 2.0.3.
+
+</instructions>
+
+<instructions name="codebase_analysis">
 
 ### 2.0.3 Codebase Analysis (Brownfield Only)
 
@@ -207,9 +253,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 5. **Continue:** Proceed to Section 2.1.
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="product_guide">
+
 ## 2.1 Generate Product Guide (Interactive)
+
+<instructions>
 
 **Pattern Examples:** See `templates/askuserquestion-patterns.md`
 
@@ -233,9 +287,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.1_product_guide"
    ```
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="product_guidelines">
+
 ## 2.2 Generate Product Guidelines (Interactive)
+
+<instructions>
 
 1. **Announce:** "I will now help create `product-guidelines.md`."
 
@@ -250,9 +312,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.2_product_guidelines"
    ```
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="tech_stack">
+
 ## 2.3 Generate Tech Stack (Interactive)
+
+<instructions>
 
 1. **Check Auto-Detection:** If `stack_auto_detected = true`, skip questions and use stored profile.
 
@@ -273,9 +343,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.3_tech_stack"
    ```
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="style_guides">
+
 ## 2.4 Select Style Guides (Interactive)
+
+<instructions>
 
 **Template Reference:** `protocols/ai-template-generation.md`
 
@@ -295,9 +373,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"
    ```
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="workflow">
+
 ## 2.5 Select Workflow (Interactive)
+
+<instructions>
 
 1. **Copy Initial Workflow:** Copy `${CLAUDE_PLUGIN_ROOT}/templates/workflow.md` to `conductor/workflow.md`
 
@@ -309,11 +395,21 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5_workflow"
    ```
 
+</instructions>
+
+</phase>
+
 ---
+
+<phase name="docs_generation">
 
 ## 2.5.1 Documentation Generation (Brownfield Only)
 
+<note>
 **Skip Condition:** Only execute if `codebase_analyzed = true` AND `approved_categories` is not empty.
+</note>
+
+<instructions>
 
 ### Execution Steps
 
@@ -336,9 +432,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5.1_docs_generated"
    ```
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="finalization">
+
 ## 2.6 Finalization
+
+<instructions>
 
 1. **Generate Index:** Create `conductor/index.md` with links to all context files
 
@@ -346,9 +450,17 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 3. **Transition:** Announce proceeding to initial track generation
 
+</instructions>
+
+</phase>
+
 ---
 
+<phase name="track_generation">
+
 ## 3.0 INITIAL TRACK GENERATION
+
+<instructions name="product_requirements">
 
 ### 3.1 Generate Product Requirements (Greenfield Only)
 
@@ -358,6 +470,10 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 3. **Continue:** Proceed to Section 3.2
 
+</instructions>
+
+<instructions name="propose_track">
+
 ### 3.2 Propose Initial Track
 
 1. **Generate Track Title:** Analyze context and propose single initial track
@@ -365,6 +481,10 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
    - **Brownfield:** Maintenance or targeted enhancement
 
 2. **User Confirmation:** Use Approval pattern (Approve/Different track)
+
+</instructions>
+
+<instructions name="create_artifacts">
 
 ### 3.3 Create Track Artifacts
 
@@ -387,6 +507,10 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "3.3_initial_track_generated"
 ```
 
+</instructions>
+
+<instructions name="final_announcement">
+
 ### 3.4 Final Announcement
 
 1. **Stage and Commit:**
@@ -396,3 +520,7 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "
    ```
 
 2. **Next Steps:** Inform user to run `/conductor:implement`
+
+</instructions>
+
+</phase>
