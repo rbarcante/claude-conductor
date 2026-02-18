@@ -2,11 +2,11 @@
 
 ## Phase 1: Analysis and Tag Mapping
 
-- [ ] Task: Read and compare both files
-  - [ ] Sub-task: Read current `commands/setup.md` in full
-  - [ ] Sub-task: Confirm tag schema from `commands/newTrack.md`
-  - [ ] Sub-task: Map every setup.md section to its XML tag equivalent
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Read and compare both files
+  - [x] Sub-task: Read current `commands/setup.md` in full
+  - [x] Sub-task: Confirm tag schema from `commands/newTrack.md`
+  - [x] Sub-task: Map every setup.md section to its XML tag equivalent
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Apply XML Tags to setup.md
 
