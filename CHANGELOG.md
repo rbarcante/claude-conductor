@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/rbarcante/claude-conductor/compare/v1.2.1...v1.3.0) (2026-02-19)
+
+
+### Features
+
+* **implement:** Add auto code review integration on track completion ([#39](https://github.com/rbarcante/claude-conductor/issues/39)) ([d24d622](https://github.com/rbarcante/claude-conductor/commit/d24d622c7547f1d177c44f4b726653cf2b44da6d))
+
+
+### Code Refactoring
+
+* **newTrack:** Add XML tags for structured prompt parsing ([#38](https://github.com/rbarcante/claude-conductor/issues/38)) ([d66d079](https://github.com/rbarcante/claude-conductor/commit/d66d079c022ee8de80b5b83447d39e61c9a34349))
+* **setup:** Apply XML tags following newTrack.md pattern ([#40](https://github.com/rbarcante/claude-conductor/issues/40)) ([a11e719](https://github.com/rbarcante/claude-conductor/commit/a11e719591c687fc20a90f66e4129b901758387d))
+
 ## [1.2.1](https://github.com/rbarcante/claude-conductor/compare/v1.2.0...v1.2.1) (2026-02-12)
 
 
