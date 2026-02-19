@@ -201,9 +201,9 @@ All skill scoring and activation happens once in this section — both always-ac
 
 ### Step 3: Score Context-Specific Skills
 
-Using the track's spec, plan, and the project's `conductor/tech-stack.md`, score all non-always-active skills:
+Using the track's spec, plan, and the project's `conductor/tech-stack.md`, score all non-always-active skills. Read these files now if not already loaded:
 
-1.  **Extract Keywords:** Tokenize and normalize keywords from the track's **Specification** and **Implementation Plan** (loaded in Section 3.0 Step 3)
+1.  **Extract Keywords:** Read the track's **Specification** and **Implementation Plan** (using the **Universal File Resolution Protocol**), then tokenize and normalize keywords from their content
 2.  **Match Tech Stack:** Read `conductor/tech-stack.md` and match against each skill's `activation.tech_stack` (languages, frameworks, tools)
 3.  **Match File Patterns:** If the plan references specific file paths or types, match against each skill's `activation.file_patterns`
 4.  **Score Each Skill:** Apply the scoring table:
