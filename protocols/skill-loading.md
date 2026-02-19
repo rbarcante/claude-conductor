@@ -1,14 +1,14 @@
 # Skill Loading Protocol
 
-**Version:** 1.0.0
-**Purpose:** Activate relevant skills during implementation based on task context
-**Scope:** Conductor commands, task execution workflow
+**Version:** 1.1.0
+**Purpose:** Activate all relevant skills upfront before task execution begins, using track and project context
+**Scope:** Conductor commands, track implementation workflow
 
 ---
 
 ## Overview
 
-This protocol defines how to identify and load relevant skills from the Skill Registry. Skills provide domain-specific guidance, patterns, and protocols that enhance implementation quality.
+This protocol defines how to identify and load relevant skills from the Skill Registry **upfront, before task execution begins**. All skill scoring uses the track's specification, implementation plan, and project tech stack — not individual task descriptions. Skills provide domain-specific guidance, patterns, and protocols that enhance implementation quality.
 
 ---
 
@@ -126,11 +126,11 @@ Load order: C → B → A
 
 ## 6. Score Remaining Skills
 
-For each non-always-active skill (not disabled, dependencies resolved), calculate activation score.
+For each non-always-active skill (not disabled, dependencies resolved), calculate activation score using track-level context.
 
-### 6.1 Keyword Extraction from Task
+### 6.1 Keyword Extraction from Track Context
 
-From the current task description:
+From the track's **Specification** and **Implementation Plan**:
 1. **Tokenize**: Split into individual words
 2. **Normalize**: Convert to lowercase, remove punctuation
 3. **Filter**: Remove stop words (a, an, the, in, on, for, with, is, are, etc.)
@@ -138,7 +138,7 @@ From the current task description:
 
 ### 6.2 File Pattern Matching
 
-1. Get list of files to be modified in task (from plan or context)
+1. Get list of files referenced in the track's plan or specification
 2. Match against skill's `activation.file_patterns` globs
 3. Any matching file contributes to score
 
@@ -154,8 +154,8 @@ From the current task description:
 
 | Match Type | Condition | Score |
 |------------|-----------|-------|
-| **Keyword match** | Task keyword matches activation keyword | +1.0 |
-| **File pattern** | Modified file matches skill's file_pattern | +1.5 |
+| **Keyword match** | Track spec/plan keyword matches activation keyword | +1.0 |
+| **File pattern** | Referenced file matches skill's file_pattern | +1.5 |
 | **Language match** | Project language matches skill's tech_stack.languages | +2.0 |
 | **Framework match** | Project framework matches skill's tech_stack.frameworks | +1.5 |
 | **Tool match** | Project tool matches skill's tech_stack.tools | +1.0 |
@@ -171,7 +171,7 @@ From the current task description:
 | **< 1.5** | Do not activate |
 
 **Constraints:**
-- Maximum 5 skills per task (excluding always-active)
+- Maximum 5 skills per track (excluding always-active)
 - Sort by score descending
 - If no skills score >= 1.5, continue with only always-active skills
 
@@ -202,13 +202,13 @@ For each activated skill:
 1. Read the skill's `SKILL.md` file from `<skill_path>/SKILL.md`
 2. Parse YAML frontmatter for metadata
 3. Add skill guidance to implementation context
-4. Track which skills are active for the current task
+4. Track which skills are active for the current track
 
 ---
 
 ## 10. Skill Announcement Format
 
-When skills are activated, announce at the start of task execution:
+When skills are activated, announce once upfront before task execution begins:
 
 ```
 🔧 **Skills Activated:**

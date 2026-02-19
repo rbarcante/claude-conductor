@@ -59,7 +59,7 @@ To find a file (e.g., "**Product Definition**") within a specific context (Proje
 
 ## Skill Loading Protocol
 
-**PROTOCOL: How to activate relevant skills during implementation.**
+**PROTOCOL: How to activate relevant skills upfront before task execution begins.**
 
 **Full Protocol Reference:** `protocols/skill-loading.md`
 
@@ -68,9 +68,9 @@ To find a file (e.g., "**Product Definition**") within a specific context (Proje
 1. **Load registry** from `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json`
 2. **Check settings** in `conductor/settings.json` for disabled skills
 3. **Load always-active** skills immediately (cannot be disabled)
-4. **Score remaining** skills using: keywords (+1.0), file patterns (+1.5), language (+2.0), framework (+1.5), tools (+1.0)
+4. **Score remaining** skills using track spec/plan and tech-stack: keywords (+1.0), file patterns (+1.5), language (+2.0), framework (+1.5), tools (+1.0)
 5. **Activate** skills scoring >= 1.5 (max 5, sorted by score)
-6. **Announce** activated skills at task start
+6. **Announce** all activated skills upfront before task execution
 
 ### Activation Thresholds
 
