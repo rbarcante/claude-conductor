@@ -184,46 +184,58 @@ Before storing `BASE_BRANCH`, validate the extracted value:
 
 ---
 
-## 2.5 SKILL ACTIVATION (LAZY LOADING)
-**PROTOCOL: Load skills incrementally to minimize upfront token usage.**
+## 2.5 SKILL ACTIVATION
+**PROTOCOL: Activate all relevant skills upfront before task execution begins.**
 
-This section uses a two-phase approach: always-active skills are loaded once upfront, while task-specific skills are loaded lazily during task execution.
+All skill scoring and activation happens once in this section — both always-active skills and context-specific skills. No per-task skill activation occurs during the task loop.
 
-### Phase 1: Load Always-Active Skills (Upfront)
+### Step 1: Load Skill Registry
 
-1.  **Load Skill Registry:**
-    -   Read `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json` to get available skills
-    -   If registry doesn't exist, skip skill activation silently and proceed to Track Implementation
+1.  Read `${CLAUDE_PLUGIN_ROOT}/skills/skill-registry.json` to get available skills
+2.  If registry doesn't exist, skip skill activation silently and proceed to Track Implementation
 
-2.  **Load Always-Active Skills Only:**
-    -   Identify skills with `activation.always_active: true`
-    -   Read their SKILL.md files and add guidance to implementation context
-    -   Announce: `🔧 **Skills Activated:** conductor-methodology (always active)`
+### Step 2: Load Always-Active Skills
 
-3.  **Continue:** Proceed to **Section 3.0 TRACK IMPLEMENTATION**
+1.  Identify skills with `activation.always_active: true`
+2.  Read their SKILL.md files and add guidance to implementation context
 
-### Phase 2: Load Task-Specific Skills (Deferred to Task Loop)
+### Step 3: Score Context-Specific Skills
 
-Task-specific skill activation happens in Section 3.0, Step 5.c **before each task** executes:
+Using the track's spec, plan, and the project's `conductor/tech-stack.md`, score all non-always-active skills:
 
-1.  **Extract Keywords:** From the current task description
-2.  **Match Skills:** Against `activation.keywords`, `activation.tech_stack`, and `activation.file_patterns`
-3.  **Activate:** Load SKILL.md for skills scoring >= 1.5 (max 3 per task)
-4.  **Announce:** Only if new skills are activated for this task
+1.  **Extract Keywords:** Tokenize and normalize keywords from the track's **Specification** and **Implementation Plan** (loaded in Section 3.0 Step 3)
+2.  **Match Tech Stack:** Read `conductor/tech-stack.md` and match against each skill's `activation.tech_stack` (languages, frameworks, tools)
+3.  **Match File Patterns:** If the plan references specific file paths or types, match against each skill's `activation.file_patterns`
+4.  **Score Each Skill:** Apply the scoring table:
 
-### Skill Announcement Format
+    | Match Type | Condition | Score |
+    |------------|-----------|-------|
+    | Keyword match | Spec/plan keyword matches activation keyword | +1.0 |
+    | File pattern | Referenced file matches skill's file_pattern | +1.5 |
+    | Language match | Project language matches skill's tech_stack.languages | +2.0 |
+    | Framework match | Project framework matches skill's tech_stack.frameworks | +1.5 |
+    | Tool match | Project tool matches skill's tech_stack.tools | +1.0 |
 
-**Upfront (always-active only):**
+5.  **Activate:** Load SKILL.md for skills scoring >= 1.5 (max 5, sorted by score descending)
+
+### Step 4: Announce Activated Skills
+
+```
+🔧 **Skills Activated:**
+- conductor-methodology (always active)
+- typescript-best-practices (score: 3.5)
+```
+
+If only always-active skills are loaded, use the shorter format:
 ```
 🔧 **Skills Activated:** conductor-methodology (always active)
 ```
 
-**Per-task (if new skills activated):**
-```
-🔧 **Task Skills:** [Skill Name] activated for this task
-```
+If skill registry is missing or no skills are activated, proceed silently without announcement.
 
-If skill registry is missing or no always-active skills exist, proceed silently without announcement.
+### Step 5: Continue
+
+Proceed to **Section 3.0 TRACK IMPLEMENTATION**. All activated skills are now available for the entire track execution — no further skill loading occurs during task execution.
 
 ---
 
@@ -294,11 +306,7 @@ If skill registry is missing or no always-active skills exist, proceed silently 
     a. **Announce:** State that you will now execute the tasks from the track's **Implementation Plan** by following the procedures in the **Workflow**.
     b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
     c. **For Each Task, You MUST:**
-        i. **Activate Task-Specific Skills (Lazy - Phase 2 from Section 2.5):**
-            - Extract keywords from the current task description
-            - Match against skill registry (skip skills already loaded)
-            - For new matches scoring >= 1.5, load their SKILL.md (max 3 per task)
-            - If new skills activated, announce: `🔧 **Task Skills:** [Name] activated`
+        i. **Apply Pre-Loaded Skills:** Use the skills already activated in **Section 2.5**. All relevant skills for this track were scored and loaded upfront — no additional skill activation is needed per-task.
         ii. **Defer to Workflow (FROM CACHE):** The **Workflow** file is the **single source of truth** for the entire task lifecycle. Reference the Workflow already loaded in Step 3 above—DO NOT re-read the file. Execute the procedures defined in the "Task Workflow" section. Follow its steps for implementation, testing, and committing precisely.
         iii. **Capture Decisions:** During implementation, invoke the **Decision Capture Protocol** (Section 3.6) when significant decision points are encountered. Record decisions to the track's `decisions.md` file.
 
