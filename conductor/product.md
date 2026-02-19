@@ -91,6 +91,7 @@ Execute the plan systematically:
 - Commit with proper messages and git notes
 - Phase completion verification and checkpointing
 - Capture significant decisions in ADR format
+- Automated code review on track completion (non-blocking, saved to `review.md`)
 
 ### Progress Tracking (`/conductor:status`)
 Always know where you stand:
