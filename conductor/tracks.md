@@ -69,7 +69,12 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 ## Active Tracks
 
 
+
+- [x] **Track: Automate integration between implement and codeReview commands**
+  *Link: [automate-integration-between-implement_20260217](./conductor/tracks/automate-integration-between-implement_20260217/)*
+
 - [x] **Track: Update setup.md to use XML tags following newTrack.md pattern**
   *Link: [update-setup-use-xml_20260217](./conductor/tracks/update-setup-use-xml_20260217/)*
+
 - [x] **Track: Improve newTrack.md with XML tags following Anthropic prompt engineering guidelines**
   *Link: [improve-newtrack-xml-tags_20260216](./conductor/tracks/improve-newtrack-xml-tags_20260216/)*
