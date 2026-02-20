@@ -259,6 +259,7 @@ class TestTracksParser:
     def test_newtrack_register_writes_checkbox_format(self, tmp_path):
         """Regression test: newtrack register must write checkbox format, not table format."""
         import sys
+
         sys.path.insert(0, str(Path(__file__).parent.parent))
         from commands.newtrack import _create_track_entry
 
