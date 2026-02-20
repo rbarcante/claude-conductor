@@ -71,6 +71,9 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 
 
 
+
+- [ ] **Track: Remove tracks.md registry, use directory scan via conductor_cli.py**
+  *Link: [remove-tracks-registry-use_20260220](./conductor/tracks/remove-tracks-registry-use_20260220/)*
 - [x] **Track: Add ACLI Jira skill for consistent CLI usage**
   *Link: [add-acli-jira-skill_20260220](./conductor/tracks/add-acli-jira-skill_20260220/)*
 - [x] **Track: Automate integration between implement and codeReview commands**
