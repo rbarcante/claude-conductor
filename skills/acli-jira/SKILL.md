@@ -8,6 +8,14 @@ version: 1.0.0
 
 Quick-reference for Atlassian CLI (`acli`) Jira commands. Covers authentication, work item CRUD, search, project management, boards, sprints, and filters.
 
+## Core Principles
+
+1. **Authenticate first**: Verify auth status before running commands
+2. **JQL for precision**: Use JQL queries for targeted searches over broad listing
+3. **Bulk via JQL**: Prefer `--jql` over comma-separated `--key` for operations on many items
+4. **Output format matters**: Use `--json` for scripting, `--csv` for exports, default for readability
+5. **Use short flags**: Combine `-p`, `-t`, `-s`, `-a` for faster command composition
+
 ## Authentication
 
 Authenticate before running any Jira command.
@@ -312,7 +320,8 @@ acli jira filter change-owner --filter-id "12345" --owner "newowner@company.com"
 | `--key` | | Target work item(s), comma-separated |
 | `--jql` | `-j` | JQL query for bulk operations |
 | `--fields` | `-f` | Comma-separated field list |
-| `--limit` | `-l` | Max results to return |
+| `--label` | `-l` | Add labels (comma-separated) |
+| `--limit` | | Max results to return |
 | `--paginate` | | Fetch all results via pagination |
 | `--assignee` | `-a` | User email or `@me` |
 | `--project` | `-p` | Project key |
@@ -405,19 +414,4 @@ acli jira workitem transition --key "PROJ-123" --status "Done"
 
 ## Output Formatting Tips
 
-```bash
-# JSON output for scripting and piping
-acli jira workitem search --jql "project = PROJ" --json
-
-# CSV for spreadsheet export
-acli jira workitem search --jql "project = PROJ" --csv
-
-# Select specific fields to reduce noise
-acli jira workitem search --jql "project = PROJ" -f "key,summary,status,priority"
-
-# Get just the count
-acli jira workitem search --jql "project = PROJ AND type = Bug" --count
-
-# Paginate through large result sets
-acli jira workitem search --jql "project = PROJ" --paginate --limit 100
-```
+Use `--json` for scripting/piping, `--csv` for spreadsheet export, `--count` for totals only, and `-f` to select specific fields. Add `--paginate` with `--limit` for large result sets. These flags work across most `search` and `list` commands.

@@ -90,7 +90,6 @@
       "description": "Atlassian CLI (ACLI) Jira command reference for work items, projects, boards, sprints, and filters",
       "activation": {
         "keywords": ["acli", "atlassian cli", "jira cli", "jira command", "jira workitem", "jira project", "jira board", "jira sprint", "jira filter"],
-        "file_patterns": [],
         "tech_stack": {
           "tools": ["ACLI", "Atlassian CLI"]
         }
