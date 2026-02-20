@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/rbarcante/claude-conductor/compare/v1.4.0...v1.5.0) (2026-02-20)
+
+
+### Features
+
+* **skills:** Add ACLI Jira skill for CLI command reference ([#50](https://github.com/rbarcante/claude-conductor/issues/50)) ([f8e2eb7](https://github.com/rbarcante/claude-conductor/commit/f8e2eb76d2ae79ca4fd2c0e62275921b59f62625))
+
+## [1.4.0](https://github.com/rbarcante/claude-conductor/compare/v1.3.0...v1.4.0) (2026-02-20)
+
+
+### Features
+
+* Auto code review, XML tag refactoring, and tracks parser fix ([ea00c31](https://github.com/rbarcante/claude-conductor/commit/ea00c31fde4012e6476027cfce8452ca286c8852))
+
+
+### Bug Fixes
+
+* **tracks-parser:** Parse Markdown table format in TracksParser ([#47](https://github.com/rbarcante/claude-conductor/issues/47)) ([a83447d](https://github.com/rbarcante/claude-conductor/commit/a83447da03e559e2897c46b752024f18a479387e))
+
 ## [1.3.0](https://github.com/rbarcante/claude-conductor/compare/v1.2.1...v1.3.0) (2026-02-19)
 
 
