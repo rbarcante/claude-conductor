@@ -439,6 +439,7 @@ Conductor includes the following reference skills out of the box:
 | **typescript-best-practices** | Type safety, async patterns, null handling | `.ts`, `.tsx` files; TypeScript tech stack |
 | **api-design** | REST conventions, error responses, versioning | routes/controllers/api directories; backend frameworks |
 | **testing-strategies** | Unit testing, integration testing, mocking | test files (`*.test.*`, `*.spec.*`); test frameworks |
+| **acli-jira** | ACLI Jira command reference for work items, projects, boards, sprints | Jira-related keywords; ACLI/Atlassian CLI tools |
 
 ### Skill Patterns
 
