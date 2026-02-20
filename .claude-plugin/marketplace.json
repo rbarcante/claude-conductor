@@ -10,7 +10,7 @@
     {
       "name": "conductor",
       "description": "Context-driven development framework that enables structured lifecycle for software projects: Context, Spec & Plan, Implement",
-      "version": "1.5.0",
+      "version": "2.0.0",
       "source": "./"
     }
   ]

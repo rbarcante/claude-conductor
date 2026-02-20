@@ -13,9 +13,10 @@
 # limitations under the License.
 
 """
-Tracks registry parsing and manipulation.
+Tracks directory scanning and plan parsing.
 
-Parses tracks.md and plan.md files, extracting status markers and structure.
+Scans conductor/tracks/*/metadata.json for track status and structure.
+Parses plan.md files, extracting status markers and structure.
 """
 
 import re
@@ -35,12 +36,12 @@ class TaskStatus(Enum):
 
 @dataclass
 class Track:
-    """Represents a track in the registry."""
+    """Represents a track discovered via directory scan."""
 
     description: str
     path: Optional[str]
     status: TaskStatus
-    raw_line: str
+    raw_line: str  # kept for backward compatibility, always empty string
 
 
 @dataclass
@@ -84,14 +85,9 @@ class PlanMetrics:
 
 
 class TracksParser:
-    """Parser for tracks.md and plan.md files."""
+    """Parser for plan.md files and directory-based track scanning."""
 
-    # Regex patterns
-    STATUS_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]")
-    TRACK_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]\s*\*\*Track:\s*(.+?)\*\*")
-    LINK_PATTERN = re.compile(r"\*Link:\s*\[([^\]]+)\]\(([^)]+)\)\*")
-    TABLE_ROW_PATTERN = re.compile(r"^\s*\|(.+)\|\s*$")
-    TABLE_SEPARATOR_PATTERN = re.compile(r"^\s*\|[\s\-|]+\|\s*$")
+    # Plan-related regex patterns (kept)
     PHASE_PATTERN = re.compile(
         r"^#\s+Phase\s+\d+:\s*(.+?)(?:\s*\[checkpoint:\s*([a-f0-9]+)\])?$",
         re.IGNORECASE,
@@ -107,98 +103,82 @@ class TracksParser:
         """Initialize parser with project root."""
         self.project_root = Path(project_root).resolve()
 
-    def parse_tracks_registry(self, content: str = None) -> List[Track]:
+    def scan_tracks_directory(self, include_archived: bool = True) -> List[Track]:
         """
-        Parse tracks.md file content.
+        Scan conductor/tracks/ for subdirectories containing metadata.json.
 
         Args:
-            content: File content (if None, reads from default location)
+            include_archived: If True, also scan conductor/tracks/archive/
 
         Returns:
-            List of Track objects
+            List of Track objects, ordered by track_id (directory name)
         """
-        if content is None:
-            tracks_path = self.project_root / "conductor/tracks.md"
-            if not tracks_path.exists():
-                return []
-            content = tracks_path.read_text()
+        import json as _json
 
-        tracks = []
-        lines = content.split("\n")
-        table_headers: Optional[List[str]] = None
+        tracks: List[Track] = []
+        tracks_dir = self.project_root / "conductor" / "tracks"
 
-        i = 0
-        while i < len(lines):
-            line = lines[i]
+        if not tracks_dir.exists():
+            return []
 
-            # Check for checkbox-format track entry
-            track_match = self.TRACK_PATTERN.match(line)
-            if track_match:
-                status_char = track_match.group(1)
-                description = track_match.group(2).strip()
-                status = self._char_to_status(status_char)
-
-                # Look for link on next line
-                path = None
-                if i + 1 < len(lines):
-                    link_match = self.LINK_PATTERN.search(lines[i + 1])
-                    if link_match:
-                        path = link_match.group(2)
-                        i += 1
-
-                tracks.append(
-                    Track(
-                        description=description, path=path, status=status, raw_line=line
-                    )
-                )
-                i += 1
+        # Scan active track directories (skip archive/ itself)
+        for subdir in sorted(tracks_dir.iterdir()):
+            if not subdir.is_dir() or subdir.name == "archive":
                 continue
 
-            # Check for Markdown table rows
-            if self.TABLE_ROW_PATTERN.match(line):
-                # Skip separator rows like |---|---|
-                if self.TABLE_SEPARATOR_PATTERN.match(line):
-                    i += 1
-                    continue
+            metadata_file = subdir / "metadata.json"
+            if not metadata_file.exists():
+                continue
 
-                cols = [c.strip() for c in line.strip().strip("|").split("|")]
+            try:
+                metadata = _json.loads(metadata_file.read_text())
+            except Exception:
+                continue
 
-                # Detect header row (ID | Title | Status | Created)
-                if cols and cols[0].lower() == "id":
-                    table_headers = [c.lower() for c in cols]
-                    i += 1
-                    continue
+            description = metadata.get("description", "")
+            status_str = str(metadata.get("status", "pending"))
+            status = self._string_to_status(status_str)
+            path = f"./conductor/tracks/{subdir.name}/"
 
-                # Data row — parse if we have headers
-                if table_headers and len(cols) >= len(table_headers):
-                    row = dict(zip(table_headers, cols))
-                    track_id = row.get("id", "").strip()
-                    description = row.get("title", "").strip()
-                    status_str = row.get("status", "pending").strip().lower()
+            tracks.append(
+                Track(
+                    description=description,
+                    path=path,
+                    status=status,
+                    raw_line="",
+                )
+            )
 
-                    if not track_id or not description:
-                        i += 1
+        # Optionally scan archive directory
+        if include_archived:
+            archive_dir = tracks_dir / "archive"
+            if archive_dir.exists():
+                for subdir in sorted(archive_dir.iterdir()):
+                    if not subdir.is_dir():
                         continue
 
+                    metadata_file = subdir / "metadata.json"
+                    if not metadata_file.exists():
+                        continue
+
+                    try:
+                        metadata = _json.loads(metadata_file.read_text())
+                    except Exception:
+                        continue
+
+                    description = metadata.get("description", "")
+                    status_str = str(metadata.get("status", "completed"))
                     status = self._string_to_status(status_str)
-                    path = f"./conductor/tracks/{track_id}/"
+                    path = f"./conductor/tracks/archive/{subdir.name}/"
 
                     tracks.append(
                         Track(
                             description=description,
                             path=path,
                             status=status,
-                            raw_line=line,
+                            raw_line="",
                         )
                     )
-                    i += 1
-                    continue
-
-            # Non-table line resets header context only if it's not blank
-            if line.strip() and not self.TABLE_ROW_PATTERN.match(line):
-                table_headers = None
-
-            i += 1
 
         return tracks
 
@@ -316,32 +296,6 @@ class TracksParser:
             "total": completed + in_progress + pending,
         }
 
-    def update_track_status(
-        self, content: str, track_description: str, new_status: TaskStatus
-    ) -> str:
-        """
-        Update a track's status in tracks.md content.
-
-        Args:
-            content: Current tracks.md content
-            track_description: Track description to find
-            new_status: New status to set
-
-        Returns:
-            Updated content
-        """
-        status_char = self._status_to_char(new_status)
-        lines = content.split("\n")
-        result = []
-
-        for line in lines:
-            if f"**Track: {track_description}**" in line or track_description in line:
-                # Replace status marker
-                line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
-            result.append(line)
-
-        return "\n".join(result)
-
     def update_task_status(
         self,
         content: str,
@@ -388,49 +342,18 @@ class TracksParser:
         Returns:
             Track ID or None
         """
-        match = re.search(r"conductor/tracks/([^/]+)", path)
+        match = re.search(r"conductor/tracks/(?:archive/)?([^/]+)", path)
         if match:
             return match.group(1)
         return None
 
-    def get_in_progress_items(self, content: str) -> List[Dict[str, Any]]:
-        """
-        Get all in-progress items from content.
-
-        Args:
-            content: Markdown content
-
-        Returns:
-            List of dicts with 'type' and 'content' keys
-        """
-        items = []
-        lines = content.split("\n")
-
-        for line in lines:
-            if "[~]" in line:
-                # Determine type
-                if "**Track:" in line:
-                    item_type = "track"
-                elif "Phase" in line:
-                    item_type = "phase"
-                elif "Task:" in line:
-                    item_type = "task"
-                else:
-                    item_type = "subtask"
-
-                items.append(
-                    {"type": item_type, "content": line.strip(), "raw_line": line}
-                )
-
-        return items
-
     def _string_to_status(self, status_str: str) -> TaskStatus:
-        """Convert a status string (from table column) to TaskStatus enum."""
+        """Convert a status string to TaskStatus enum."""
         if status_str in ("completed", "done"):
             return TaskStatus.COMPLETED
         elif status_str in ("in-progress", "in_progress", "active"):
             return TaskStatus.IN_PROGRESS
-        return TaskStatus.PENDING
+        return TaskStatus.PENDING  # handles "new", "pending", anything else
 
     def _char_to_status(self, char: str) -> TaskStatus:
         """Convert status character to TaskStatus enum."""

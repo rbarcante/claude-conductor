@@ -61,7 +61,6 @@ def verify_setup(project_root: Path) -> Dict[str, Any]:
         "product_definition": "conductor/product.md",
         "tech_stack": "conductor/tech-stack.md",
         "workflow": "conductor/workflow.md",
-        "tracks_registry": "conductor/tracks.md",
     }
 
     # Optional files
@@ -122,7 +121,7 @@ def verify_setup(project_root: Path) -> Dict[str, Any]:
 
 def parse_tracks(project_root: Path) -> Dict[str, Any]:
     """
-    Parse all tracks from tracks.md.
+    Parse all tracks via directory scan of conductor/tracks/*/metadata.json.
 
     Returns structured data about each track with status.
     """
@@ -130,15 +129,15 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
     parser = TracksParser(project_root)
     json_mgr = JsonManager(project_root)
 
-    # Read tracks registry
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
+    # Verify tracks directory exists
+    tracks_dir = project_root / "conductor" / "tracks"
+    if not tracks_dir.exists():
         return {
             "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
+            "error": "Tracks directory (conductor/tracks/) not found",
         }
 
-    tracks = parser.parse_tracks_registry()
+    tracks = parser.scan_tracks_directory(include_archived=True)
 
     # Enrich with metadata
     enriched_tracks = []
@@ -155,7 +154,7 @@ def parse_tracks(project_root: Path) -> Dict[str, Any]:
             if track_id:
                 track_data["track_id"] = track_id
 
-                # Read metadata
+                # Read metadata for extra fields
                 metadata = json_mgr.read_track_metadata(track_id)
                 if metadata:
                     track_data["type"] = metadata.get("type")

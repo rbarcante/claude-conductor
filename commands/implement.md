@@ -28,7 +28,7 @@ CRITICAL: You must validate the success of every tool call. If any tool call fai
 ## Fallback Instructions
 
 If the context injection fails:
-- Read `conductor/tracks.md` directly and parse sections split by `---`
+- Scan `conductor/tracks/*/metadata.json` directly and read each track's status from the `status` field
 
 ### Action CLI Commands (Used During Implementation)
 
@@ -234,10 +234,8 @@ If skill registry is missing or no always-active skills exist, proceed silently 
 
 2.  **Update Status to 'In Progress' via CLI:**
     -   Execute: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> in-progress`
-    -   The CLI updates both:
-        -   The track status marker in `conductor/tracks.md` (changes `[ ]` to `[~]`)
-        -   The track's `metadata.json` with `status` and `updated_at` fields
-    -   **If CLI fails:** Fall back to manually editing the **Tracks Registry** file, finding the specific line for the track (e.g., `- [ ] **Track: <Description>**`) and replacing it with `- [~] **Track: <Description>**`.
+    -   The CLI updates the track's `metadata.json` with `status` and `updated_at` fields.
+    -   **If CLI fails:** Fall back to manually editing `conductor/tracks/<track_id>/metadata.json` and setting the `status` field to `"in_progress"`.
 
 3.  **Load Track Context (CACHE FOR SESSION):**
     a. **Identify Track Folder:** From the tracks data, use the `track_id` to locate the track's folder.
@@ -448,7 +446,6 @@ git status --porcelain
     ```
     **Filter out Conductor framework files** using path-based exclusion only — exclude files at these specific paths:
     - `conductor/tracks/**` (track management files: plan.md, metadata.json, decisions.md, index.md, review.md)
-    - `conductor/tracks.md` (master track registry)
     - `conductor/index.md` (project index)
 
     **Include all other files** — this includes source code files (`.ts`, `.js`, `.py`, `.java`, etc.) AND documentation/protocol files that are part of the project's product (e.g., `commands/*.md`, `protocols/*.md`, `skills/**`, `patterns/**`, `templates/**`, `README.md`). For Conductor-type projects, markdown protocol files ARE the product code.
@@ -583,8 +580,8 @@ Prepare the agent input using only the **product code diff** (filtered file list
     -   After all tasks in the track's local **Implementation Plan** are completed, you MUST invoke **Section 3.7 AUTO CODE REVIEW** first.
     -   After the code review step completes (or is skipped), proceed with finalization:
     -   **Update via CLI:** Execute `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
-    -   **If CLI fails:** Fall back to manually editing the **Tracks Registry**, finding the specific line (e.g., `- [~] **Track: <Description>**`) and replacing it with `- [x] **Track: <Description>**`.
-    -   **Commit Changes:** Stage the **Tracks Registry** file, any uncommitted `plan.md` changes (checkpoint SHA annotations), and if code review was run: both `review.md` and `index.md` from the track folder. Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
+    -   **If CLI fails:** Fall back to manually editing `conductor/tracks/<track_id>/metadata.json` and setting the `status` field to `"completed"`.
+    -   **Commit Changes:** Stage any uncommitted `plan.md` changes (checkpoint SHA annotations), the track's `metadata.json`, and if code review was run: both `review.md` and `index.md` from the track folder. Commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
     -   Announce that the track is fully complete and the tracks file has been updated.
 
 ---
@@ -628,6 +625,6 @@ Prepare the agent input using only the **product code diff** (filtered file list
 ### Execution
 
 1.  Prompt user with options A/B/C
-2.  For Archive: Run CLI, remove from tracks.md, commit with `chore(conductor): Archive track '<description>'`
-3.  For Delete: Require explicit "yes" confirmation, then delete folder and update tracks.md
+2.  For Archive: Run CLI, commit with `chore(conductor): Archive track '<description>'`
+3.  For Delete: Require explicit "yes" confirmation, then delete folder
 4.  Commit changes after archive or delete

@@ -40,18 +40,18 @@ class TestFileResolver:
         """Test default path resolution."""
         resolver = FileResolver(tmp_path)
 
-        # Create a file
+        # Create a file that is in PROJECT_DEFAULTS
         (tmp_path / "conductor").mkdir()
-        (tmp_path / "conductor" / "tracks.md").write_text("# Tracks")
+        (tmp_path / "conductor" / "workflow.md").write_text("# Workflow")
 
-        path = resolver.resolve_project_file("tracks_registry")
+        path = resolver.resolve_project_file("workflow")
         assert path is not None
-        assert path.name == "tracks.md"
+        assert path.name == "workflow.md"
 
     def test_missing_file(self, tmp_path):
         """Test resolution of missing file."""
         resolver = FileResolver(tmp_path)
-        path = resolver.resolve_project_file("tracks_registry")
+        path = resolver.resolve_project_file("workflow")
         assert path is None
 
     def test_track_directory(self, tmp_path):
@@ -144,28 +144,132 @@ class TestJsonManager:
 class TestTracksParser:
     """Tests for TracksParser class."""
 
-    def test_parse_tracks_registry(self, tmp_path):
-        """Test parsing tracks.md."""
+    def test_scan_basic(self, tmp_path):
+        """scan_tracks_directory returns tracks from dirs with metadata.json."""
         parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
 
-        content = """# Project Tracks
+        for tid, desc, status in [
+            ("track-a_20260101", "Track A", "pending"),
+            ("track-b_20260102", "Track B", "completed"),
+        ]:
+            d = tracks_dir / tid
+            d.mkdir()
+            (d / "metadata.json").write_text(
+                json.dumps({"track_id": tid, "description": desc, "status": status})
+            )
 
-- [x] **Track: Completed feature**
-  *Link: [./conductor/tracks/completed_20260101/](./conductor/tracks/completed_20260101/)*
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 2
+        descriptions = {t.description for t in tracks}
+        assert "Track A" in descriptions
+        assert "Track B" in descriptions
 
-- [~] **Track: In progress feature**
-  *Link: [./conductor/tracks/progress_20260102/](./conductor/tracks/progress_20260102/)*
+    def test_scan_excludes_archive_by_default(self, tmp_path):
+        """archive/ dir is excluded when include_archived=False."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
 
-- [ ] **Track: Pending feature**
-  *Link: [./conductor/tracks/pending_20260103/](./conductor/tracks/pending_20260103/)*
-"""
+        # Active track
+        active = tracks_dir / "active_20260101"
+        active.mkdir()
+        (active / "metadata.json").write_text(
+            json.dumps({"track_id": "active_20260101", "description": "Active", "status": "pending"})
+        )
 
-        tracks = parser.parse_tracks_registry(content)
-        assert len(tracks) == 3
+        # Archived track
+        archive = tracks_dir / "archive" / "old_20260101"
+        archive.mkdir(parents=True)
+        (archive / "metadata.json").write_text(
+            json.dumps({"track_id": "old_20260101", "description": "Old", "status": "completed"})
+        )
 
-        assert tracks[0].status == TaskStatus.COMPLETED
-        assert tracks[1].status == TaskStatus.IN_PROGRESS
-        assert tracks[2].status == TaskStatus.PENDING
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 1
+        assert tracks[0].description == "Active"
+
+    def test_scan_includes_archive(self, tmp_path):
+        """include_archived=True returns archived tracks too."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        active = tracks_dir / "active_20260101"
+        active.mkdir()
+        (active / "metadata.json").write_text(
+            json.dumps({"track_id": "active_20260101", "description": "Active", "status": "pending"})
+        )
+
+        archive = tracks_dir / "archive" / "old_20260101"
+        archive.mkdir(parents=True)
+        (archive / "metadata.json").write_text(
+            json.dumps({"track_id": "old_20260101", "description": "Old", "status": "completed"})
+        )
+
+        tracks = parser.scan_tracks_directory(include_archived=True)
+        assert len(tracks) == 2
+        descriptions = {t.description for t in tracks}
+        assert "Active" in descriptions
+        assert "Old" in descriptions
+
+    def test_scan_skips_missing_metadata(self, tmp_path):
+        """Dirs without metadata.json are silently skipped."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        # Dir with metadata
+        good = tracks_dir / "good_20260101"
+        good.mkdir()
+        (good / "metadata.json").write_text(
+            json.dumps({"track_id": "good_20260101", "description": "Good", "status": "pending"})
+        )
+
+        # Dir without metadata
+        (tracks_dir / "no-meta_20260101").mkdir()
+
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 1
+        assert tracks[0].description == "Good"
+
+    def test_scan_status_mapping(self, tmp_path):
+        """All status variants map correctly."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        for tid, status_val, expected in [
+            ("t1_20260101", "new", TaskStatus.PENDING),
+            ("t2_20260101", "pending", TaskStatus.PENDING),
+            ("t3_20260101", "in-progress", TaskStatus.IN_PROGRESS),
+            ("t4_20260101", "in_progress", TaskStatus.IN_PROGRESS),
+            ("t5_20260101", "completed", TaskStatus.COMPLETED),
+        ]:
+            d = tracks_dir / tid
+            d.mkdir()
+            (d / "metadata.json").write_text(
+                json.dumps({"track_id": tid, "description": tid, "status": status_val})
+            )
+
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 5
+        status_by_desc = {t.description: t.status for t in tracks}
+        assert status_by_desc["t1_20260101"] == TaskStatus.PENDING
+        assert status_by_desc["t2_20260101"] == TaskStatus.PENDING
+        assert status_by_desc["t3_20260101"] == TaskStatus.IN_PROGRESS
+        assert status_by_desc["t4_20260101"] == TaskStatus.IN_PROGRESS
+        assert status_by_desc["t5_20260101"] == TaskStatus.COMPLETED
+
+    def test_scan_empty_dir(self, tmp_path):
+        """Empty tracks dir returns empty list."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert tracks == []
 
     def test_count_status_markers(self, tmp_path):
         """Test counting status markers."""
@@ -186,16 +290,6 @@ class TestTracksParser:
         assert counts["pending"] == 3
         assert counts["total"] == 6
 
-    def test_update_track_status(self, tmp_path):
-        """Test updating track status."""
-        parser = TracksParser(tmp_path)
-
-        content = "- [ ] **Track: My feature**"
-        updated = parser.update_track_status(
-            content, "My feature", TaskStatus.COMPLETED
-        )
-        assert "[x]" in updated
-
     def test_extract_track_id(self, tmp_path):
         """Test extracting track ID from path."""
         parser = TracksParser(tmp_path)
@@ -204,73 +298,6 @@ class TestTracksParser:
             "./conductor/tracks/test_20260121/"
         )
         assert track_id == "test_20260121"
-
-    def test_parse_tracks_registry_table_format(self, tmp_path):
-        """Test parsing tracks.md in Markdown table format."""
-        parser = TracksParser(tmp_path)
-
-        content = """# Tracks
-
-| ID | Title | Status | Created |
-|----|-------|--------|---------|
-| my-track_20260220 | My Track Title | pending | 2026-02-20 |
-| other-track_20260215 | Other Track | in-progress | 2026-02-15 |
-| done-track_20260201 | Done Track | completed | 2026-02-01 |
-"""
-
-        tracks = parser.parse_tracks_registry(content)
-        assert len(tracks) == 3
-
-        assert tracks[0].description == "My Track Title"
-        assert tracks[0].status == TaskStatus.PENDING
-        assert "my-track_20260220" in (tracks[0].path or "")
-
-        assert tracks[1].description == "Other Track"
-        assert tracks[1].status == TaskStatus.IN_PROGRESS
-
-        assert tracks[2].description == "Done Track"
-        assert tracks[2].status == TaskStatus.COMPLETED
-
-    def test_parse_tracks_registry_mixed_format(self, tmp_path):
-        """Test parsing tracks.md with both checkbox and table entries."""
-        parser = TracksParser(tmp_path)
-
-        content = """# Tracks
-
-- [x] **Track: Checkbox completed track**
-  *Link: [checkbox_20260101](./conductor/tracks/checkbox_20260101/)*
-
-| ID | Title | Status | Created |
-|----|-------|--------|---------|
-| table-track_20260220 | Table pending track | pending | 2026-02-20 |
-"""
-
-        tracks = parser.parse_tracks_registry(content)
-        assert len(tracks) == 2
-
-        descriptions = [t.description for t in tracks]
-        assert "Checkbox completed track" in descriptions
-        assert "Table pending track" in descriptions
-
-        statuses = {t.description: t.status for t in tracks}
-        assert statuses["Checkbox completed track"] == TaskStatus.COMPLETED
-        assert statuses["Table pending track"] == TaskStatus.PENDING
-
-    def test_newtrack_register_writes_checkbox_format(self, tmp_path):
-        """Regression test: newtrack register must write checkbox format, not table format."""
-        import sys
-
-        sys.path.insert(0, str(Path(__file__).parent.parent))
-        from commands.newtrack import _create_track_entry
-
-        entry = _create_track_entry("my-track_20260220", "My Track Description")
-
-        # Must be checkbox format
-        assert "- [ ]" in entry
-        assert "**Track: My Track Description**" in entry
-        assert "my-track_20260220" in entry
-        # Must NOT be table format
-        assert "|" not in entry
 
 
 class TestMarkdownParser:

@@ -262,91 +262,81 @@ def scaffold(
 
 def register(project_root: Path, track_id: str, description: str) -> Dict[str, Any]:
     """
-    Register a track in conductor/tracks.md.
+    Validate and enforce metadata.json for a track (replaces tracks.md registration).
 
-    Appends a new entry to the Active Tracks section.
+    - Verifies track directory exists (error if not)
+    - Reads metadata.json; creates with defaults if missing
+    - Validates required fields: track_id, type, status, created_at, updated_at, description
+    - Normalizes status strings to canonical underscore form
+    - Backfills any missing fields with sensible defaults
+    - Writes validated metadata.json back
 
     Args:
         project_root: Project root directory
         track_id: Track identifier
-        description: Track description
+        description: Track description (used as fallback if missing from metadata)
 
     Returns:
-        Dict with registration result
+        Dict with validation result
     """
+    from datetime import datetime
+
     resolver = FileResolver(project_root)
+    json_mgr = JsonManager(project_root)
 
-    tracks_file = project_root / "conductor" / "tracks.md"
-
-    # Read current content or create new
-    if tracks_file.exists():
-        content = tracks_file.read_text()
-    else:
-        # Create tracks.md with header
-        content = _create_tracks_header()
-        tracks_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Check if track is already registered
-    if f"tracks/{track_id}" in content:
+    # Verify track directory exists
+    track_dir = resolver.get_track_directory(track_id)
+    if not track_dir:
         return {
             "success": False,
-            "error": f"Track '{track_id}' is already registered in tracks.md",
+            "error": f"Track directory for '{track_id}' not found. Run scaffold first.",
         }
 
-    # Find insertion point (after Active Tracks header, or at end)
-    new_entry = _create_track_entry(track_id, description)
+    # Read existing metadata or start fresh
+    metadata = json_mgr.read_track_metadata(track_id) or {}
 
-    # Look for Active Tracks section
-    active_tracks_pattern = r"(## Active Tracks\s*\n)"
-    match = re.search(active_tracks_pattern, content)
+    now = datetime.utcnow().isoformat() + "Z"
 
-    if match:
-        # Insert after the header
-        insert_pos = match.end()
+    # Backfill missing required fields
+    metadata.setdefault("track_id", track_id)
+    metadata.setdefault("type", "feature")
+    metadata.setdefault("status", "pending")
+    metadata.setdefault("created_at", now)
+    metadata.setdefault("updated_at", now)
+    metadata.setdefault("description", description or track_id)
 
-        # Check if there's a placeholder or existing entries
-        remaining = content[insert_pos:]
+    # Ensure track_id is correct
+    metadata["track_id"] = track_id
 
-        # Check for "No active tracks" placeholder
-        no_tracks_pattern = r"^_No active tracks\._\s*\n?"
-        no_tracks_match = re.match(no_tracks_pattern, remaining)
+    # Normalize status to canonical underscore form
+    status_raw = str(metadata.get("status", "pending"))
+    status_map = {
+        "new": "pending",
+        "in-progress": "in_progress",
+        "active": "in_progress",
+        "done": "completed",
+    }
+    metadata["status"] = status_map.get(status_raw, status_raw)
 
-        if no_tracks_match:
-            # Replace the placeholder
-            content = (
-                content[:insert_pos]
-                + "\n"
-                + new_entry
-                + "\n"
-                + remaining[no_tracks_match.end() :]
-            )
-        else:
-            # Insert at the beginning of the section
-            content = content[:insert_pos] + "\n" + new_entry + "\n" + remaining
-    else:
-        # No Active Tracks section, create one
-        if "## Completed Tracks" in content:
-            # Insert before Completed Tracks
-            content = content.replace(
-                "## Completed Tracks",
-                f"## Active Tracks\n\n{new_entry}\n\n---\n\n## Completed Tracks",
-            )
-        else:
-            # Append to end
-            content = content.rstrip() + f"\n\n## Active Tracks\n\n{new_entry}\n"
+    # Validate type
+    valid_types = {"feature", "bugfix", "refactor", "docs", "chore"}
+    if metadata.get("type") not in valid_types:
+        metadata["type"] = "feature"
 
-    # Write updated content
-    tracks_file.write_text(content)
+    # Write validated metadata back
+    json_mgr.write_track_metadata(track_id, metadata)
 
     return {
         "success": True,
         "data": {
             "track_id": track_id,
-            "description": description,
-            "tracks_file": str(tracks_file.relative_to(project_root)),
-            "entry": new_entry,
+            "description": metadata["description"],
+            "metadata_path": f"conductor/tracks/{track_id}/metadata.json",
+            "metadata": metadata,
         },
-        "message": Formatters.success(f"Registered track '{track_id}' in tracks.md"),
+        "message": Formatters.success(
+            f"Validated and registered track '{track_id}' via metadata.json"
+        ),
     }
 
 
@@ -530,28 +520,3 @@ This file captures significant technical and architectural decisions made during
 _No decisions recorded yet._
 
 """
-
-
-def _create_tracks_header() -> str:
-    """Create initial tracks.md content."""
-    return """# Tracks Registry
-
-> This file tracks all development tracks (features, bugfixes, refactors, etc.)
-
-## Active Tracks
-
-_No active tracks._
-
----
-
-## Completed Tracks
-
-_No completed tracks._
-
-"""
-
-
-def _create_track_entry(track_id: str, description: str) -> str:
-    """Create a track entry for tracks.md."""
-    return f"""- [ ] **Track: {description}**
-  *Link: [{track_id}](./conductor/tracks/{track_id}/)*"""

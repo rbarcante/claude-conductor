@@ -10,7 +10,6 @@
 
 ## Tracks
 
-- [Tracks Registry](./tracks.md) - All development tracks
 - [Tracks Directory](./tracks/) - Individual track folders
 
 ## Protocols

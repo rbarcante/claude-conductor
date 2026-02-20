@@ -32,7 +32,6 @@ class FileResolver:
         "tech_stack": "conductor/tech-stack.md",
         "workflow": "conductor/workflow.md",
         "product_guidelines": "conductor/product-guidelines.md",
-        "tracks_registry": "conductor/tracks.md",
         "tracks_directory": "conductor/tracks",
         "project_index": "conductor/index.md",
         "settings": "conductor/settings.json",

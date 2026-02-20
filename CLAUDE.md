@@ -1,6 +1,6 @@
 # Conductor Context
 
-If a user mentions a "plan" or asks about the plan, and they have used the claude conductor in the current session, they are likely referring to the `conductor/tracks.md` file or one of the track plans (`conductor/tracks/<track_id>/plan.md`).
+If a user mentions a "plan" or asks about the plan, and they have used the claude conductor in the current session, they are likely referring to one of the track plans (`conductor/tracks/<track_id>/plan.md`).
 
 ## Universal File Resolution Protocol
 
@@ -31,7 +31,6 @@ To find a file (e.g., "**Product Definition**") within a specific context (Proje
 - **Tech Stack**: `conductor/tech-stack.md`
 - **Workflow**: `conductor/workflow.md`
 - **Product Guidelines**: `conductor/product-guidelines.md`
-- **Tracks Registry**: `conductor/tracks.md`
 - **Tracks Directory**: `conductor/tracks/`
 
 **Standard Default Paths (Track):**
