@@ -1,7 +1,7 @@
 ---
 name: acli-jira
-description: Use this skill when working with Atlassian CLI (ACLI) Jira commands, managing Jira work items, searching issues, or performing project management via the command line.
-version: 1.0.0
+description: This skill should be used when the user asks to "run acli jira commands", "create a Jira issue", "search Jira issues", "manage Jira projects", "transition Jira status", or mentions ACLI, Atlassian CLI, Jira CLI, or jira workitem/project/board/sprint operations via the command line.
+version: 1.1.0
 ---
 
 # ACLI Jira Command Reference
