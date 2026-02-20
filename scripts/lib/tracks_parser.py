@@ -90,6 +90,8 @@ class TracksParser:
     STATUS_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]")
     TRACK_PATTERN = re.compile(r"^\s*-\s*\[([ x~])\]\s*\*\*Track:\s*(.+?)\*\*")
     LINK_PATTERN = re.compile(r"\*Link:\s*\[([^\]]+)\]\(([^)]+)\)\*")
+    TABLE_ROW_PATTERN = re.compile(r"^\s*\|(.+)\|\s*$")
+    TABLE_SEPARATOR_PATTERN = re.compile(r"^\s*\|[\s\-|]+\|\s*$")
     PHASE_PATTERN = re.compile(
         r"^#\s+Phase\s+\d+:\s*(.+?)(?:\s*\[checkpoint:\s*([a-f0-9]+)\])?$",
         re.IGNORECASE,
@@ -123,12 +125,14 @@ class TracksParser:
 
         tracks = []
         lines = content.split("\n")
+        table_headers: Optional[List[str]] = None
 
         i = 0
         while i < len(lines):
             line = lines[i]
-            track_match = self.TRACK_PATTERN.match(line)
 
+            # Check for checkbox-format track entry
+            track_match = self.TRACK_PATTERN.match(line)
             if track_match:
                 status_char = track_match.group(1)
                 description = track_match.group(2).strip()
@@ -147,6 +151,52 @@ class TracksParser:
                         description=description, path=path, status=status, raw_line=line
                     )
                 )
+                i += 1
+                continue
+
+            # Check for Markdown table rows
+            if self.TABLE_ROW_PATTERN.match(line):
+                # Skip separator rows like |---|---|
+                if self.TABLE_SEPARATOR_PATTERN.match(line):
+                    i += 1
+                    continue
+
+                cols = [c.strip() for c in line.strip().strip("|").split("|")]
+
+                # Detect header row (ID | Title | Status | Created)
+                if cols and cols[0].lower() == "id":
+                    table_headers = [c.lower() for c in cols]
+                    i += 1
+                    continue
+
+                # Data row — parse if we have headers
+                if table_headers and len(cols) >= len(table_headers):
+                    row = dict(zip(table_headers, cols))
+                    track_id = row.get("id", "").strip()
+                    description = row.get("title", "").strip()
+                    status_str = row.get("status", "pending").strip().lower()
+
+                    if not track_id or not description:
+                        i += 1
+                        continue
+
+                    status = self._string_to_status(status_str)
+                    path = f"./conductor/tracks/{track_id}/"
+
+                    tracks.append(
+                        Track(
+                            description=description,
+                            path=path,
+                            status=status,
+                            raw_line=line,
+                        )
+                    )
+                    i += 1
+                    continue
+
+            # Non-table line resets header context only if it's not blank
+            if line.strip() and not self.TABLE_ROW_PATTERN.match(line):
+                table_headers = None
 
             i += 1
 
@@ -373,6 +423,14 @@ class TracksParser:
                 )
 
         return items
+
+    def _string_to_status(self, status_str: str) -> TaskStatus:
+        """Convert a status string (from table column) to TaskStatus enum."""
+        if status_str in ("completed", "done"):
+            return TaskStatus.COMPLETED
+        elif status_str in ("in-progress", "in_progress", "active"):
+            return TaskStatus.IN_PROGRESS
+        return TaskStatus.PENDING
 
     def _char_to_status(self, char: str) -> TaskStatus:
         """Convert status character to TaskStatus enum."""

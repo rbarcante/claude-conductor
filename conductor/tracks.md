@@ -73,6 +73,11 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 - [x] **Track: Automate integration between implement and codeReview commands**
   *Link: [automate-integration-between-implement_20260217](./conductor/tracks/automate-integration-between-implement_20260217/)*
 
+- [x] **Track: Fix tracks.md format inconsistency**
+  *Link: [fix-tracks-format-inconsistency_20260220](./conductor/tracks/fix-tracks-format-inconsistency_20260220/)*
+- [x] **Track: Automate integration between implement and codeReview commands**
+  *Link: [automate-integration-between-implement_20260217](./conductor/tracks/automate-integration-between-implement_20260217/)*
+
 - [x] **Track: Update setup.md to use XML tags following newTrack.md pattern**
   *Link: [update-setup-use-xml_20260217](./conductor/tracks/update-setup-use-xml_20260217/)*
 

@@ -1,0 +1,10 @@
+{
+  "track_id": "fix-tracks-format-inconsistency_20260220",
+  "description": "Fix tracks.md format inconsistency",
+  "type": "bugfix",
+  "status": "completed",
+  "created": "2026-02-20",
+  "issue": "https://github.com/rbarcante/claude-conductor/issues/46",
+  "branch": "fix/tracks-parser-format",
+  "updated_at": "2026-02-20T15:45:43.867069Z"
+}
