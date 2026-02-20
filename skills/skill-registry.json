@@ -82,6 +82,22 @@
         "guidance": ["type-safety", "concurrency", "modern-features", "null-handling"],
         "patterns": ["type-safety", "concurrency", "modern-features"]
       }
+    },
+    {
+      "name": "acli-jira",
+      "version": "1.0.0",
+      "path": "./acli-jira",
+      "description": "Atlassian CLI (ACLI) Jira command reference for work items, projects, boards, sprints, and filters",
+      "activation": {
+        "keywords": ["acli", "atlassian cli", "jira cli", "jira command", "jira workitem", "jira project", "jira board", "jira sprint", "jira filter"],
+        "file_patterns": [],
+        "tech_stack": {
+          "tools": ["ACLI", "Atlassian CLI"]
+        }
+      },
+      "provides": {
+        "guidance": ["jira-work-items", "jira-projects", "jira-boards", "jira-sprints", "jira-filters", "jira-auth", "jql-patterns"]
+      }
     }
   ]
 }

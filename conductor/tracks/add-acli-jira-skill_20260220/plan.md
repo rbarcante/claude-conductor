@@ -2,18 +2,18 @@
 
 ## Phase 1: Skill Structure & Core Content
 
-- [ ] Task: Create skill directory `skills/acli-jira/`
-- [ ] Task: Create `SKILL.md` with YAML frontmatter (name, description with trigger phrases)
-- [ ] Task: Write authentication section covering `jira auth` subcommands
-- [ ] Task: Write work item operations section (create, view, edit, delete, assign, transition, search)
-- [ ] Task: Write work item secondary operations (comment, clone, link, attachments, watcher)
-- [ ] Task: Write project management section (create, list, view, update, archive/restore)
-- [ ] Task: Write boards, sprints & filters section
-- [ ] Task: Conductor - User Manual Verification 'Phase 1'
+- [x] Task: Create skill directory `skills/acli-jira/`
+- [x] Task: Create `SKILL.md` with YAML frontmatter (name, description with trigger phrases)
+- [x] Task: Write authentication section covering `jira auth` subcommands
+- [x] Task: Write work item operations section (create, view, edit, delete, assign, transition, search)
+- [x] Task: Write work item secondary operations (comment, clone, link, attachments, watcher)
+- [x] Task: Write project management section (create, list, view, update, archive/restore)
+- [x] Task: Write boards, sprints & filters section
+- [x] Task: Conductor - User Manual Verification 'Phase 1' [skipped]
 
 ## Phase 2: Validation & Integration
 
-- [ ] Task: Validate SKILL.md structure (frontmatter, word count, imperative style)
-- [ ] Task: Register skill in `skills/skill-registry.json`
-- [ ] Task: Verify skill auto-discovery triggers on expected phrases
-- [ ] Task: Conductor - User Manual Verification 'Phase 2'
+- [x] Task: Validate SKILL.md structure (frontmatter, word count, imperative style)
+- [x] Task: Register skill in `skills/skill-registry.json`
+- [x] Task: Verify skill auto-discovery triggers on expected phrases
+- [x] Task: Conductor - User Manual Verification 'Phase 2' [skipped]
