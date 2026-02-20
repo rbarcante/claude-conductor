@@ -38,6 +38,9 @@ acli jira auth logout
 
 ### Create
 
+> **Tip:** Issue types are project-specific. Before creating, check allowed types with:
+> `acli jira workitem create -p "PROJ" --help` or attempt creation — the error message lists valid types.
+
 ```bash
 # Create with inline fields
 acli jira workitem create --project "PROJ" --type "Task" --summary "Implement feature X"
@@ -58,8 +61,8 @@ acli jira workitem create --from-json template.json         # create from templa
 # Create from file (summary + description)
 acli jira workitem create -p "PROJ" -t "Task" --from-file spec.txt
 
-# Open editor to compose
-acli jira workitem create -p "PROJ" -t "Task" --editor
+# Open editor to compose (summary + description)
+acli jira workitem create -p "PROJ" -t "Task" -e
 ```
 
 ### View
@@ -90,8 +93,8 @@ acli jira workitem edit --key "PROJ-1,PROJ-2,PROJ-3" --assignee "dev@company.com
 # Bulk edit via JQL
 acli jira workitem edit --jql "project = PROJ AND status = Open" --assignee "dev@company.com"
 
-# Edit with editor
-acli jira workitem edit --key "PROJ-123" --editor
+# Edit description from file
+acli jira workitem edit --key "PROJ-123" --description-file updated.txt
 ```
 
 ### Assign
@@ -171,10 +174,10 @@ acli jira workitem comment create --key "PROJ-123" --body "Ready for review"
 acli jira workitem comment list --key "PROJ-123"
 
 # Update a comment
-acli jira workitem comment update --key "PROJ-123" --comment-id "10001" --body "Updated comment"
+acli jira workitem comment update --key "PROJ-123" --id "10001" --body "Updated comment"
 
 # Delete a comment
-acli jira workitem comment delete --key "PROJ-123" --comment-id "10001"
+acli jira workitem comment delete --key "PROJ-123" --id "10001"
 ```
 
 ### Clone
@@ -187,8 +190,11 @@ acli jira workitem clone --key "PROJ-123"
 ### Link
 
 ```bash
-# Link two work items
-acli jira workitem link --key "PROJ-123" --target "PROJ-456" --type "blocks"
+# Link two work items (outward blocks inward)
+acli jira workitem link create --out "PROJ-123" --in "PROJ-456" --type "Blocks"
+
+# Get available link types
+acli jira workitem link type
 ```
 
 ### Attachments
@@ -197,15 +203,15 @@ acli jira workitem link --key "PROJ-123" --target "PROJ-456" --type "blocks"
 # List attachments
 acli jira workitem attachment list --key "PROJ-123"
 
-# Delete an attachment
-acli jira workitem attachment delete --key "PROJ-123" --attachment-id "10001"
+# Delete an attachment (by attachment ID, no --key needed)
+acli jira workitem attachment delete --id "10001"
 ```
 
 ### Watchers
 
 ```bash
-# Remove a watcher
-acli jira workitem watcher remove --key "PROJ-123" --account-id "user-account-id"
+# Remove a watcher (--user takes Atlassian account ID)
+acli jira workitem watcher remove --key "PROJ-123" --user "5b10ac8d82e05b22cc7d4ef5"
 ```
 
 ### Archive / Unarchive
@@ -223,32 +229,52 @@ acli jira workitem unarchive --key "PROJ-123"
 ### Create Project
 
 ```bash
-# Create a new project
-acli jira project create --name "My Project" --key "MYPROJ" --type "software" --lead "lead@company.com"
+# Create a project cloned from an existing one
+acli jira project create --from-project "EXISTING" --key "NEWPROJ" --name "New Project"
+
+# Create with description and lead
+acli jira project create --from-project "EXISTING" --key "NEWPROJ" --name "New Project" \
+  --description "Project description" --lead-email "lead@company.com"
+
+# Generate JSON template for full control
+acli jira project create --generate-json > project.json
+acli jira project create --from-json project.json
 ```
 
 ### List Projects
 
 ```bash
-# List all projects
-acli jira project list
+# List projects (requires --limit, --recent, or --paginate)
+acli jira project list --limit 50
+
+# List recently accessed projects
+acli jira project list --recent
+
+# List all projects (paginated)
+acli jira project list --paginate
+
+# List as JSON for scripting
+acli jira project list --limit 50 --json
+
+# Extract project keys with jq
+acli jira project list --limit 50 --json | jq '.[].key'
 ```
 
 ### View Project
 
 ```bash
 # View project details
-acli jira project view PROJ
+acli jira project view --key PROJ
 
 # View as JSON
-acli jira project view PROJ --json
+acli jira project view --key PROJ --json
 ```
 
 ### Update Project
 
 ```bash
-# Update project settings
-acli jira project update --key "PROJ" --name "New Name" --lead "newlead@company.com"
+# Update project name and lead (--project-key targets existing, --key sets new key)
+acli jira project update --project-key "PROJ" --name "New Name" --lead-email "newlead@company.com"
 ```
 
 ### Archive / Restore
@@ -280,33 +306,34 @@ acli jira board search
 acli jira board search --name "Team Board"
 
 # List sprints on a board
-acli jira board list-sprints --board-id 42
+acli jira board list-sprints --id 42
 ```
 
 ### Sprints
 
 ```bash
-# List work items in a sprint
-acli jira sprint list-workitems --sprint-id 100
+# List work items in a sprint (both --sprint and --board are required)
+acli jira sprint list-workitems --sprint 100 --board 6
 
 # List with field selection
-acli jira sprint list-workitems --sprint-id 100 --fields "key,summary,status,assignee"
+acli jira sprint list-workitems --sprint 100 --board 6 --fields "key,summary,status,assignee"
 ```
 
 ### Filters
 
 ```bash
-# Search filters
+# Search filters (supports --owner, --name, --limit, --paginate)
 acli jira filter search
 
-# List all filters
-acli jira filter list
+# List my filters (--my or --favourite required)
+acli jira filter list --my
+acli jira filter list --favourite
 
 # Add a filter to favourites
 acli jira filter add-favourite --filter-id "12345"
 
-# Change filter owner
-acli jira filter change-owner --filter-id "12345" --owner "newowner@company.com"
+# Change filter owner (--id, not --filter-id)
+acli jira filter change-owner --id "12345" --owner "newowner@company.com"
 ```
 
 ## Common Flag Patterns
@@ -330,6 +357,19 @@ acli jira filter change-owner --filter-id "12345" --owner "newowner@company.com"
 | `--description` | `-d` | Work item description text |
 
 ## Common Workflows
+
+### Discover Project & Create Items
+
+```bash
+# 1. Find available projects
+acli jira project list --limit 50 --json | jq '.[] | {key, name}'
+
+# 2. Check project details (issue types are listed in error if wrong type used)
+acli jira project view --key PROJ --json
+
+# 3. Create item with validated type
+acli jira workitem create -p "PROJ" -t "Task" -s "My new task" -d "Description here"
+```
 
 ### Start Working on an Item
 
@@ -415,3 +455,22 @@ acli jira workitem transition --key "PROJ-123" --status "Done"
 ## Output Formatting Tips
 
 Use `--json` for scripting/piping, `--csv` for spreadsheet export, `--count` for totals only, and `-f` to select specific fields. Add `--paginate` with `--limit` for large result sets. These flags work across most `search` and `list` commands.
+
+### JSON + jq Piping
+
+```bash
+# Extract specific fields from search results
+acli jira workitem search --jql "project = PROJ" --json | jq '.[].key'
+
+# Get project keys and names
+acli jira project list --limit 50 --json | jq '.[] | {key, name}'
+
+# Count items by status
+acli jira workitem search --jql "project = PROJ" --json | jq 'group_by(.fields.status.name) | map({status: .[0].fields.status.name, count: length})'
+```
+
+### Description Formatting
+
+- **Short descriptions**: Use `-d` with plain text. Avoid markdown headings (`##`) inline — they don't render well in all Jira views.
+- **Long/rich descriptions**: Use `--editor` to compose in your editor, or `--from-file` to read from a file.
+- **Multi-line inline**: Use shell line continuation (`\`) with `-d` for multi-paragraph descriptions.
