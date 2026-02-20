@@ -183,8 +183,11 @@ acli jira workitem comment delete --key "PROJ-123" --id "10001"
 ### Clone
 
 ```bash
-# Clone a work item
-acli jira workitem clone --key "PROJ-123"
+# Clone a work item (--to-project is required, even for same project)
+acli jira workitem clone --key "PROJ-123" --to-project "PROJ"
+
+# Clone to a different project
+acli jira workitem clone --key "PROJ-123" --to-project "OTHER"
 ```
 
 ### Link
@@ -229,7 +232,7 @@ acli jira workitem unarchive --key "PROJ-123"
 ### Create Project
 
 ```bash
-# Create a project cloned from an existing one
+# Create a project cloned from an existing one (company-managed projects only)
 acli jira project create --from-project "EXISTING" --key "NEWPROJ" --name "New Project"
 
 # Create with description and lead
@@ -430,7 +433,7 @@ acli jira workitem transition --key "PROJ-123" --status "Done"
 # Recently updated bugs
 "project = PROJ AND type = Bug AND updated >= -7d"
 
-# Unassigned items in backlog
+# Unassigned items in backlog (sprint field requires Scrum board)
 "project = PROJ AND assignee is EMPTY AND sprint is EMPTY"
 
 # Items blocked or blocking
