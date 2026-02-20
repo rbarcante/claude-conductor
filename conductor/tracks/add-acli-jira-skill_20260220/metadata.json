@@ -1,0 +1,8 @@
+{
+  "track_id": "add-acli-jira-skill_20260220",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-20T00:00:00Z",
+  "updated_at": "2026-02-20T00:00:00Z",
+  "description": "Add ACLI Jira skill for consistent CLI usage without needing documentation or --help"
+}
