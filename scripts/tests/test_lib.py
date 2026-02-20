@@ -205,6 +205,72 @@ class TestTracksParser:
         )
         assert track_id == "test_20260121"
 
+    def test_parse_tracks_registry_table_format(self, tmp_path):
+        """Test parsing tracks.md in Markdown table format."""
+        parser = TracksParser(tmp_path)
+
+        content = """# Tracks
+
+| ID | Title | Status | Created |
+|----|-------|--------|---------|
+| my-track_20260220 | My Track Title | pending | 2026-02-20 |
+| other-track_20260215 | Other Track | in-progress | 2026-02-15 |
+| done-track_20260201 | Done Track | completed | 2026-02-01 |
+"""
+
+        tracks = parser.parse_tracks_registry(content)
+        assert len(tracks) == 3
+
+        assert tracks[0].description == "My Track Title"
+        assert tracks[0].status == TaskStatus.PENDING
+        assert "my-track_20260220" in (tracks[0].path or "")
+
+        assert tracks[1].description == "Other Track"
+        assert tracks[1].status == TaskStatus.IN_PROGRESS
+
+        assert tracks[2].description == "Done Track"
+        assert tracks[2].status == TaskStatus.COMPLETED
+
+    def test_parse_tracks_registry_mixed_format(self, tmp_path):
+        """Test parsing tracks.md with both checkbox and table entries."""
+        parser = TracksParser(tmp_path)
+
+        content = """# Tracks
+
+- [x] **Track: Checkbox completed track**
+  *Link: [checkbox_20260101](./conductor/tracks/checkbox_20260101/)*
+
+| ID | Title | Status | Created |
+|----|-------|--------|---------|
+| table-track_20260220 | Table pending track | pending | 2026-02-20 |
+"""
+
+        tracks = parser.parse_tracks_registry(content)
+        assert len(tracks) == 2
+
+        descriptions = [t.description for t in tracks]
+        assert "Checkbox completed track" in descriptions
+        assert "Table pending track" in descriptions
+
+        statuses = {t.description: t.status for t in tracks}
+        assert statuses["Checkbox completed track"] == TaskStatus.COMPLETED
+        assert statuses["Table pending track"] == TaskStatus.PENDING
+
+    def test_newtrack_register_writes_checkbox_format(self, tmp_path):
+        """Regression test: newtrack register must write checkbox format, not table format."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from commands.newtrack import _create_track_entry
+
+        entry = _create_track_entry("my-track_20260220", "My Track Description")
+
+        # Must be checkbox format
+        assert "- [ ]" in entry
+        assert "**Track: My Track Description**" in entry
+        assert "my-track_20260220" in entry
+        # Must NOT be table format
+        assert "|" not in entry
+
 
 class TestMarkdownParser:
     """Tests for MarkdownParser class."""
