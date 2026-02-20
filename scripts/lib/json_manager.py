@@ -21,7 +21,7 @@ Provides safe read/write operations for JSON configuration files.
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class JsonManager:
@@ -143,10 +143,16 @@ class JsonManager:
 
     def read_track_metadata(self, track_id: str) -> Optional[Dict[str, Any]]:
         """Read a track's metadata.json file."""
+        from lib.file_resolver import validate_track_id
+
+        validate_track_id(track_id)
         return self.read(Path(f"conductor/tracks/{track_id}/metadata.json"))
 
     def write_track_metadata(self, track_id: str, metadata: Dict[str, Any]) -> bool:
         """Write a track's metadata.json file."""
+        from lib.file_resolver import validate_track_id
+
+        validate_track_id(track_id)
         return self.write(Path(f"conductor/tracks/{track_id}/metadata.json"), metadata)
 
     def create_track_metadata(
@@ -164,7 +170,7 @@ class JsonManager:
         Returns:
             Metadata dict
         """
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         return {
             "track_id": track_id,
             "type": track_type,

@@ -27,7 +27,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -190,7 +190,7 @@ def migrate(project_root: Path, dry_run: bool = False):
     warnings = []
     missing_dirs = []
 
-    now = datetime.utcnow().isoformat() + "Z"
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     for entry in entries:
         track_id = entry["track_id"]

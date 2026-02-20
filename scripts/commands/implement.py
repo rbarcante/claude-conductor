@@ -25,6 +25,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 import json
 import sys
@@ -36,6 +37,19 @@ from lib.file_resolver import FileResolver
 from lib.json_manager import JsonManager
 from lib.markdown_parser import MarkdownParser
 from lib.formatters import Formatters
+
+
+STATUS_NORMALIZATION_MAP = {
+    "in-progress": "in_progress",
+    "active": "in_progress",
+    "done": "completed",
+    "new": "pending",
+}
+
+
+def normalize_status(status: str) -> str:
+    """Normalize status strings to canonical underscore form."""
+    return STATUS_NORMALIZATION_MAP.get(status, status)
 
 
 def handle(args) -> Dict[str, Any]:
@@ -196,8 +210,6 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
     Returns:
         JSON with update result
     """
-    from datetime import datetime
-
     resolver = FileResolver(project_root)
     json_mgr = JsonManager(project_root)
 
@@ -213,8 +225,9 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
             "error": f"Invalid status '{status}'. Use: pending, in-progress, completed",
         }
 
-    # Normalize "in-progress" -> "in_progress" for storage
-    normalized_status = "in_progress" if status == "in-progress" else status
+    # Normalize status for storage
+    normalized_status = normalize_status(status)
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     # Read current metadata
     metadata = json_mgr.read_track_metadata(track_id)
@@ -223,11 +236,11 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
         metadata = {
             "track_id": track_id,
             "status": normalized_status,
-            "updated_at": datetime.utcnow().isoformat() + "Z",
+            "updated_at": now,
         }
     else:
         metadata["status"] = normalized_status
-        metadata["updated_at"] = datetime.utcnow().isoformat() + "Z"
+        metadata["updated_at"] = now
 
     json_mgr.write_track_metadata(track_id, metadata)
 

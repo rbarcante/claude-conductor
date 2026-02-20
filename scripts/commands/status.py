@@ -207,7 +207,7 @@ def calculate_progress(project_root: Path) -> Dict[str, Any]:
     track_metrics = []
 
     for track_dir in tracks_dir.iterdir():
-        if not track_dir.is_dir():
+        if not track_dir.is_dir() or track_dir.name == "archive":
             continue
 
         plan_file = track_dir / "plan.md"

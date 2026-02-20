@@ -20,7 +20,7 @@ LLM still needed for spec.md and plan.md content generation.
 """
 
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any
 import sys
@@ -31,7 +31,7 @@ from lib.json_manager import JsonManager
 from lib.formatters import Formatters
 
 # Valid track types
-TRACK_TYPES = ["feature", "bugfix", "refactor", "docs", "chore"]
+TRACK_TYPES = {"feature", "bugfix", "refactor", "docs", "chore"}
 
 
 def handle(args) -> Dict[str, Any]:
@@ -279,8 +279,6 @@ def register(project_root: Path, track_id: str, description: str) -> Dict[str, A
     Returns:
         Dict with validation result
     """
-    from datetime import datetime
-
     resolver = FileResolver(project_root)
     json_mgr = JsonManager(project_root)
 
@@ -295,32 +293,25 @@ def register(project_root: Path, track_id: str, description: str) -> Dict[str, A
     # Read existing metadata or start fresh
     metadata = json_mgr.read_track_metadata(track_id) or {}
 
-    now = datetime.utcnow().isoformat() + "Z"
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     # Backfill missing required fields
-    metadata.setdefault("track_id", track_id)
     metadata.setdefault("type", "feature")
     metadata.setdefault("status", "pending")
     metadata.setdefault("created_at", now)
     metadata.setdefault("updated_at", now)
     metadata.setdefault("description", description or track_id)
 
-    # Ensure track_id is correct
+    # Ensure track_id is always correct
     metadata["track_id"] = track_id
 
     # Normalize status to canonical underscore form
-    status_raw = str(metadata.get("status", "pending"))
-    status_map = {
-        "new": "pending",
-        "in-progress": "in_progress",
-        "active": "in_progress",
-        "done": "completed",
-    }
-    metadata["status"] = status_map.get(status_raw, status_raw)
+    from commands.implement import normalize_status
+
+    metadata["status"] = normalize_status(str(metadata.get("status", "pending")))
 
     # Validate type
-    valid_types = {"feature", "bugfix", "refactor", "docs", "chore"}
-    if metadata.get("type") not in valid_types:
+    if metadata.get("type") not in TRACK_TYPES:
         metadata["type"] = "feature"
 
     # Write validated metadata back

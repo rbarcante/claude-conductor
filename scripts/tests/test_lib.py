@@ -83,6 +83,47 @@ class TestFileResolver:
         assert "not_a_track.txt" not in tracks
 
 
+class TestTrackIdValidation:
+    """Tests for track_id validation."""
+
+    def test_valid_track_id(self, tmp_path):
+        """Valid track IDs pass validation."""
+        from lib.file_resolver import validate_track_id
+
+        # Should not raise
+        validate_track_id("my-track_20260101")
+        validate_track_id("track.v2")
+        validate_track_id("simple")
+
+    def test_path_traversal_rejected(self, tmp_path):
+        """Path traversal in track_id is rejected."""
+        from lib.file_resolver import validate_track_id
+
+        with pytest.raises(ValueError):
+            validate_track_id("../../etc/passwd")
+
+    def test_slash_rejected(self, tmp_path):
+        """Slashes in track_id are rejected."""
+        from lib.file_resolver import validate_track_id
+
+        with pytest.raises(ValueError):
+            validate_track_id("foo/bar")
+
+    def test_empty_rejected(self, tmp_path):
+        """Empty track_id is rejected."""
+        from lib.file_resolver import validate_track_id
+
+        with pytest.raises(ValueError):
+            validate_track_id("")
+
+    def test_get_track_directory_validates(self, tmp_path):
+        """get_track_directory rejects unsafe track IDs."""
+        resolver = FileResolver(tmp_path)
+
+        with pytest.raises(ValueError):
+            resolver.get_track_directory("../../../etc")
+
+
 class TestJsonManager:
     """Tests for JsonManager class."""
 
@@ -270,6 +311,56 @@ class TestTracksParser:
 
         tracks = parser.scan_tracks_directory(include_archived=False)
         assert tracks == []
+
+    def test_scan_nonexistent_tracks_dir(self, tmp_path):
+        """Returns empty list when tracks directory doesn't exist."""
+        parser = TracksParser(tmp_path)
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert tracks == []
+
+    def test_scan_corrupt_metadata_skipped(self, tmp_path):
+        """Corrupt metadata.json is gracefully skipped."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        # Valid track
+        good = tracks_dir / "good_20260101"
+        good.mkdir()
+        (good / "metadata.json").write_text(
+            json.dumps({"track_id": "good_20260101", "description": "Good", "status": "pending"})
+        )
+
+        # Corrupt track (invalid JSON)
+        bad = tracks_dir / "bad_20260101"
+        bad.mkdir()
+        (bad / "metadata.json").write_text("{invalid json content")
+
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 1
+        assert tracks[0].description == "Good"
+
+    def test_scan_done_and_active_status_variants(self, tmp_path):
+        """Status variants 'done' and 'active' map correctly."""
+        parser = TracksParser(tmp_path)
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        for tid, status_val, expected in [
+            ("t1_20260101", "done", TaskStatus.COMPLETED),
+            ("t2_20260101", "active", TaskStatus.IN_PROGRESS),
+        ]:
+            d = tracks_dir / tid
+            d.mkdir()
+            (d / "metadata.json").write_text(
+                json.dumps({"track_id": tid, "description": tid, "status": status_val})
+            )
+
+        tracks = parser.scan_tracks_directory(include_archived=False)
+        assert len(tracks) == 2
+        status_by_desc = {t.description: t.status for t in tracks}
+        assert status_by_desc["t1_20260101"] == TaskStatus.COMPLETED
+        assert status_by_desc["t2_20260101"] == TaskStatus.IN_PROGRESS
 
     def test_count_status_markers(self, tmp_path):
         """Test counting status markers."""

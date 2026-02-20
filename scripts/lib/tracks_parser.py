@@ -19,11 +19,15 @@ Scans conductor/tracks/*/metadata.json for track status and structure.
 Parses plan.md files, extracting status markers and structure.
 """
 
+import json
+import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 
 class TaskStatus(Enum):
@@ -41,7 +45,6 @@ class Track:
     description: str
     path: Optional[str]
     status: TaskStatus
-    raw_line: str  # kept for backward compatibility, always empty string
 
 
 @dataclass
@@ -113,8 +116,6 @@ class TracksParser:
         Returns:
             List of Track objects, ordered by track_id (directory name)
         """
-        import json as _json
-
         tracks: List[Track] = []
         tracks_dir = self.project_root / "conductor" / "tracks"
 
@@ -122,8 +123,38 @@ class TracksParser:
             return []
 
         # Scan active track directories (skip archive/ itself)
-        for subdir in sorted(tracks_dir.iterdir()):
-            if not subdir.is_dir() or subdir.name == "archive":
+        self._scan_directory(tracks_dir, tracks, path_prefix="./conductor/tracks", default_status="pending", skip_dirs={"archive"})
+
+        # Optionally scan archive directory
+        if include_archived:
+            archive_dir = tracks_dir / "archive"
+            if archive_dir.exists():
+                self._scan_directory(archive_dir, tracks, path_prefix="./conductor/tracks/archive", default_status="completed")
+
+        return tracks
+
+    def _scan_directory(
+        self,
+        directory: Path,
+        tracks: List[Track],
+        path_prefix: str,
+        default_status: str = "pending",
+        skip_dirs: Optional[set] = None,
+    ) -> None:
+        """
+        Scan a directory for subdirectories containing metadata.json.
+
+        Args:
+            directory: Directory to scan
+            tracks: List to append Track objects to
+            path_prefix: Path prefix for track paths (e.g. ./conductor/tracks)
+            default_status: Default status if not specified in metadata
+            skip_dirs: Set of directory names to skip
+        """
+        for subdir in sorted(directory.iterdir()):
+            if not subdir.is_dir():
+                continue
+            if skip_dirs and subdir.name in skip_dirs:
                 continue
 
             metadata_file = subdir / "metadata.json"
@@ -131,56 +162,23 @@ class TracksParser:
                 continue
 
             try:
-                metadata = _json.loads(metadata_file.read_text())
-            except Exception:
+                metadata = json.loads(metadata_file.read_text())
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning("Skipping %s: %s", metadata_file, e)
                 continue
 
             description = metadata.get("description", "")
-            status_str = str(metadata.get("status", "pending"))
+            status_str = str(metadata.get("status", default_status))
             status = self._string_to_status(status_str)
-            path = f"./conductor/tracks/{subdir.name}/"
+            path = f"{path_prefix}/{subdir.name}/"
 
             tracks.append(
                 Track(
                     description=description,
                     path=path,
                     status=status,
-                    raw_line="",
                 )
             )
-
-        # Optionally scan archive directory
-        if include_archived:
-            archive_dir = tracks_dir / "archive"
-            if archive_dir.exists():
-                for subdir in sorted(archive_dir.iterdir()):
-                    if not subdir.is_dir():
-                        continue
-
-                    metadata_file = subdir / "metadata.json"
-                    if not metadata_file.exists():
-                        continue
-
-                    try:
-                        metadata = _json.loads(metadata_file.read_text())
-                    except Exception:
-                        continue
-
-                    description = metadata.get("description", "")
-                    status_str = str(metadata.get("status", "completed"))
-                    status = self._string_to_status(status_str)
-                    path = f"./conductor/tracks/archive/{subdir.name}/"
-
-                    tracks.append(
-                        Track(
-                            description=description,
-                            path=path,
-                            status=status,
-                            raw_line="",
-                        )
-                    )
-
-        return tracks
 
     def parse_plan(self, content: str) -> List[Phase]:
         """

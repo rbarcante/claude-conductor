@@ -80,6 +80,27 @@ class TestParseTracksMd:
         entries = parse_tracks_md(tracks_md)
         assert entries == []
 
+    def test_parses_table_format(self, tmp_path):
+        """Parses table-style tracks.md entries."""
+        content = """# Tracks
+
+| ID | Title | Status |
+|----|-------|--------|
+| table-track_20260101 | Table track | completed |
+| table-pending_20260102 | Pending table | pending |
+"""
+        tracks_md = tmp_path / "conductor" / "tracks.md"
+        tracks_md.parent.mkdir(parents=True)
+        tracks_md.write_text(content)
+
+        entries = parse_tracks_md(tracks_md)
+        assert len(entries) == 2
+
+        by_id = {e["track_id"]: e for e in entries}
+        assert by_id["table-track_20260101"]["status"] == "completed"
+        assert by_id["table-pending_20260102"]["status"] == "pending"
+        assert by_id["table-track_20260101"]["description"] == "Table track"
+
 
 class TestMigrate:
     """Tests for migrate()."""
@@ -167,6 +188,45 @@ class TestMigrate:
         assert report["verified"] == []
         assert report["backfilled"] == []
         assert report["warnings"] == []
+
+    def test_dry_run_does_not_write(self, tmp_path):
+        """dry_run=True reports what would change without writing files."""
+        content = """
+- [ ] **Track: Dry run feature**
+  *Link: [dry-run_20260101](./conductor/tracks/dry-run_20260101/)*
+"""
+        project = self._setup_project(
+            tmp_path, content, {"dry-run_20260101": None}
+        )
+
+        report = migrate(project, dry_run=True)
+
+        # Should report backfill
+        assert len(report["backfilled"]) == 1
+
+        # But file should NOT have been created
+        meta_path = (
+            project / "conductor" / "tracks" / "dry-run_20260101" / "metadata.json"
+        )
+        assert not meta_path.exists()
+
+    def test_corrupt_metadata_generates_warning(self, tmp_path):
+        """Corrupt metadata.json generates a warning."""
+        content = """
+- [ ] **Track: Corrupt meta**
+  *Link: [corrupt_20260101](./conductor/tracks/corrupt_20260101/)*
+"""
+        project = self._setup_project(
+            tmp_path, content, {"corrupt_20260101": None}
+        )
+        # Write corrupt JSON
+        meta_path = project / "conductor" / "tracks" / "corrupt_20260101" / "metadata.json"
+        meta_path.write_text("{invalid json")
+
+        report = migrate(project, dry_run=False)
+
+        assert len(report["warnings"]) > 0
+        assert any("corrupt_20260101" in w for w in report["warnings"])
 
     def test_warns_on_missing_track_directory(self, tmp_path):
         """Tracks in tracks.md without a directory generate warnings."""
