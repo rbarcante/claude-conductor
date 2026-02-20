@@ -71,7 +71,7 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 
 
 
-- [~] **Track: Add ACLI Jira skill for consistent CLI usage**
+- [x] **Track: Add ACLI Jira skill for consistent CLI usage**
   *Link: [add-acli-jira-skill_20260220](./conductor/tracks/add-acli-jira-skill_20260220/)*
 - [x] **Track: Automate integration between implement and codeReview commands**
   *Link: [automate-integration-between-implement_20260217](./conductor/tracks/automate-integration-between-implement_20260217/)*
