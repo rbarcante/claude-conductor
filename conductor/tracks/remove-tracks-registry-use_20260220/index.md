@@ -11,3 +11,4 @@
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)
 - [Decisions](./decisions.md)
+- [Code Review Report](./review.md) - Auto-generated review on track completion
