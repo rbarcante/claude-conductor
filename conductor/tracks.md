@@ -70,6 +70,9 @@ All tracks have been archived to `./conductor/tracks/archive/`.
 
 
 
+
+- [ ] **Track: Fix tracks.md format inconsistency**
+  *Link: [fix-tracks-format-inconsistency_20260220](./conductor/tracks/fix-tracks-format-inconsistency_20260220/)*
 - [x] **Track: Automate integration between implement and codeReview commands**
   *Link: [automate-integration-between-implement_20260217](./conductor/tracks/automate-integration-between-implement_20260217/)*
 

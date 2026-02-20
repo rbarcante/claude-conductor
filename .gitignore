@@ -1,3 +1,6 @@
+# Explicitly un-ignore conductor/ (overrides global gitignore)
+!conductor/
+
 # Plugin-specific ignores
 node_modules/
 *.log
