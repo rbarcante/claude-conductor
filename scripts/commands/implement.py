@@ -37,6 +37,8 @@ from lib.file_resolver import FileResolver
 from lib.json_manager import JsonManager
 from lib.markdown_parser import MarkdownParser
 from lib.formatters import Formatters
+from commands.git_snapshot import git_snapshot as _git_snapshot
+from commands.tracks import parse_plan_content
 
 
 STATUS_NORMALIZATION_MAP = {
@@ -78,10 +80,21 @@ def handle(args) -> Dict[str, Any]:
         return match_patterns(plugin_root or project_root, args.keywords)
     elif args.subcommand == "suggest-branch":
         return suggest_branch(project_root, args.track_id)
+    elif args.subcommand == "git-snapshot":
+        exclude = getattr(args, "exclude", None) or []
+        diff_stat_only = getattr(args, "diff_stat_only", False)
+        return _git_snapshot(project_root, exclude, diff_stat_only)
+    elif args.subcommand == "batch-match-patterns":
+        plan_track_id = getattr(args, "plan", None)
+        return batch_match_patterns(plugin_root or project_root, project_root, plan_track_id)
     else:
         return {
             "success": False,
-            "error": "No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns, suggest-branch",
+            "error": (
+                "No subcommand specified. Use: parse-tracks, update-status, archive, "
+                "modified-files, parse-coverage, next-adr-number, match-patterns, "
+                "suggest-branch, git-snapshot, batch-match-patterns"
+            ),
         }
 
 
@@ -805,6 +818,102 @@ def suggest_branch(project_root: Path, track_id: str) -> Dict[str, Any]:
         },
         "message": format_suggest_branch(branch_name, worktree_path, current_branch),
     }
+
+
+def batch_match_patterns(
+    plugin_root: Path, project_root: Path, track_id: Optional[str]
+) -> Dict[str, Any]:
+    """
+    Extract keywords from all tasks in a plan and match patterns in bulk.
+
+    Replaces N individual match-patterns calls (one per task) with a single
+    call that returns per-task pattern matches for the entire plan.
+
+    Args:
+        plugin_root: Plugin root directory (patterns/ lives here)
+        project_root: Project root directory (conductor/ lives here)
+        track_id: Track ID whose plan.md will be parsed
+
+    Returns:
+        JSON with per-task pattern matches and summary statistics
+    """
+    if not track_id:
+        return {"success": False, "error": "--plan TRACK_ID is required"}
+
+    resolver = FileResolver(project_root)
+    plan_file = resolver.resolve_track_file(track_id, "implementation_plan")
+    if not plan_file:
+        return {"success": False, "error": f"Plan file not found for track: {track_id}"}
+
+    content = plan_file.read_text()
+    phases = parse_plan_content(content)
+
+    task_results = []
+    for phase in phases:
+        for task in phase["tasks"]:
+            task_keywords = _extract_keywords(task["content"])
+            match_result = match_patterns(plugin_root, task_keywords)
+            matches = match_result.get("data", {}).get("matches", [])
+
+            task_results.append(
+                {
+                    "phase": phase["name"],
+                    "phase_index": phase["index"],
+                    "task_index": task["index"],
+                    "task_content": task["content"],
+                    "task_status": task["status"],
+                    "keywords": task_keywords,
+                    "pattern_matches": matches,
+                }
+            )
+
+    total_matches = sum(len(t["pattern_matches"]) for t in task_results)
+    tasks_with_matches = sum(1 for t in task_results if t["pattern_matches"])
+
+    return {
+        "success": True,
+        "data": {
+            "track_id": track_id,
+            "tasks": task_results,
+            "summary": {
+                "total_tasks": len(task_results),
+                "tasks_with_matches": tasks_with_matches,
+                "total_pattern_matches": total_matches,
+            },
+        },
+        "message": (
+            f"Batch pattern match: {len(task_results)} tasks, "
+            f"{tasks_with_matches} with matches, "
+            f"{total_matches} total matches"
+        ),
+    }
+
+
+def _extract_keywords(text: str) -> List[str]:
+    """
+    Extract meaningful keywords from task description text.
+
+    Tokenizes, lowercases, removes common stop words and single-char tokens.
+
+    Args:
+        text: Task description text
+
+    Returns:
+        List of normalized keyword strings
+    """
+    STOP_WORDS = {
+        "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+        "of", "with", "by", "from", "as", "is", "are", "was", "be", "this",
+        "that", "it", "its", "add", "create", "write", "update", "implement",
+        "task", "test", "unit", "tests", "all", "new", "into", "return",
+        "via", "per", "each", "into", "using", "support",
+    }
+    # Strip backtick code spans and special characters
+    text = re.sub(r"`[^`]+`", " ", text)
+    text = re.sub(r"[^a-zA-Z0-9\s\-]", " ", text)
+
+    tokens = text.lower().split()
+    return [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
 
 
 def extract_shortname(track_id: str) -> str:
