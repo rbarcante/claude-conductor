@@ -25,6 +25,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 import json
 import sys
@@ -36,6 +37,19 @@ from lib.file_resolver import FileResolver
 from lib.json_manager import JsonManager
 from lib.markdown_parser import MarkdownParser
 from lib.formatters import Formatters
+
+
+STATUS_NORMALIZATION_MAP = {
+    "in-progress": "in_progress",
+    "active": "in_progress",
+    "done": "completed",
+    "new": "pending",
+}
+
+
+def normalize_status(status: str) -> str:
+    """Normalize status strings to canonical underscore form."""
+    return STATUS_NORMALIZATION_MAP.get(status, status)
 
 
 def handle(args) -> Dict[str, Any]:
@@ -77,7 +91,7 @@ def parse_tracks(
     status_filter: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Parse tracks registry and return structured JSON with status.
+    Parse tracks via directory scan and return structured JSON with status.
 
     Args:
         project_root: Project root path
@@ -91,15 +105,15 @@ def parse_tracks(
     resolver = FileResolver(project_root)
     json_mgr = JsonManager(project_root)
 
-    # Read tracks registry
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
+    # Verify tracks directory exists
+    tracks_dir = project_root / "conductor" / "tracks"
+    if not tracks_dir.exists():
         return {
             "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
+            "error": "Tracks directory (conductor/tracks/) not found",
         }
 
-    tracks = parser.parse_tracks_registry()
+    tracks = parser.scan_tracks_directory(include_archived=True)
 
     # Map status filter to enum value for comparison
     status_map = {
@@ -186,7 +200,7 @@ def parse_tracks(
 
 def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, Any]:
     """
-    Update track status in tracks.md.
+    Update track status in metadata.json.
 
     Args:
         project_root: Project root path
@@ -197,99 +211,38 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
         JSON with update result
     """
     resolver = FileResolver(project_root)
-    parser = TracksParser(project_root)
     json_mgr = JsonManager(project_root)
 
     # Verify track exists
     if not resolver.track_exists(track_id):
         return {"success": False, "error": f"Track '{track_id}' not found"}
 
-    # Read tracks.md
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
-        return {
-            "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
-        }
-
-    content = tracks_file.read_text()
-
-    # Map status string to enum
-    status_map = {
-        "pending": TaskStatus.PENDING,
-        "in-progress": TaskStatus.IN_PROGRESS,
-        "completed": TaskStatus.COMPLETED,
-    }
-
-    if status not in status_map:
+    # Validate status
+    valid_statuses = {"pending", "in-progress", "completed"}
+    if status not in valid_statuses:
         return {
             "success": False,
             "error": f"Invalid status '{status}'. Use: pending, in-progress, completed",
         }
 
-    new_status = status_map[status]
+    # Normalize status for storage
+    normalized_status = normalize_status(status)
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    # Find and update the track line
-    # Look for the track by ID in the path
-    lines = content.split("\n")
-    updated = False
-    new_lines = []
-
-    for line in lines:
-        if f"conductor/tracks/{track_id}" in line or f"tracks/{track_id}" in line:
-            # This is the link line, track status is on previous line
-            new_lines.append(line)
-        elif track_id in line and "**Track:" in line:
-            # Update status marker
-            status_char = " "
-            if new_status == TaskStatus.COMPLETED:
-                status_char = "x"
-            elif new_status == TaskStatus.IN_PROGRESS:
-                status_char = "~"
-
-            updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
-            new_lines.append(updated_line)
-            updated = True
-        else:
-            # Check if line contains track info by checking if next line would have track_id
-            # This handles cases where track_id isn't in the track line itself
-            new_lines.append(line)
-
-    # If not found by ID in track line, try finding by looking at the path pattern
-    if not updated:
-        new_lines = []
-        for i, line in enumerate(lines):
-            if i + 1 < len(lines) and f"conductor/tracks/{track_id}" in lines[i + 1]:
-                # Current line should be the track line
-                status_char = " "
-                if new_status == TaskStatus.COMPLETED:
-                    status_char = "x"
-                elif new_status == TaskStatus.IN_PROGRESS:
-                    status_char = "~"
-
-                updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
-                new_lines.append(updated_line)
-                updated = True
-            else:
-                new_lines.append(line)
-
-    if not updated:
-        return {
-            "success": False,
-            "error": f"Could not find track '{track_id}' in tracks.md",
-        }
-
-    # Write updated content
-    tracks_file.write_text("\n".join(new_lines))
-
-    # Update metadata
+    # Read current metadata
     metadata = json_mgr.read_track_metadata(track_id)
-    if metadata:
-        from datetime import datetime
+    if not metadata:
+        # Create minimal metadata if missing
+        metadata = {
+            "track_id": track_id,
+            "status": normalized_status,
+            "updated_at": now,
+        }
+    else:
+        metadata["status"] = normalized_status
+        metadata["updated_at"] = now
 
-        metadata["status"] = status
-        metadata["updated_at"] = datetime.utcnow().isoformat() + "Z"
-        json_mgr.write_track_metadata(track_id, metadata)
+    json_mgr.write_track_metadata(track_id, metadata)
 
     return {
         "success": True,

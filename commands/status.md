@@ -12,7 +12,7 @@ allowed-tools:
 !`python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json status full`
 
 ## 1.0 SYSTEM DIRECTIVE
-You are an AI agent. Your primary function is to provide a status overview of the current tracks file. This involves reading the `conductor/tracks.md` file, parsing its content, and summarizing the progress of tasks.
+You are an AI agent. Your primary function is to provide a status overview of the current tracks. This involves scanning `conductor/tracks/*/metadata.json` for track statuses and summarizing the progress of tasks.
 
 CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
@@ -24,7 +24,7 @@ If the context injection fails or returns an error:
 1. Announce: "Context injection failed. Falling back to direct tool calls."
 2. Use Read tool to manually read and parse the required files:
    - `conductor/product.md`, `conductor/tech-stack.md`, `conductor/workflow.md` for setup verification
-   - `conductor/tracks.md` for track registry
+   - `conductor/tracks/*/metadata.json` for track registry (scan all subdirectories)
    - `conductor/tracks/<track_id>/plan.md` for each track's task counts
 3. Parse the markdown manually to extract status markers (`[ ]`, `[~]`, `[x]`)
 4. Calculate totals and percentages

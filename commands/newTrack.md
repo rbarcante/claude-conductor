@@ -38,7 +38,7 @@ The following CLI commands are used for write operations during track creation:
 # Generate track ID from description
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESCRIPTION"
 
-# Register track in conductor/tracks.md
+# Validate and enforce metadata.json for the track
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register TRACK_ID --description "DESC"
 ```
 
@@ -49,7 +49,7 @@ Valid types: `feature` (default), `bugfix`, `refactor`, `docs`, `chore`
 ### Fallback Instructions
 
 1. **For `generate-id` failure:** Generate manually using format `shortname_YYYYMMDD`
-2. **For `register` failure:** Edit `conductor/tracks.md` directly
+2. **For `register` failure:** Edit `conductor/tracks/<track_id>/metadata.json` directly
 
 </cli_reference>
 
@@ -204,14 +204,14 @@ After completing the protocol, proceed to **Section 2.0 NEW TRACK INITIALIZATION
 | 1. Generate ID | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESC"` | Manual: `shortname_YYYYMMDD` |
 | 2. Create Directory | `mkdir -p conductor/tracks/<track_id>` | - |
 | 3. Create Files | Use Write tool to create each file directly (index.md, metadata.json, spec.md, plan.md, decisions.md) with the confirmed spec and plan content | - |
-| 4. Register | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register ID --description "DESC"` | Edit `conductor/tracks.md` directly |
+| 4. Register | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register ID --description "DESC"` | Edit `conductor/tracks/<track_id>/metadata.json` directly |
 
 **Files created:** `conductor/tracks/<track_id>/` containing: index.md, metadata.json, spec.md, plan.md, decisions.md
 
 #### Commit and Finalize
 
 5.  **Confirm Commit:** Use AskUserQuestion with Commit pattern (Commit now/Skip commit), following constraints in `<protocol name="askuserquestion">`
-6.  **Commit (if confirmed):** `git add conductor/tracks/<track_id>/* conductor/tracks.md && git commit -m "conductor(track): Create track '<description>'"`
+6.  **Commit (if confirmed):** `git add conductor/tracks/<track_id>/* && git commit -m "conductor(track): Create track '<description>'"`
 7.  **Announce:** Inform user track is created. Next step: `/conductor:implement`
 
 </instructions>

@@ -373,7 +373,7 @@ def execute(
 
 def parse_registry(project_root: Path) -> Dict[str, Any]:
     """
-    Parse tracks registry for guided menu display.
+    Parse tracks via directory scan for guided menu display.
 
     Returns tracks sorted with in-progress items first, then pending.
     Completed tracks are listed last.
@@ -387,15 +387,15 @@ def parse_registry(project_root: Path) -> Dict[str, Any]:
     parser = TracksParser(project_root)
     resolver = FileResolver(project_root)
 
-    # Read tracks registry
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
+    # Verify tracks directory exists
+    tracks_dir = project_root / "conductor" / "tracks"
+    if not tracks_dir.exists():
         return {
             "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
+            "error": "Tracks directory (conductor/tracks/) not found",
         }
 
-    tracks = parser.parse_tracks_registry()
+    tracks = parser.scan_tracks_directory(include_archived=False)
 
     # Organize by status
     in_progress = []

@@ -64,11 +64,6 @@ def conductor_project(tmp_path):
     (tmp_path / "conductor" / "product.md").write_text("# Product\nTest product")
     (tmp_path / "conductor" / "tech-stack.md").write_text("# Tech Stack\nPython")
     (tmp_path / "conductor" / "workflow.md").write_text("# Workflow\nTDD")
-    (tmp_path / "conductor" / "tracks.md").write_text("""# Project Tracks
-
-- [ ] **Track: Test feature**
-  *Link: [./conductor/tracks/test_20260121/](./conductor/tracks/test_20260121/)*
-""")
 
     # Create skill registry
     (tmp_path / "skills" / "skill-registry.json").write_text(
@@ -239,22 +234,27 @@ class TestStatusCommand:
     """Tests for status command."""
 
     def test_verify_setup(self, conductor_project):
-        """Test setup verification."""
+        """Test setup verification — tracks_registry is no longer a required file."""
         args = MockArgs(project_root=conductor_project, subcommand="verify")
         result = status.handle(args)
 
         assert result["success"] is True
         assert result["data"]["is_valid"] is True
         assert len(result["data"]["missing_required"]) == 0
+        # tracks_registry must NOT be checked
+        assert "tracks_registry" not in result["data"].get("checks", {}).get("required", {})
 
     def test_verify_missing_files(self, tmp_path):
-        """Test verification with missing files."""
+        """Test verification with missing files — tracks_registry is no longer required."""
         args = MockArgs(project_root=tmp_path, subcommand="verify")
         result = status.handle(args)
 
         assert result["success"] is True
         assert result["data"]["is_valid"] is False
-        assert len(result["data"]["missing_required"]) > 0
+        missing = result["data"]["missing_required"]
+        assert len(missing) > 0
+        # tracks_registry must not appear in missing required
+        assert "tracks_registry" not in missing
 
     def test_parse_tracks(self, conductor_project):
         """Test track parsing."""
@@ -371,35 +371,50 @@ class TestNewtrackCommand:
         assert (track_dir / "spec.md").exists()
         assert (track_dir / "plan.md").exists()
 
-    def test_register_creates_correct_path_format(self, conductor_project):
-        """Test that register creates tracks.md entries with ./conductor/tracks/ path format.
+    def test_register_validates_metadata_json(self, conductor_project):
+        """Test that register validates/normalizes metadata.json instead of writing tracks.md."""
+        # First scaffold a track so the directory exists
+        scaffold_args = MockArgs(
+            project_root=conductor_project,
+            subcommand="scaffold",
+            track_id="test-register_20260122",
+            type="feature",
+            description="Test register validates metadata",
+        )
+        scaffold_result = newtrack.handle(scaffold_args)
+        assert scaffold_result["success"] is True
 
-        This tests the fix for the bug where register used ./tracks/{track_id}/
-        but implement update-status expects ./conductor/tracks/{track_id}/.
-        """
+        # Corrupt metadata status to test normalization
+        import json as _json
+        meta_path = (
+            conductor_project
+            / "conductor"
+            / "tracks"
+            / "test-register_20260122"
+            / "metadata.json"
+        )
+        metadata = _json.loads(meta_path.read_text())
+        metadata["status"] = "in-progress"  # non-canonical form
+        meta_path.write_text(_json.dumps(metadata))
+
+        # Run register
         args = MockArgs(
             project_root=conductor_project,
             subcommand="register",
             track_id="test-register_20260122",
-            description="Test register path format",
+            description="Test register validates metadata",
         )
         result = newtrack.handle(args)
 
         assert result["success"] is True
 
-        # Read tracks.md and verify the path format
+        # metadata.json should have normalized status
+        updated = _json.loads(meta_path.read_text())
+        assert updated["status"] == "in_progress"  # normalized to underscore form
+
+        # tracks.md must NOT have been modified / created by register
         tracks_file = conductor_project / "conductor" / "tracks.md"
-        content = tracks_file.read_text()
-
-        # The entry should use ./conductor/tracks/ path, NOT ./tracks/
-        assert (
-            "(./conductor/tracks/test-register_20260122/)" in content
-        ), f"Expected path format './conductor/tracks/test-register_20260122/' not found in tracks.md. Content:\n{content}"
-
-        # The entry should NOT use the incorrect ./tracks/ path
-        assert (
-            "(./tracks/test-register_20260122/)" not in content
-        ), "Incorrect path format './tracks/test-register_20260122/' found in tracks.md"
+        assert not tracks_file.exists(), "register must not create tracks.md"
 
 
 class TestSetupCommand:
@@ -513,7 +528,7 @@ class TestImplementCommand:
         assert "tracks" in result["data"]
 
     def test_update_status(self, conductor_project):
-        """Test updating track status."""
+        """Test updating track status — must update metadata.json, not tracks.md."""
         args = MockArgs(
             project_root=conductor_project,
             subcommand="update-status",
@@ -523,6 +538,15 @@ class TestImplementCommand:
         result = implement.handle(args)
 
         assert result["success"] is True
+
+        # Verify metadata.json was updated
+        import json as _json
+        meta_path = (
+            conductor_project / "conductor" / "tracks" / "test_20260121" / "metadata.json"
+        )
+        assert meta_path.exists()
+        metadata = _json.loads(meta_path.read_text())
+        assert metadata["status"] == "in_progress"
 
     def test_next_adr_number(self, conductor_project):
         """Test ADR number generation."""
@@ -626,6 +650,121 @@ class TestImplementCommand:
         assert "worktree_path" in result["data"]
         # Worktree path should be relative to parent directory
         assert result["data"]["worktree_path"].startswith("../")
+
+
+class TestRevertCommand:
+    """Tests for revert command."""
+
+    def test_parse_registry(self, conductor_project):
+        """Test parse_registry returns tracks organized by status."""
+        args = MockArgs(project_root=conductor_project, subcommand="parse-registry")
+        result = revert.handle(args)
+
+        assert result["success"] is True
+        assert "tracks" in result["data"]
+        assert "by_status" in result["data"]
+        assert "summary" in result["data"]
+
+    def test_parse_registry_no_tracks_dir(self, tmp_path):
+        """Test parse_registry returns error when tracks dir is missing."""
+        args = MockArgs(project_root=tmp_path, subcommand="parse-registry")
+        result = revert.handle(args)
+
+        assert result["success"] is False
+        assert "not found" in result["error"]
+
+    def test_parse_registry_empty_tracks(self, tmp_path):
+        """Test parse_registry with empty tracks directory."""
+        tracks_dir = tmp_path / "conductor" / "tracks"
+        tracks_dir.mkdir(parents=True)
+
+        args = MockArgs(project_root=tmp_path, subcommand="parse-registry")
+        result = revert.handle(args)
+
+        assert result["success"] is True
+        assert result["data"]["summary"]["total"] == 0
+
+
+class TestImplementErrors:
+    """Tests for implement command error paths."""
+
+    def test_update_status_missing_metadata(self, conductor_project):
+        """Test update_status creates minimal metadata when metadata.json is missing."""
+        # Create a track directory without metadata.json
+        track_dir = conductor_project / "conductor" / "tracks" / "no-meta_20260121"
+        track_dir.mkdir()
+
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand="update-status",
+            track_id="no-meta_20260121",
+            status="in-progress",
+        )
+        result = implement.handle(args)
+
+        assert result["success"] is True
+        # metadata.json should have been created
+        meta_path = track_dir / "metadata.json"
+        assert meta_path.exists()
+        metadata = json.loads(meta_path.read_text())
+        assert metadata["status"] == "in_progress"
+
+    def test_update_status_invalid_status(self, conductor_project):
+        """Test update_status rejects invalid status values."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand="update-status",
+            track_id="test_20260121",
+            status="invalid-status",
+        )
+        result = implement.handle(args)
+
+        assert result["success"] is False
+        assert "Invalid status" in result["error"]
+
+    def test_update_status_missing_track(self, conductor_project):
+        """Test update_status returns error for nonexistent track."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand="update-status",
+            track_id="nonexistent_20260121",
+            status="completed",
+        )
+        result = implement.handle(args)
+
+        assert result["success"] is False
+        assert "not found" in result["error"]
+
+
+class TestNewtrackErrors:
+    """Tests for newtrack command error paths."""
+
+    def test_register_missing_directory(self, conductor_project):
+        """Test register returns error when track directory doesn't exist."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand="register",
+            track_id="nonexistent_20260121",
+            description="Does not exist",
+        )
+        result = newtrack.handle(args)
+
+        assert result["success"] is False
+        assert "not found" in result["error"]
+
+    def test_scaffold_invalid_type(self, conductor_project):
+        """Test scaffold rejects invalid track types."""
+        args = MockArgs(
+            project_root=conductor_project,
+            subcommand="scaffold",
+            track_id="invalid-type_20260121",
+            type="invalid",
+            description="Invalid type",
+        )
+        result = newtrack.handle(args)
+
+        assert result["success"] is False
+        assert "Invalid track type" in result["error"]
 
 
 if __name__ == "__main__":
