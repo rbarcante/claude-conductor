@@ -14,405 +14,163 @@ allowed-tools:
 ## Usage
 
 ```bash
-# Review changes against master branch
-/conductor:codeReview master
-
-# Review changes against develop branch
-/conductor:codeReview develop
-
-# Review changes against main branch
-/conductor:codeReview main
-
-# No argument - will prompt for base branch selection
-/conductor:codeReview
+/conductor:codeReview master    # Review against master
+/conductor:codeReview develop   # Review against develop
+/conductor:codeReview           # Will prompt for base branch
 ```
 
 ### What This Command Does
 
-1. **Fetches latest** from remote to ensure up-to-date comparison
-2. **Generates diff** between your current branch and the specified base branch
-3. **Analyzes changes** across three dimensions:
-   - **Code Quality**: Code smells, style compliance, documentation
-   - **Security**: Hardcoded secrets, injection vulnerabilities, insecure patterns
-   - **Test Coverage**: Missing tests, coverage gaps
-4. **Generates report** with findings organized by severity (High/Medium/Low)
+1. Generates filtered diff between current branch and base branch
+2. Analyzes changes across: **Code Quality**, **Security**, **Test Coverage**
+3. Generates report with findings organized by severity
 
 ---
 
 ## 1.0 SYSTEM DIRECTIVE
 
-You are an AI agent specialized in code review. Your primary function is to perform comprehensive code review of changes in the current branch compared to a base branch. You analyze code across three dimensions: **Code Quality**, **Security**, and **Test Coverage**.
+You are an AI agent specialized in code review. Analyze code across three dimensions: **Code Quality**, **Security**, and **Test Coverage**.
 
-CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
+CRITICAL: Validate every tool call. If any fails, halt immediately, announce the failure, and await instructions.
 
 ---
 
 ## 1.1 SETUP CHECK
 
-**PROTOCOL: Verify that the project context is available.**
+Verify existence of context files for standards-aware review:
+- `conductor/product-guidelines.md` — product style and messaging
+- `conductor/tech-stack.md` — technology choices
+- `conductor/workflow.md` — TDD requirements, coverage thresholds
+- `conductor/code_styleguides/` — code style guides
 
-1.  **Check Project Context:** Verify the existence of these files for context-aware review:
-    -   `conductor/product-guidelines.md` - Product style and messaging standards
-    -   `conductor/tech-stack.md` - Technology choices and rationale
-    -   `conductor/workflow.md` - Development workflow (TDD, coverage requirements)
-    -   `conductor/code_styleguides/` - Code style guides
-
-2.  **Handle Missing Context:**
-    -   If context files are missing, announce: "Warning: Project context files not found. Review will proceed without project-specific standards."
-    -   Continue with generic code review standards.
+If missing, announce warning and continue with generic standards.
 
 ---
 
-## 2.0 BRANCH SELECTION AND UPDATE
-
-**PROTOCOL: Determine base branch and update before comparison.**
+## 2.0 BRANCH SELECTION AND DIFF GENERATION
 
 ### 2.1 Select Base Branch
 
-1.  **Check Command Argument:** Parse `{{args}}` for the base branch name.
-    -   If argument provided (e.g., `/conductor:codeReview master`): Use the provided branch name.
-    -   If no argument provided: Prompt the user (Step 2).
+1. **Check argument:** Parse `{{args}}` for base branch name.
+2. **If no argument:** Prompt via AskUserQuestion with options: master / develop / main.
+3. Store selection as `BASE_BRANCH`.
 
-2.  **Prompt if No Argument:** Use AskUserQuestion only when no base branch was specified:
+### 2.2 Generate Filtered Diff via CLI
 
-    ```json
-    {
-      "questions": [{
-        "question": "Which base branch would you like to compare against?",
-        "header": "Base Branch",
-        "options": [
-          {"label": "master", "description": "Compare current branch against master"},
-          {"label": "develop", "description": "Compare current branch against develop"},
-          {"label": "main", "description": "Compare current branch against main"}
-        ],
-        "multiSelect": false
-      }]
-    }
-    ```
+Execute a single call that handles fetch, diff, stats, and language detection:
 
-3.  **Store Selection:** Keep the selected base branch for use in subsequent steps.
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json codereview filtered-diff --base <BASE_BRANCH>
+```
 
-### 2.2 Update Branches
+The response includes:
+- `data.base_branch` — validated base branch
+- `data.stats` — `files_changed`, `lines_added`, `lines_removed`, `truncated`, `max_lines`
+- `data.language_breakdown` — per-language file counts and line changes
+- `data.file_stats` — per-file breakdown with language detection
+- `data.diff_content` — full filtered diff (size-capped)
 
-1.  **Fetch Latest:** Execute git fetch to update remote references:
-    ```bash
-    git fetch origin
-    ```
+**Handle errors:**
+- If base branch not found: "Branch `origin/<BASE_BRANCH>` not found." — re-prompt.
+- If diff is empty: "No changes found. Your branch appears up-to-date." — halt.
+- If CLI fails: Fall back to manual `git fetch origin && git diff origin/<BASE_BRANCH>...HEAD`.
 
-2.  **Verify Base Branch Exists:** Check that the selected base branch exists:
-    ```bash
-    git rev-parse --verify origin/<base_branch>
-    ```
-
-3.  **Handle Missing Branch:**
-    -   If branch doesn't exist: "Branch `origin/<base_branch>` not found. Please verify the branch name exists on remote."
-    -   Re-prompt with branch selection.
-
-### 2.3 Generate Diff
-
-1.  **Execute Diff:** Compare current branch against selected base branch:
-    ```bash
-    git diff origin/<base_branch>...HEAD
-    ```
-
-2.  **Handle Empty Diff:**
-    -   If diff is empty: "No changes found between `origin/<base_branch>` and your current branch. Your branch appears to be up-to-date with the base branch."
-    -   Halt and await further user instructions.
-
-3.  **Store Diff Output:** Keep the diff output for analysis in subsequent sections.
-
-### 2.4 Parse Diff Statistics
-
-1.  **Extract Statistics:**
-    -   Count files changed (lines starting with `diff --git`)
-    -   Count lines added (lines starting with `+` excluding `+++`)
-    -   Count lines removed (lines starting with `-` excluding `---`)
-
-2.  **Store for Report:** Keep statistics for the final report summary.
+Store `data.stats` for the report summary.
 
 ---
 
 ## 3.0 EXECUTION STRATEGY
 
-**PROTOCOL: Determine execution strategy for analysis phases.**
+### 3.1 Prompt User
 
-### 3.1 Prompt User for Preference
+Ask via AskUserQuestion: "How would you like to run the analysis?"
+- "Parallel (Recommended)" — specialist agents simultaneously
+- "Sequential" — inline analysis
 
-```json
-{
-  "questions": [{
-    "question": "How would you like to run the analysis phases?",
-    "header": "Execution",
-    "options": [
-      {"label": "Parallel (Recommended)", "description": "Run all analysis phases simultaneously using specialist agents"},
-      {"label": "Sequential", "description": "Run analysis phases one at a time inline"}
-    ],
-    "multiSelect": false
-  }]
-}
-```
+### 3.2 Parallel Execution (Preferred)
 
-### 3.2 Execute Based on Preference
-
-#### If Parallel Execution Selected
-
-Use the `Task` tool to launch all three specialist agents **simultaneously** in a single message with multiple tool calls.
-
-**Prepare Agent Input:**
-
-Build the input JSON for all agents using the collected diff and context:
+**Prepare agent input** from CLI response:
 
 ```json
 {
-  "diff_content": "<stored diff output from Section 2.3>",
-  "file_list": ["<list of changed files from diff>"],
+  "diff_content": "<data.diff_content>",
+  "file_list": ["<from data.file_stats[].file>"],
   "project_context": {
-    "tech_stack": "<detected from conductor/tech-stack.md or file extensions>",
-    "styleguide_path": "conductor/code_styleguides/<language>.md",
-    "product_guidelines_path": "conductor/product-guidelines.md",
-    "framework": "<detected framework if any>"
+    "tech_stack": "<from conductor/tech-stack.md>",
+    "language_breakdown": "<data.language_breakdown>",
+    "styleguide_path": "conductor/code_styleguides/<primary_language>.md",
+    "product_guidelines_path": "conductor/product-guidelines.md"
   }
 }
 ```
 
-**Include Product Guidelines:**
+Use `data.language_breakdown` to determine the primary language (highest `lines_added`) for styleguide selection — no manual file-extension detection needed.
 
-If `conductor/product-guidelines.md` exists, read and include its relevant sections:
-- Documentation standards (prose style, naming conventions)
-- Code commenting requirements
-- API documentation format
+If `conductor/product-guidelines.md` exists, read and include documentation/naming standards in the agent context.
 
-This context enables agents to check compliance with project-specific standards.
+**Launch all three agents simultaneously** in a single message:
+- `subagent_type: "code-quality-analyzer"`
+- `subagent_type: "security-scanner"`
+- `subagent_type: "test-coverage-analyzer"`
 
-**Launch Agents in Parallel:**
+Each returns structured JSON: `{ "findings": [...], "summary": { "high": N, "medium": N, "low": N } }`
 
-You MUST send a single message with THREE Task tool calls to run them concurrently:
+### 3.3 Sequential Execution (Fallback)
 
-```
-Task 1: code-quality-analyzer
-- subagent_type: "code-quality-analyzer"
-- prompt: <input JSON above>
+If user selects Sequential, or as fallback for failed agents, run analysis inline using the checklists below.
 
-Task 2: security-scanner
-- subagent_type: "security-scanner"
-- prompt: <input JSON above>
+**Code Quality Checklist:**
+- Code smells: functions >50 lines, nesting >3 levels, duplicate code, magic numbers, dead code
+- Style: naming conventions, organization, imports, formatting
+- Documentation: public API docstrings, complex logic comments
+- Maintainability: SRP, abstraction levels, error handling
 
-Task 3: test-coverage-analyzer
-- subagent_type: "test-coverage-analyzer"
-- prompt: <input JSON above>
-```
+**Security Checklist:**
+- **High:** Hardcoded secrets (API keys, passwords, tokens), injection (SQL, command, XSS, eval/exec), broken auth/access control
+- **Medium:** Disabled security features (CSRF, CORS wildcards), weak crypto (MD5/SHA1 for passwords), missing input validation, verbose error messages, sensitive data in logs
 
-**Collect Agent Results:**
+**Test Coverage Checklist:**
+- Map source files to expected test files, verify existence
+- Check if tests were modified alongside source changes
+- Evaluate assertion quality and edge case coverage
 
-Each agent returns structured JSON output:
-
-```json
-{
-  "findings": [
-    {
-      "severity": "high|medium|low",
-      "category": "...",
-      "file": "path/to/file",
-      "line": 42,
-      "issue": "...",
-      "recommendation": "..."
-    }
-  ],
-  "summary": {
-    "high": N,
-    "medium": N,
-    "low": N
-  }
-}
-```
-
-Store the results from each agent for aggregation in Section 7.0.
-
-**Handle Agent Failures:**
-
-If any agent fails:
-1. Log the failure with error details
-2. Fall back to inline analysis for that specific dimension (see Sections 4.0, 5.0, or 6.0)
-3. Continue with results from successful agents
-4. Include partial results note in final report
-
-#### If Sequential Execution Selected
-
-Execute each analysis phase inline:
-1. Code Quality Analysis (Section 4.0)
-2. Security Analysis (Section 5.0)
-3. Test Coverage Analysis (Section 6.0)
+Record each finding with: severity, file, line, issue, recommendation.
 
 ---
 
-## 4.0 CODE QUALITY ANALYSIS
+## 4.0 ERROR HANDLING
 
-**PROTOCOL: Analyze code quality and style compliance.**
+### Agent Failures
+- **1 agent fails:** Note failure in report, fall back to inline analysis (Section 3.3) for that dimension
+- **2+ agents fail:** Switch to full sequential mode, announce: "Switching to sequential analysis."
+- **Invalid output:** Treat as failure, fall back to inline
 
-### 4.1 Load Project Standards
+| Failed Agent | Inline Fallback |
+|---|---|
+| code-quality-analyzer | Code Quality Checklist |
+| security-scanner | Security Checklist |
+| test-coverage-analyzer | Test Coverage Checklist |
 
-1.  **Read Style Guides:** If `conductor/code_styleguides/` exists:
-    -   Identify languages used in the diff (by file extension)
-    -   Load corresponding style guides
-
-2.  **Read Product Guidelines:** If `conductor/product-guidelines.md` exists:
-    -   Extract documentation and naming standards
-
-### 4.2 Analyze Changed Code
-
-For each changed file in the diff, evaluate:
-
-1.  **Code Smells:**
-    -   Functions/methods exceeding 50 lines
-    -   Deeply nested conditionals (>3 levels)
-    -   Duplicate code blocks
-    -   Magic numbers/strings
-    -   Dead code or unreachable paths
-
-2.  **Style Compliance:**
-    -   Naming conventions (variables, functions, classes)
-    -   Code organization and structure
-    -   Import/export patterns
-    -   Consistent formatting
-
-3.  **Documentation:**
-    -   Public functions/methods have docstrings/comments
-    -   Complex logic is explained
-    -   TODO/FIXME comments are tracked
-
-4.  **Maintainability:**
-    -   Single Responsibility Principle
-    -   Appropriate abstraction levels
-    -   Clear error handling
-
-### 4.3 Record Findings
-
-Record each finding with:
--   **Severity:** High, Medium, or Low
--   **File:** Path to the file
--   **Line:** Line number (if applicable)
--   **Issue:** Brief description
--   **Recommendation:** Suggested fix
+### Other Errors
+- Git errors: provide clear message, suggest common fixes
+- File read errors: continue with generic standards, log unavailable files
+- Large diffs (>5000 lines): warn user, consider summary-level analysis
 
 ---
 
-## 5.0 SECURITY ANALYSIS
+## 5.0 REPORT GENERATION
 
-**PROTOCOL: Detect security vulnerabilities in changed code.**
+### 5.1 Aggregate Findings
 
-### 5.1 Security Pattern Library
+**Parallel:** Parse JSON from each agent, merge `findings` arrays, sum severity counts.
+**Sequential:** Gather findings from inline analysis.
 
-Check for these vulnerability patterns:
-
-1.  **Hardcoded Secrets (High Severity):**
-    -   API keys, passwords, tokens in code
-    -   Private keys or certificates
-    -   Database connection strings with credentials
-    -   Patterns: `password=`, `api_key=`, `secret=`, `token=`, base64-encoded strings
-
-2.  **Injection Vulnerabilities (High Severity):**
-    -   SQL injection: Unparameterized queries, string concatenation in SQL
-    -   Command injection: Shell command construction with user input
-    -   XSS: Unescaped user input in HTML/templates
-    -   Code injection: eval(), exec(), dynamic code execution
-
-3.  **Insecure Patterns (Medium Severity):**
-    -   Disabled security features (CSRF, CORS wildcards)
-    -   Weak cryptography (MD5, SHA1 for passwords)
-    -   Insecure deserialization
-    -   Missing input validation
-
-4.  **Information Disclosure (Medium Severity):**
-    -   Verbose error messages with stack traces
-    -   Debug/development settings in production code
-    -   Sensitive data in logs
-
-5.  **Authentication/Authorization (High Severity):**
-    -   Missing authentication checks
-    -   Broken access control patterns
-    -   Insecure session handling
-
-### 5.2 Record Security Findings
-
-Record each finding with:
--   **Severity:** High, Medium, or Low
--   **Category:** Injection, Secrets, Auth, etc.
--   **File:** Path to the file
--   **Line:** Line number
--   **Vulnerability:** Description of the issue
--   **Impact:** Potential consequences
--   **Remediation:** How to fix
-
----
-
-## 6.0 TEST COVERAGE ANALYSIS
-
-**PROTOCOL: Verify test coverage for changed code.**
-
-### 6.1 Load Testing Standards
-
-1.  **Read Workflow:** If `conductor/workflow.md` exists:
-    -   Extract TDD requirements
-    -   Get coverage thresholds (default: 80%)
-    -   Understand testing patterns
-
-### 6.2 Analyze Test Coverage
-
-1.  **Map Source to Tests:**
-    -   For each changed source file, determine expected test file location
-    -   Common patterns: `src/foo.ts` -> `tests/foo.test.ts`, `src/foo.ts` -> `__tests__/foo.spec.ts`
-
-2.  **Check Test Existence:**
-    -   Verify corresponding test files exist
-    -   Check if tests were modified alongside source changes
-
-3.  **Evaluate Test Quality:**
-    -   Look for test assertions in changed test files
-    -   Check for edge case coverage
-    -   Verify error path testing
-
-### 6.3 Record Coverage Findings
-
-Record each finding with:
--   **Severity:** High (no tests), Medium (insufficient tests), Low (minor gaps)
--   **File:** Source file path
--   **Issue:** Description of coverage gap
--   **Suggestion:** Recommended tests to add
-
----
-
-## 7.0 REPORT GENERATION
-
-**PROTOCOL: Generate structured code review report.**
-
-### 7.1 Aggregate Findings
-
-1.  **Collect Results:**
-
-    **If Parallel Execution (Agent Results):**
-    - Parse JSON output from each agent
-    - Merge `findings` arrays from:
-      - `code-quality-analyzer` results
-      - `security-scanner` results
-      - `test-coverage-analyzer` results
-    - Sum severity counts from each agent's `summary` object
-
-    **If Sequential Execution (Inline Results):**
-    - Gather findings recorded during Sections 4, 5, and 6
-
-2.  **Count by Severity:**
-    -   High severity findings (includes "critical" from security-scanner)
-    -   Medium severity findings
-    -   Low severity findings
-
-### 7.2 Generate Report
-
-Output the report in this structure:
+### 5.2 Generate Report
 
 ```markdown
 # Code Review Report
 
-**Branch:** `<current_branch>` vs `origin/<base_branch>`
+**Branch:** `<current_branch>` vs `origin/<BASE_BRANCH>`
 **Generated:** <timestamp>
 
 ---
@@ -444,7 +202,7 @@ Output the report in this structure:
 ## Security Analysis
 
 ### Critical/High Severity
-[List security findings or "No security vulnerabilities detected"]
+[List findings or "No security vulnerabilities detected"]
 
 ### Medium Severity
 [List findings]
@@ -464,74 +222,18 @@ Output the report in this structure:
 ## Recommendations
 
 **Priority Actions (address before merging):**
-1. [High severity items that must be fixed]
+1. [High severity items]
 
 **Suggested Improvements:**
-1. [Medium/Low severity items to consider]
+1. [Medium/Low severity items]
 
 ---
 
 *Review generated by `/conductor:codeReview`*
 ```
 
-### 7.3 Present Report
+### 5.3 Present Report
 
-1.  **Display Report:** Output the complete report to the user.
-
-2.  **Offer Next Steps:**
-    -   If high severity issues: "Please address the high severity items before merging."
-    -   If no issues: "Code review passed. No blocking issues found."
-
----
-
-## 8.0 ERROR HANDLING
-
-**PROTOCOL: Handle errors gracefully throughout the review process.**
-
-### 8.1 Git Errors
-
--   If git commands fail, provide clear error message
--   Suggest common fixes (configure origin, check branch names)
-
-### 8.2 File Read Errors
-
--   If project context files cannot be read, continue with generic standards
--   Log which files were unavailable
-
-### 8.3 Agent Failures (Parallel Execution)
-
-When using parallel execution with specialist agents:
-
-1.  **Single Agent Failure:**
-    -   Log the agent name and error message
-    -   Fall back to inline analysis for that dimension only
-    -   Continue with results from successful agents
-    -   Add note to report: "⚠️ [Agent Name] analysis ran in fallback mode"
-
-2.  **Multiple Agent Failures:**
-    -   If 2+ agents fail, switch to full sequential execution
-    -   Announce: "Multiple agents failed. Switching to sequential analysis mode."
-    -   Execute Sections 4.0, 5.0, 6.0 inline
-
-3.  **Invalid Agent Output:**
-    -   If agent returns non-JSON or malformed response
-    -   Treat as agent failure (fallback to inline)
-    -   Log the invalid response for debugging
-
-**Fallback Mapping:**
-| Failed Agent | Fallback Section |
-|--------------|------------------|
-| code-quality-analyzer | Section 4.0 |
-| security-scanner | Section 5.0 |
-| test-coverage-analyzer | Section 6.0 |
-
-### 8.4 Analysis Errors (Sequential Execution)
-
--   If one analysis phase fails, continue with others
--   Include partial results in report with note about incomplete analysis
-
-### 8.5 Timeout Handling
-
--   For large diffs (>5000 lines), warn user about extended analysis time
--   Consider summarizing instead of line-by-line analysis for very large diffs
--   Agent tasks have built-in timeout handling; if exceeded, fall back to inline
+1. Display complete report to user
+2. If high severity issues: "Please address high severity items before merging."
+3. If no issues: "Code review passed. No blocking issues found."

@@ -20,10 +20,11 @@ allowed-tools:
 <system_directive>
 
 ## 1.0 SYSTEM DIRECTIVE
-You are an AI agent. Your primary function is to set up and manage a software project using the Conductor methodology. Adhere to these instructions precisely and sequentially.
+
+You are an AI agent. Set up and manage a software project using the Conductor methodology. Adhere to these instructions precisely and sequentially.
 
 <note type="critical">
-CRITICAL: Validate the success of every tool call. If any fails, halt immediately and await user instructions.
+CRITICAL: Validate every tool call. If any fails, halt immediately and await user instructions.
 </note>
 
 </system_directive>
@@ -32,24 +33,15 @@ CRITICAL: Validate the success of every tool call. If any fails, halt immediatel
 
 <cli_reference>
 
-## Action CLI Commands
+## CLI Reference
 
 ```bash
-# Create conductor directory structure
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold
-
-# Record setup progress
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "STEP_NAME"
-
-# Copy code styleguides
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages LANG1 LANG2
 ```
 
-### Fallback Instructions
-
-If context injection fails:
-1. **State check:** Read `conductor/setup_state.json` if it exists
-2. **Project detection:** Check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/`
+**Fallback:** If context injection fails: read `conductor/setup_state.json` for state, check for `.git`, `package.json`, `pom.xml`, `requirements.txt`, `go.mod`, `src/`, `app/`, `lib/` for project detection.
 
 </cli_reference>
 
@@ -57,13 +49,9 @@ If context injection fails:
 
 <protocol name="askuserquestion">
 
-## AskUserQuestion Tool Protocol
+## AskUserQuestion Protocol
 
-**Full Pattern Reference:** `templates/askuserquestion-patterns.md`
-
-<constraints>
-
-### Quick Reference
+**Full Reference:** `templates/askuserquestion-patterns.md`
 
 | Rule | Constraint |
 |------|------------|
@@ -72,20 +60,7 @@ If context injection fails:
 | Sequential | One question at a time |
 | multiSelect | `true` for additive, `false` for exclusive |
 
-### Question Types
-
-| Type | multiSelect | Use Case |
-|------|-------------|----------|
-| Additive | `true` | Multiple valid answers (users, features) |
-| Exclusive | `false` | Single answer (language, framework) |
-| Approval | `false` | Document review (Approve/Suggest changes) |
-| Confirmation | `false` | Yes/No decisions |
-
-</constraints>
-
-### Auto-Generate Behavior
-
-When user selects "Auto-generate": stop asking questions, use context to infer remaining details, generate document, present for approval.
+**Auto-Generate Behavior:** When user selects "Auto-generate", stop asking questions, use context to infer remaining details, generate document, present for approval.
 
 </protocol>
 
@@ -95,11 +70,7 @@ When user selects "Auto-generate": stop asking questions, use context to infer r
 
 ## 1.1 RESUME CHECK
 
-<instructions>
-
-**PROTOCOL: Check setup state and resume from last successful step.**
-
-1. **Parse Injected Context:** Check for `last_successful_step` in first JSON object from `# Context` section.
+1. **Parse Injected Context:** Check for `last_successful_step` in first JSON object from `# Context`.
 
 2. **Resume Mapping:**
 
@@ -110,13 +81,11 @@ When user selects "Auto-generate": stop asking questions, use context to infer r
 | `2.2_product_guidelines` | Skip to Section 2.3 |
 | `2.3_tech_stack` | Skip to Section 2.4 |
 | `2.4_code_styleguides` | Skip to Section 2.5 |
-| `2.5_workflow` | Skip to Section 2.5.1 (brownfield) or 2.6 (greenfield) |
+| `2.5_workflow` | Skip to 2.5.1 (brownfield) or 2.6 (greenfield) |
 | `2.5.1_docs_generated` | Skip to Section 2.6 |
 | `3.3_initial_track_generated` | Announce complete, halt. Use `/conductor:newTrack` or `/conductor:implement` |
 
 3. **New Project:** If no state JSON returned, proceed to Section 1.2.
-
-</instructions>
 
 </phase>
 
@@ -124,11 +93,9 @@ When user selects "Auto-generate": stop asking questions, use context to infer r
 
 <phase name="pre_init">
 
-## 1.2 PRE-INITIALIZATION OVERVIEW
+## 1.2 PRE-INITIALIZATION
 
-<instructions>
-
-Present to user:
+Present:
 > "Welcome to Conductor. I will guide you through:
 > 1. **Project Discovery:** Analyze directory to determine new or existing project
 > 2. **Product Definition:** Define vision, guidelines, and technology stack
@@ -136,8 +103,6 @@ Present to user:
 > 4. **Track Generation:** Create initial track with detailed plan
 >
 > Let's get started!"
-
-</instructions>
 
 </phase>
 
@@ -147,71 +112,48 @@ Present to user:
 
 ## 2.0 PROJECT INCEPTION
 
-<instructions name="detect_maturity">
-
 ### 2.0.1 Detect Project Maturity
 
-1. **Use Injected Context:** Parse detection JSON from `# Context` section containing:
-   - `project_type`: "brownfield" or "greenfield"
-   - `languages`, `frameworks`, `ecosystems`, `indicators`
+Parse detection JSON from `# Context` containing `project_type`, `languages`, `frameworks`, `ecosystems`, `indicators`.
 
-2. **Execute Based on Maturity:**
+**Brownfield:**
+- Announce existing project detected
+- If `indicators.has_uncommitted_changes`: warn to commit/stash
+- Request read-only scan permission (Confirmation pattern)
+- If denied: halt. If approved: proceed to 2.0.2
 
-   **Brownfield:**
-   - Announce existing project detected
-   - If `indicators.has_uncommitted_changes`: warn user to commit/stash
-   - Request read-only scan permission using AskUserQuestion (Confirmation type)
-   - If denied: halt and await instructions
-   - If approved: proceed to Section 2.0.2
-
-   **Greenfield:**
-   - Announce new project initialization
-   - If no `.git`: run `git init`
-   - Ask: "What do you want to build?"
-   - Run `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold`
-   - Initialize state: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set ""`
-   - Write response to `conductor/product.md` under `# Initial Concept`
-   - Proceed to Section 2.1
-
-</instructions>
-
-<instructions name="stack_detection">
+**Greenfield:**
+- Announce new project initialization
+- If no `.git`: run `git init`
+- Ask: "What do you want to build?"
+- Run `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup scaffold`
+- Initialize state: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set ""`
+- Write response to `conductor/product.md` under `# Initial Concept`
+- Proceed to Section 2.1
 
 ### 2.0.2 Automatic Stack Detection (Brownfield Only)
 
-**Full Protocol Reference:** `protocols/stack-detection.md`
+**Full Reference:** `protocols/stack-detection.md`
 
-1. **Use Injected Context:** The detection results contain `languages`, `frameworks`, `ecosystems` from `# Context`.
-
-2. **Present Detection Results:**
-
-   Format by confidence level (HIGH/MEDIUM/LOW/UNCERTAIN):
+1. Use `languages`, `frameworks`, `ecosystems` from injected context
+2. Present results formatted by confidence (HIGH/MEDIUM/LOW):
    ```
    **Stack Detection Results** (Confidence: [LEVEL])
-
    **Primary Language:** [detected]
    **Frameworks:** [list]
    **Build Tools:** [list]
    ```
-
-3. **User Confirmation:** Use AskUserQuestion with options: Accept / Edit / Skip
-   - **Accept:** Store profile, set `stack_auto_detected = true`
-   - **Edit:** Present each category for verification
-   - **Skip:** Set `stack_auto_detected = false`
-
-4. **Continue:** Proceed to Section 2.0.3.
-
-</instructions>
-
-<instructions name="codebase_analysis">
+3. AskUserQuestion: Accept / Edit / Skip
+   - Accept → store profile, set `stack_auto_detected = true`
+   - Edit → present each category for verification
+   - Skip → set `stack_auto_detected = false`
+4. Proceed to 2.0.3
 
 ### 2.0.3 Codebase Analysis (Brownfield Only)
 
-**Full Protocol Reference:** `protocols/codebase-analysis.md`
+**Full Reference:** `protocols/codebase-analysis.md`
 
-#### Agent-Based Pattern Detection (Preferred)
-
-Launch 4 `codebase-pattern-detector` agents in parallel using the Task tool:
+Launch 4 `codebase-pattern-detector` agents in parallel:
 
 | Agent | Operation | Scope |
 |-------|-----------|-------|
@@ -220,40 +162,16 @@ Launch 4 `codebase-pattern-detector` agents in parallel using the Task tool:
 | 3 | `testing-patterns` | src/, lib/, app/, tests/ |
 | 4 | `api-conventions` | src/, lib/, app/ |
 
-Each agent prompt includes:
-```json
-{
-  "operation": "<operation>",
-  "scope": {
-    "directories": ["src/", "lib/", "app/", "pkg/"],
-    "exclude": ["node_modules/", "dist/", "vendor/", "build/", ".git/"]
-  },
-  "context": {"tech_stack": "<detected stack>"}
-}
-```
+Each receives: `{ "operation": "<op>", "scope": { "directories": [...], "exclude": ["node_modules/", "dist/", "vendor/", "build/", ".git/"] }, "context": {"tech_stack": "<detected>"} }`
 
-Merge `patterns` objects from all agents. If any agent fails, fall back to Inline Mode per protocol.
+Merge `patterns` from all agents. If any fails, fall back to inline per protocol.
 
-#### Consolidated Pattern Review
-
-1. **Present Summary:** Display all detected patterns grouped by category with confidence levels
-
-2. **User Category Selection:** Use AskUserQuestion with multiSelect to select which categories to document:
-   - All categories (Recommended)
-   - Individual categories (Code Conventions, Architecture, Testing, API Patterns, Configuration)
-
-3. **Handle Selection:**
-   - Store `approved_categories` array
-   - If none selected: skip documentation generation
-
-4. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.0.2_analysis"
-   ```
-
-5. **Continue:** Proceed to Section 2.1.
-
-</instructions>
+**Pattern Review:**
+1. Present all detected patterns grouped by category with confidence levels
+2. AskUserQuestion (multiSelect): select categories to document (All recommended, or individual)
+3. Store `approved_categories` array
+4. Commit state: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.0.2_analysis"`
+5. Proceed to Section 2.1
 
 </phase>
 
@@ -261,33 +179,14 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 <phase name="product_guide">
 
-## 2.1 Generate Product Guide (Interactive)
+## 2.1 Generate Product Guide
 
-<instructions>
-
-**Pattern Examples:** See `templates/askuserquestion-patterns.md`
-
-1. **Announce:** "I will now help create `product.md`."
-
-2. **Questioning Phase:**
-   - Ask up to 5 questions sequentially
-   - Generate 2-3 suggested options per question
-   - Topics: Target users, goals, features
-   - Always include "Auto-generate" option
-   - **Brownfield:** Ask context-aware questions based on code analysis
-
-3. **Draft Document:** Generate comprehensive `product.md` content
-
-4. **User Confirmation:** Use Approval pattern (Approve/Suggest changes loop)
-
-5. **Write File:** Append to `conductor/product.md`, preserving `# Initial Concept`
-
-6. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.1_product_guide"
-   ```
-
-</instructions>
+1. Announce: "I will now help create `product.md`."
+2. Ask up to 5 sequential questions (target users, goals, features). Include "Auto-generate" option. Brownfield: context-aware questions.
+3. Draft comprehensive `product.md` content
+4. User confirmation (Approval pattern: Approve / Suggest changes)
+5. Write to `conductor/product.md`, preserving `# Initial Concept`
+6. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.1_product_guide"`
 
 </phase>
 
@@ -295,24 +194,12 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 <phase name="product_guidelines">
 
-## 2.2 Generate Product Guidelines (Interactive)
+## 2.2 Generate Product Guidelines
 
-<instructions>
-
-1. **Announce:** "I will now help create `product-guidelines.md`."
-
-2. **Questioning Phase:**
-   - Ask up to 5 questions (prose style, brand messaging, visual identity)
-   - Include "Auto-generate" option
-
-3. **Draft, Confirm, Write:** Same pattern as Section 2.1
-
-4. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.2_product_guidelines"
-   ```
-
-</instructions>
+1. Announce: "I will now help create `product-guidelines.md`."
+2. Ask up to 5 questions (prose style, brand messaging, visual identity). Include "Auto-generate" option.
+3. Draft, confirm (Approval pattern), write to `conductor/product-guidelines.md`
+4. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.2_product_guidelines"`
 
 </phase>
 
@@ -320,30 +207,14 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 <phase name="tech_stack">
 
-## 2.3 Generate Tech Stack (Interactive)
+## 2.3 Generate Tech Stack
 
-<instructions>
-
-1. **Check Auto-Detection:** If `stack_auto_detected = true`, skip questions and use stored profile.
-
-2. **Questioning Phase (if not auto-detected):**
-   - Ask up to 5 questions (languages, frameworks, databases)
-   - **Brownfield:** Confirm inferred stack rather than propose changes
-
-3. **Draft Document:** Map to tech-stack.md sections:
-   - Primary Language, Languages, Frameworks, Build & Development, Testing, Infrastructure
-
-4. **User Confirmation:** Use Approval pattern
-
-5. **Write File:** Write to `conductor/tech-stack.md`
-   - If auto-detected, include confidence comment at top
-
-6. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.3_tech_stack"
-   ```
-
-</instructions>
+1. If `stack_auto_detected = true`: skip questions, use stored profile
+2. Otherwise: ask up to 5 questions (languages, frameworks, databases). Brownfield: confirm inferred stack.
+3. Draft tech-stack.md (sections: Primary Language, Frameworks, Build & Development, Testing, Infrastructure)
+4. User confirmation (Approval pattern)
+5. Write to `conductor/tech-stack.md` (auto-detected: include confidence comment)
+6. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.3_tech_stack"`
 
 </phase>
 
@@ -351,29 +222,14 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 <phase name="style_guides">
 
-## 2.4 Select Style Guides (Interactive)
-
-<instructions>
+## 2.4 Select Style Guides
 
 **Template Reference:** `protocols/ai-template-generation.md`
 
-1. **List Available Guides:** Check `${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/`
-
-2. **Selection Flow:**
-   - **Greenfield:** Recommend based on tech stack, offer customize option
-   - **Brownfield:** Announce inferred guides, confirm or add more
-
-3. **Copy Templates:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages <lang1> <lang2>
-   ```
-
-4. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"
-   ```
-
-</instructions>
+1. List available guides from `${CLAUDE_PLUGIN_ROOT}/templates/code_styleguides/`
+2. **Greenfield:** recommend based on tech stack, offer customize. **Brownfield:** announce inferred, confirm or add.
+3. Copy: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup copy-templates --languages <lang1> <lang2>`
+4. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.4_code_styleguides"`
 
 </phase>
 
@@ -381,21 +237,12 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 <phase name="workflow">
 
-## 2.5 Select Workflow (Interactive)
+## 2.5 Select Workflow
 
-<instructions>
-
-1. **Copy Initial Workflow:** Copy `${CLAUDE_PLUGIN_ROOT}/templates/workflow.md` to `conductor/workflow.md`
-
-2. **Customize:** Use AskUserQuestion (Use default / Customize)
-   - If Customize: ask about coverage (80%/70%/90%), commit frequency, task summary storage
-
-3. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5_workflow"
-   ```
-
-</instructions>
+1. Copy `${CLAUDE_PLUGIN_ROOT}/templates/workflow.md` to `conductor/workflow.md`
+2. AskUserQuestion: Use default / Customize
+   - Customize: ask about coverage (80%/70%/90%), commit frequency, task summary storage
+3. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5_workflow"`
 
 </phase>
 
@@ -405,34 +252,13 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 ## 2.5.1 Documentation Generation (Brownfield Only)
 
-<note>
-**Skip Condition:** Only execute if `codebase_analyzed = true` AND `approved_categories` is not empty.
-</note>
+**Skip if** `codebase_analyzed != true` OR `approved_categories` is empty.
 
-<instructions>
-
-### Execution Steps
-
-1. **Generate Product Guidelines Update:**
-   - Add Quick Reference section with 5-10 key rules from approved categories
-   - Add Project Structure section
-   - Add links to detailed docs
-
-2. **Generate conductor/docs/ Files:**
-   - Create files for each approved category
-   - Include code examples from analysis
-   - Add confidence indicators
-
-3. **User Confirmation:** Present file list and Quick Reference preview
-
-4. **Write Files:** Write all approved documentation
-
-5. **Commit State:**
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5.1_docs_generated"
-   ```
-
-</instructions>
+1. Generate Product Guidelines update: Quick Reference (5-10 rules), Project Structure, links
+2. Generate `conductor/docs/` files for each approved category with code examples and confidence indicators
+3. User confirmation: present file list and Quick Reference preview
+4. Write all approved documentation
+5. State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "2.5.1_docs_generated"`
 
 </phase>
 
@@ -442,15 +268,9 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 ## 2.6 Finalization
 
-<instructions>
-
-1. **Generate Index:** Create `conductor/index.md` with links to all context files
-
-2. **Summarize:** List all created files and actions taken
-
-3. **Transition:** Announce proceeding to initial track generation
-
-</instructions>
+1. Generate `conductor/index.md` with links to all context files
+2. Summarize all created files and actions
+3. Announce proceeding to initial track generation
 
 </phase>
 
@@ -460,67 +280,38 @@ Merge `patterns` objects from all agents. If any agent fails, fall back to Inlin
 
 ## 3.0 INITIAL TRACK GENERATION
 
-<instructions name="product_requirements">
+### 3.1 Product Requirements (Greenfield Only)
 
-### 3.1 Generate Product Requirements (Greenfield Only)
-
-1. **Analyze Context:** Read `conductor/product.md` and `conductor/tech-stack.md`
-
-2. **Questioning Phase:** Ask up to 5 questions about user stories and requirements
-
-3. **Continue:** Proceed to Section 3.2
-
-</instructions>
-
-<instructions name="propose_track">
+1. Read `conductor/product.md` and `conductor/tech-stack.md`
+2. Ask up to 5 questions about user stories and requirements
+3. Proceed to 3.2
 
 ### 3.2 Propose Initial Track
 
-1. **Generate Track Title:** Analyze context and propose single initial track
-   - **Greenfield:** Usually MVP-focused
-   - **Brownfield:** Maintenance or targeted enhancement
-
-2. **User Confirmation:** Use Approval pattern (Approve/Different track)
-
-</instructions>
-
-<instructions name="create_artifacts">
+1. Analyze context, propose single initial track
+   - **Greenfield:** MVP-focused. **Brownfield:** maintenance or targeted enhancement.
+2. User confirmation (Approval pattern: Approve / Different track)
 
 ### 3.3 Create Track Artifacts
 
-**PROTOCOL: Use CLI commands for operations. Fall back to manual if CLI fails.**
+| Step | Action | Fallback |
+|------|--------|----------|
+| 1. Generate ID | `shortname_YYYYMMDD` | Manual |
+| 2. Create directory | `mkdir -p conductor/tracks/<track_id>/` | Manual |
+| 3. Create files | Write tool: index.md, metadata.json, spec.md, plan.md | Manual |
+| 4. Init tracks registry | Write tool: `conductor/tracks.md` | Manual |
 
-| Step | CLI Command | Fallback |
-|------|-------------|----------|
-| 1. Generate ID | - | Manual: `shortname_YYYYMMDD` |
-| 2. Create Directory | - | `mkdir -p conductor/tracks/<track_id>/` |
-| 3. Create Files | Write tool | index.md, metadata.json, spec.md, plan.md |
-| 4. Initialize Tracks | Write tool | Create `conductor/tracks.md` |
+**Plan rules:** Follow `conductor/workflow.md` methodology (TDD if specified). Include `[ ]` markers. Append verification task per phase: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`
 
-**Plan Generation Rules:**
-- Follow `conductor/workflow.md` methodology (TDD if specified)
-- Include status markers `[ ]` for all tasks
-- Append verification task to each phase: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`
-
-**Commit State:**
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "3.3_initial_track_generated"
-```
-
-</instructions>
-
-<instructions name="final_announcement">
+State: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json setup state --set "3.3_initial_track_generated"`
 
 ### 3.4 Final Announcement
 
-1. **Stage and Commit:**
+1. Stage and commit:
    ```bash
    git add conductor/
    git commit -m "conductor(setup): Add conductor setup files"
    ```
-
-2. **Next Steps:** Inform user to run `/conductor:implement`
-
-</instructions>
+2. Inform user to run `/conductor:implement`
 
 </phase>
