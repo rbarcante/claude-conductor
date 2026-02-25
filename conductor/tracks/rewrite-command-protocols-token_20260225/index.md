@@ -8,3 +8,4 @@
 - [Implementation Plan](./plan.md) - Phased task breakdown
 - [Metadata](./metadata.json) - Track metadata
 - [Decisions](./decisions.md) - Architecture Decision Records
+- [Code Review Report](./review.md) - Auto-generated review on track completion
