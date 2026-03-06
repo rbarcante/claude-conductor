@@ -26,7 +26,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from commands.codereview import (
     filtered_diff,
+    _add_untracked_file_stats,
     _compute_language_stats,
+    _get_raw_diff,
     _parse_file_stats,
     TRUNCATION_INDICATOR,
     DEFAULT_MAX_LINES,
@@ -197,3 +199,84 @@ def test_filtered_diff_fail_on_no_diff():
 
     assert result["success"] is False
     assert "error" in result
+
+
+# ---------------------------------------------------------------------------
+# _add_untracked_file_stats
+# ---------------------------------------------------------------------------
+
+
+def test_add_untracked_file_stats_reads_lines(tmp_path):
+    """Untracked file stats should count lines from disk."""
+    (tmp_path / "new.py").write_text("line1\nline2\nline3\n")
+    with patch("commands.codereview._run_git", return_value="new.py\n"):
+        result = _add_untracked_file_stats(tmp_path, [], [])
+    assert len(result) == 1
+    assert result[0]["file"] == "new.py"
+    assert result[0]["lines_added"] == 3
+
+
+def test_add_untracked_file_stats_deduplication(tmp_path):
+    """Files already in existing_stats should not be duplicated."""
+    (tmp_path / "dup.py").write_text("x\n")
+    existing = [{"file": "dup.py", "language": "Python", "lines_added": 1, "lines_removed": 0, "is_binary": False}]
+    with patch("commands.codereview._run_git", return_value="dup.py\n"):
+        result = _add_untracked_file_stats(tmp_path, [], existing)
+    assert len(result) == 1
+
+
+def test_add_untracked_file_stats_no_untracked():
+    """When no untracked files exist, return existing stats unchanged."""
+    existing = [{"file": "a.py", "language": "Python", "lines_added": 5, "lines_removed": 0, "is_binary": False}]
+    with patch("commands.codereview._run_git", return_value=None):
+        result = _add_untracked_file_stats(Path("/fake"), [], existing)
+    assert result is existing
+
+
+# ---------------------------------------------------------------------------
+# _get_raw_diff
+# ---------------------------------------------------------------------------
+
+
+def test_get_raw_diff_origin_succeeds():
+    """Should return diff when origin/ ref succeeds."""
+    with patch("commands.codereview._run_git", side_effect=["diff content", None]):
+        result = _get_raw_diff(Path("/fake"), "master")
+    assert result == "diff content"
+
+
+def test_get_raw_diff_origin_fallback():
+    """Should fall back to local ref when origin/ fails."""
+    with patch("commands.codereview._run_git", side_effect=[None, "local diff"]):
+        result = _get_raw_diff(Path("/fake"), "master")
+    assert result == "local diff"
+
+
+def test_get_raw_diff_both_fail():
+    """Should return None when both refs fail."""
+    with patch("commands.codereview._run_git", side_effect=[None, None]):
+        result = _get_raw_diff(Path("/fake"), "master")
+    assert result is None
+
+
+# ---------------------------------------------------------------------------
+# _parse_file_stats
+# ---------------------------------------------------------------------------
+
+
+def test_parse_file_stats_binary_files():
+    """Binary files should have is_binary=True and zero line counts."""
+    numstat_output = "-\t-\timage.png\n"
+    with patch("commands.codereview._run_git", return_value=numstat_output):
+        result = _parse_file_stats(Path("/fake"), "master", [])
+    assert len(result) == 1
+    assert result[0]["is_binary"] is True
+    assert result[0]["lines_added"] == 0
+    assert result[0]["lines_removed"] == 0
+
+
+def test_parse_file_stats_empty_output():
+    """Empty numstat output should return empty list."""
+    with patch("commands.codereview._run_git", return_value=""):
+        result = _parse_file_stats(Path("/fake"), "master", [])
+    assert result == []

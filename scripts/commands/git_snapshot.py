@@ -19,17 +19,18 @@ Replaces individual calls for branch detection, status, diff stats, changed file
 and diff content with one CLI invocation.
 """
 
+import argparse
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from lib.git_ops import GitOps
 
 
-def handle(args) -> Dict[str, Any]:
+def handle(args: argparse.Namespace) -> Dict[str, Any]:
     """Handle git-snapshot subcommand."""
     project_root = args.project_root
     exclude = getattr(args, "exclude", None) or []
@@ -39,7 +40,7 @@ def handle(args) -> Dict[str, Any]:
 
 def git_snapshot(
     project_root: Path,
-    exclude: List[str] = None,
+    exclude: Optional[List[str]] = None,
     diff_stat_only: bool = False,
 ) -> Dict[str, Any]:
     """
@@ -97,20 +98,14 @@ def detect_base_branch(project_root: Path) -> str:
     5. Default to 'master'
     """
 
-    def run(args: List[str]):
-        result = subprocess.run(
-            ["git"] + args, cwd=project_root, capture_output=True, text=True
-        )
-        return result.returncode, result.stdout
-
     # Get current branch name for checkout-pattern matching
     current_branch: Optional[str] = None
-    cb_code, cb_out = run(["rev-parse", "--abbrev-ref", "HEAD"])
-    if cb_code == 0:
+    cb_out = _run_git(project_root, ["rev-parse", "--abbrev-ref", "HEAD"])
+    if cb_out is not None:
         current_branch = cb_out.strip()
 
-    code, stdout = run(["reflog", "show", "HEAD"])
-    if code == 0:
+    stdout = _run_git(project_root, ["reflog", "show", "HEAD"])
+    if stdout is not None:
         for line in stdout.splitlines():
             # Pattern 1a: explicit branch creation — "branch: Created from X"
             if "branch: Created from" in line:
@@ -123,7 +118,7 @@ def detect_base_branch(project_root: Path) -> str:
                         return branch
 
             # Pattern 1b: checkout to this branch — "checkout: moving from X to <current>"
-            if current_branch and f"moving from" in line and f"to {current_branch}" in line:
+            if current_branch and "moving from" in line and f"to {current_branch}" in line:
                 m = re.search(r"moving from ([^\s]+) to ", line)
                 if m:
                     branch = m.group(1).strip()
@@ -135,8 +130,8 @@ def detect_base_branch(project_root: Path) -> str:
                         return branch
 
     # Step 2 (legacy): remote tracking refs on HEAD
-    code, stdout = run(["log", "-1", "--format=%D", "HEAD"])
-    if code == 0:
+    stdout = _run_git(project_root, ["log", "-1", "--format=%D", "HEAD"])
+    if stdout is not None:
         for ref in stdout.split(","):
             ref = ref.strip()
             if ref.startswith("origin/") and not ref.startswith("origin/HEAD"):
@@ -148,8 +143,7 @@ def detect_base_branch(project_root: Path) -> str:
 
     # Step 3: try common defaults
     for candidate in ("master", "main", "develop"):
-        code, _ = run(["rev-parse", "--verify", f"origin/{candidate}"])
-        if code == 0:
+        if _run_git(project_root, ["rev-parse", "--verify", f"origin/{candidate}"]) is not None:
             return candidate
 
     return "master"

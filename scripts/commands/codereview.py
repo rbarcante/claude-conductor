@@ -19,10 +19,11 @@ Generates filtered, size-capped git diff with language statistics.
 Replaces manual diff generation + file filtering + language detection with one call.
 """
 
+import argparse
 import re
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from commands.git_snapshot import (
@@ -76,7 +77,7 @@ TRUNCATION_INDICATOR = (
 )
 
 
-def handle(args) -> Dict[str, Any]:
+def handle(args: argparse.Namespace) -> Dict[str, Any]:
     """Handle codereview subcommands."""
     if args.subcommand == "filtered-diff":
         project_root = args.project_root
@@ -92,7 +93,7 @@ def handle(args) -> Dict[str, Any]:
 
 def filtered_diff(
     project_root: Path,
-    exclude: List[str] = None,
+    exclude: Optional[List[str]] = None,
     max_lines: int = DEFAULT_MAX_LINES,
     base_branch: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -291,8 +292,8 @@ def _compute_language_stats(
 
 def _format_filtered_diff(
     base_branch: str,
-    file_stats: List[Dict],
-    language_stats: Dict,
+    file_stats: List[Dict[str, Any]],
+    language_stats: Dict[str, Dict[str, int]],
     truncated: bool,
 ) -> str:
     """Format filtered diff summary for human-readable output."""

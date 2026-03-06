@@ -20,15 +20,16 @@ coverage parsing, pattern matching, and file tracking.
 LLM needed for implementation decisions, TDD workflow, and verification.
 """
 
+import argparse
+import json
 import os
 import re
 import shutil
-import xml.etree.ElementTree as ET
-from pathlib import Path
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
-import json
 import sys
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from lib.git_ops import GitOps
@@ -40,6 +41,17 @@ from lib.formatters import Formatters
 from commands.git_snapshot import git_snapshot as _git_snapshot
 from commands.tracks import parse_plan_content
 
+
+_COVERAGE_THRESHOLD_PERCENT = 80
+_MAX_UNCOVERED_FILES = 10
+
+_STOP_WORDS = {
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+    "of", "with", "by", "from", "as", "is", "are", "was", "be", "this",
+    "that", "it", "its", "add", "create", "write", "update", "implement",
+    "task", "test", "unit", "tests", "all", "new", "into", "return",
+    "via", "per", "each", "into", "using", "support",
+}
 
 STATUS_NORMALIZATION_MAP = {
     "in-progress": "in_progress",
@@ -54,7 +66,7 @@ def normalize_status(status: str) -> str:
     return STATUS_NORMALIZATION_MAP.get(status, status)
 
 
-def handle(args) -> Dict[str, Any]:
+def handle(args: argparse.Namespace) -> Dict[str, Any]:
     """Handle implement subcommands."""
     project_root = args.project_root
     plugin_root = getattr(args, "plugin_root", None)
@@ -456,7 +468,7 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
         elif line == "end_of_record":
             if current_file and file_lf > 0 and file_lh < file_lf:
                 coverage = (file_lh / file_lf) * 100
-                if coverage < 80:  # Files with less than 80% coverage
+                if coverage < _COVERAGE_THRESHOLD_PERCENT:
                     uncovered_files.append(
                         {"file": current_file, "coverage": round(coverage, 1)}
                     )
@@ -468,13 +480,17 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_hit,
         "lines_total": lines_found,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
     }
 
 
 def parse_cobertura(path: Path) -> Dict[str, Any]:
     """Parse Cobertura XML format coverage file."""
-    tree = ET.parse(path)
+    try:
+        from defusedxml.ElementTree import parse as _safe_parse
+        tree = _safe_parse(path)
+    except ImportError:
+        tree = ET.parse(path)
     root = tree.getroot()
 
     # Get line-rate from root or coverage element
@@ -507,7 +523,7 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         cls_line_rate = cls.get("line-rate")
         if cls_line_rate:
             file_coverage = float(cls_line_rate) * 100
-            if file_coverage < 80:
+            if file_coverage < _COVERAGE_THRESHOLD_PERCENT:
                 uncovered_files.append(
                     {"file": filename, "coverage": round(file_coverage, 1)}
                 )
@@ -523,7 +539,7 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
     }
 
 
@@ -567,7 +583,7 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
 
             if file_total > 0:
                 file_pct = (file_covered / file_total) * 100
-                if file_pct < 80:
+                if file_pct < _COVERAGE_THRESHOLD_PERCENT:
                     uncovered_files.append(
                         {"file": filename, "coverage": round(file_pct, 1)}
                     )
@@ -578,7 +594,7 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
     }
 
 
@@ -593,7 +609,9 @@ def next_adr_number(project_root: Path, adr_path: str) -> Dict[str, Any]:
     Returns:
         JSON with next ADR number
     """
-    adr_dir = project_root / adr_path
+    adr_dir = (project_root / adr_path).resolve()
+    if not str(adr_dir).startswith(str(project_root.resolve())):
+        return {"success": False, "error": f"ADR path '{adr_path}' resolves outside project root"}
 
     if not adr_dir.exists():
         # Directory doesn't exist yet, start with 1
@@ -901,19 +919,12 @@ def _extract_keywords(text: str) -> List[str]:
     Returns:
         List of normalized keyword strings
     """
-    STOP_WORDS = {
-        "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-        "of", "with", "by", "from", "as", "is", "are", "was", "be", "this",
-        "that", "it", "its", "add", "create", "write", "update", "implement",
-        "task", "test", "unit", "tests", "all", "new", "into", "return",
-        "via", "per", "each", "into", "using", "support",
-    }
     # Strip backtick code spans and special characters
     text = re.sub(r"`[^`]+`", " ", text)
     text = re.sub(r"[^a-zA-Z0-9\s\-]", " ", text)
 
     tokens = text.lower().split()
-    return [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
+    return [t for t in tokens if t not in _STOP_WORDS and len(t) > 2]
 
 
 def extract_shortname(track_id: str) -> str:

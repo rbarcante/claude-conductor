@@ -19,17 +19,18 @@ Consolidates multiple file reads and plan manipulations into structured JSON res
 reducing per-task tool calls when loading or modifying track context.
 """
 
+import argparse
 import re
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from lib.file_resolver import FileResolver
 from lib.json_manager import JsonManager
 
 
-def handle(args) -> Dict[str, Any]:
+def handle(args: argparse.Namespace) -> Dict[str, Any]:
     """Handle tracks subcommands."""
     project_root = args.project_root
 

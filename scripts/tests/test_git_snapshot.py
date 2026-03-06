@@ -29,6 +29,7 @@ from commands.git_snapshot import (
     filter_diff_content,
     git_snapshot,
     detect_base_branch,
+    _generate_untracked_diff,
     _get_diff_stats,
     _get_changed_files,
     _valid_branch,
@@ -246,3 +247,80 @@ def test_detect_base_branch_falls_back_gracefully(git_repo):
     assert len(branch) > 0
     # Should return master as last resort
     assert branch in ("master", "main", "develop", "master")
+
+
+# ---------------------------------------------------------------------------
+# detect_base_branch — reflog patterns
+# ---------------------------------------------------------------------------
+
+
+def test_detect_base_branch_created_from():
+    """Should detect base branch from 'Created from' reflog entry."""
+    reflog = "abc1234 HEAD@{0}: branch: Created from develop\n"
+    with patch("commands.git_snapshot._run_git") as mock_git, \
+         patch("commands.git_snapshot._branch_exists_remote", return_value=True):
+        mock_git.side_effect = lambda root, args: {
+            ("rev-parse", "--abbrev-ref", "HEAD"): "feature/x\n",
+            ("reflog", "show", "HEAD"): reflog,
+        }.get(tuple(args))
+        result = detect_base_branch(Path("/fake"))
+    assert result == "develop"
+
+
+def test_detect_base_branch_moving_from():
+    """Should detect base branch from 'checkout: moving from' reflog entry."""
+    reflog = "abc1234 HEAD@{0}: checkout: moving from main to feature/x\n"
+    with patch("commands.git_snapshot._run_git") as mock_git, \
+         patch("commands.git_snapshot._branch_exists_remote", return_value=True):
+        mock_git.side_effect = lambda root, args: {
+            ("rev-parse", "--abbrev-ref", "HEAD"): "feature/x\n",
+            ("reflog", "show", "HEAD"): reflog,
+        }.get(tuple(args))
+        result = detect_base_branch(Path("/fake"))
+    assert result == "main"
+
+
+# ---------------------------------------------------------------------------
+# _generate_untracked_diff
+# ---------------------------------------------------------------------------
+
+
+def test_generate_untracked_diff_format(tmp_path):
+    """Untracked diff should have proper unified diff format."""
+    (tmp_path / "new.txt").write_text("hello\nworld\n")
+    with patch("commands.git_snapshot._run_git", return_value="new.txt\n"):
+        result = _generate_untracked_diff(tmp_path, [])
+    assert "diff --git a/new.txt b/new.txt" in result
+    assert "--- /dev/null" in result
+    assert "+++ b/new.txt" in result
+    assert "@@" in result
+    assert "+hello" in result
+
+
+def test_generate_untracked_diff_no_files():
+    """Should return empty string when no untracked files."""
+    with patch("commands.git_snapshot._run_git", return_value=""):
+        result = _generate_untracked_diff(Path("/fake"), [])
+    assert result == ""
+
+
+# ---------------------------------------------------------------------------
+# _get_diff_stats
+# ---------------------------------------------------------------------------
+
+
+def test_get_diff_stats_parses_output():
+    """Should parse --stat summary into correct dict."""
+    stat_output = " 5 files changed, 120 insertions(+), 30 deletions(-)\n"
+    with patch("commands.git_snapshot._run_git", return_value=stat_output):
+        result = _get_diff_stats(Path("/fake"), "master")
+    assert result["files_changed"] == 5
+    assert result["lines_added"] == 120
+    assert result["lines_removed"] == 30
+
+
+def test_get_diff_stats_no_output():
+    """Should return all-zeros dict when git returns None."""
+    with patch("commands.git_snapshot._run_git", return_value=None):
+        result = _get_diff_stats(Path("/fake"), "master")
+    assert result == {"files_changed": 0, "lines_added": 0, "lines_removed": 0}
