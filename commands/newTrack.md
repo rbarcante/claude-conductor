@@ -210,8 +210,21 @@ After completing the protocol, proceed to **Section 2.0 NEW TRACK INITIALIZATION
 
 #### Commit and Finalize
 
-5.  **Confirm Commit:** Use AskUserQuestion with Commit pattern (Commit now/Skip commit), following constraints in `<protocol name="askuserquestion">`
-6.  **Commit (if confirmed):** `git add conductor/tracks/<track_id>/* && git commit -m "conductor(track): Create track '<description>'"`
+5.  **Confirm Commit:** Use AskUserQuestion to ask whether to commit track files now or defer:
+    ```json
+    {
+      "questions": [{
+        "question": "Track files created. Would you like to commit them now or bundle with the first task commit?",
+        "header": "Track Commit",
+        "options": [
+          {"label": "Commit now", "description": "Commit track files (spec.md, plan.md, metadata.json) as a separate commit"},
+          {"label": "Defer to first task", "description": "Leave track files uncommitted — they'll be included in the first task's code commit"}
+        ],
+        "multiSelect": false
+      }]
+    }
+    ```
+6.  **Commit (if confirmed):** `git add conductor/tracks/<track_id>/* && git commit -m "chore: Create track '<description>'"` — use a standard commit type, not a conductor-specific prefix.
 7.  **Announce:** Inform user track is created. Next step: `/conductor:implement`
 
 </instructions>

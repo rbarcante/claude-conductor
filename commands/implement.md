@@ -190,16 +190,18 @@ d. **Execute per Workflow (FROM CACHE):** Follow the Workflow's "Task Workflow" 
 
 e. **Capture Decisions** per Section 3.6 when significant decision points arise
 
-f. **Mark Complete:** `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py tracks update-task <track_id> <phase_idx> <task_idx> completed`
+f. **If this is the LAST task:** Before committing, run Step 5 (Finalize Track) first so that `metadata.json` is updated and staged with this commit.
+
+g. **Mark Complete:** `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py tracks update-task <track_id> <phase_idx> <task_idx> completed`
 
 ### Step 5: Finalize Track
 
 After all tasks complete:
 
 1. **Run Auto Code Review** (Section 3.7)
-2. **Update status:** `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
-   - **Fallback:** Manually change `[~]` to `[x]` in tracks.md
-3. **Commit:** Stage tracks.md, any uncommitted plan.md changes, and review files. Message: `chore(conductor): Mark track '<description>' as complete`
+2. **Update status BEFORE committing the last task:** `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py implement update-status <track_id> completed`
+   - **Fallback:** Manually edit `conductor/tracks/<track_id>/metadata.json`, set `status` to `"completed"`.
+   - **CRITICAL:** This MUST happen before the last task's commit so that `metadata.json` is staged and included in that commit. Do NOT create a separate commit for track completion.
 
 ---
 
@@ -308,7 +310,7 @@ Prepare agent input from the CLI response:
 2. Identify new features, functionality changes, or tech updates
 3. For each document needing changes, present diff to user for approval
 4. Apply only after explicit confirmation
-5. Commit: `docs(conductor): Synchronize docs for track '<description>'`
+5. **Note:** Documentation updates should be bundled into the last code commit or left as uncommitted changes for the user to include in their next commit. Do NOT create a separate conductor-specific commit for docs sync.
 
 | Document | Update When | Confirmation |
 |----------|-------------|-------------|
@@ -329,6 +331,6 @@ Prepare agent input from the CLI response:
 | C. Skip | Leave in tracks file | None |
 
 1. Prompt user with A/B/C
-2. Archive: Run CLI, commit `chore(conductor): Archive track '<description>'`
+2. Archive: Run CLI, commit `chore: Archive track '<description>'`
 3. Delete: Require explicit confirmation, delete folder
 4. Commit changes

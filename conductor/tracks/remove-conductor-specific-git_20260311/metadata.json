@@ -1,0 +1,8 @@
+{
+  "type": "feature",
+  "status": "completed",
+  "created_at": "2026-03-11T19:55:47.808883Z",
+  "updated_at": "2026-03-11T20:14:38.172400Z",
+  "description": "Remove conductor-specific git commits",
+  "track_id": "remove-conductor-specific-git_20260311"
+}
