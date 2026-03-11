@@ -242,7 +242,9 @@ class TestStatusCommand:
         assert result["data"]["is_valid"] is True
         assert len(result["data"]["missing_required"]) == 0
         # tracks_registry must NOT be checked
-        assert "tracks_registry" not in result["data"].get("checks", {}).get("required", {})
+        assert "tracks_registry" not in result["data"].get("checks", {}).get(
+            "required", {}
+        )
 
     def test_verify_missing_files(self, tmp_path):
         """Test verification with missing files — tracks_registry is no longer required."""
@@ -386,6 +388,7 @@ class TestNewtrackCommand:
 
         # Corrupt metadata status to test normalization
         import json as _json
+
         meta_path = (
             conductor_project
             / "conductor"
@@ -541,8 +544,13 @@ class TestImplementCommand:
 
         # Verify metadata.json was updated
         import json as _json
+
         meta_path = (
-            conductor_project / "conductor" / "tracks" / "test_20260121" / "metadata.json"
+            conductor_project
+            / "conductor"
+            / "tracks"
+            / "test_20260121"
+            / "metadata.json"
         )
         assert meta_path.exists()
         metadata = _json.loads(meta_path.read_text())
