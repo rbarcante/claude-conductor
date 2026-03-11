@@ -307,9 +307,7 @@ def _format_filtered_diff(
     ]
     if language_stats:
         lines.append("  Languages:")
-        for lang, stats in sorted(
-            language_stats.items(), key=lambda x: -x[1]["files"]
-        ):
+        for lang, stats in sorted(language_stats.items(), key=lambda x: -x[1]["files"]):
             lines.append(
                 f"    {lang}: {stats['files']} files "
                 f"(+{stats['lines_added']}/-{stats['lines_removed']})"

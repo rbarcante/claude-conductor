@@ -34,7 +34,6 @@ from commands.codereview import (
     DEFAULT_MAX_LINES,
 )
 
-
 # ---------------------------------------------------------------------------
 # _compute_language_stats
 # ---------------------------------------------------------------------------
@@ -42,9 +41,27 @@ from commands.codereview import (
 
 def test_compute_language_stats_basic():
     file_stats = [
-        {"file": "a.py", "language": "Python", "lines_added": 10, "lines_removed": 2, "is_binary": False},
-        {"file": "b.py", "language": "Python", "lines_added": 5, "lines_removed": 0, "is_binary": False},
-        {"file": "c.ts", "language": "TypeScript", "lines_added": 20, "lines_removed": 8, "is_binary": False},
+        {
+            "file": "a.py",
+            "language": "Python",
+            "lines_added": 10,
+            "lines_removed": 2,
+            "is_binary": False,
+        },
+        {
+            "file": "b.py",
+            "language": "Python",
+            "lines_added": 5,
+            "lines_removed": 0,
+            "is_binary": False,
+        },
+        {
+            "file": "c.ts",
+            "language": "TypeScript",
+            "lines_added": 20,
+            "lines_removed": 8,
+            "is_binary": False,
+        },
     ]
     result = _compute_language_stats(file_stats)
 
@@ -64,7 +81,13 @@ def test_compute_language_stats_empty():
 
 def test_compute_language_stats_binary_files():
     file_stats = [
-        {"file": "image.png", "language": "Other", "lines_added": 0, "lines_removed": 0, "is_binary": True},
+        {
+            "file": "image.png",
+            "language": "Other",
+            "lines_added": 0,
+            "lines_removed": 0,
+            "is_binary": True,
+        },
     ]
     result = _compute_language_stats(file_stats)
     assert "Other" in result
@@ -74,9 +97,27 @@ def test_compute_language_stats_binary_files():
 
 def test_compute_language_stats_multiple_languages():
     file_stats = [
-        {"file": "a.py", "language": "Python", "lines_added": 5, "lines_removed": 1, "is_binary": False},
-        {"file": "b.go", "language": "Go", "lines_added": 3, "lines_removed": 0, "is_binary": False},
-        {"file": "c.rs", "language": "Rust", "lines_added": 7, "lines_removed": 2, "is_binary": False},
+        {
+            "file": "a.py",
+            "language": "Python",
+            "lines_added": 5,
+            "lines_removed": 1,
+            "is_binary": False,
+        },
+        {
+            "file": "b.go",
+            "language": "Go",
+            "lines_added": 3,
+            "lines_removed": 0,
+            "is_binary": False,
+        },
+        {
+            "file": "c.rs",
+            "language": "Rust",
+            "lines_added": 7,
+            "lines_removed": 2,
+            "is_binary": False,
+        },
     ]
     result = _compute_language_stats(file_stats)
     assert len(result) == 3
@@ -91,8 +132,12 @@ def test_compute_language_stats_multiple_languages():
 def git_repo_with_changes(tmp_path):
     """Set up a git repo with committed changes on a branch."""
     subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True)
-    subprocess.run(["git", "config", "user.email", "t@t.com"], cwd=tmp_path, capture_output=True)
-    subprocess.run(["git", "config", "user.name", "T"], cwd=tmp_path, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "t@t.com"], cwd=tmp_path, capture_output=True
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "T"], cwd=tmp_path, capture_output=True
+    )
 
     (tmp_path / "main.py").write_text("x = 1\n")
     subprocess.run(["git", "add", "."], cwd=tmp_path, capture_output=True)
@@ -111,10 +156,13 @@ def test_filtered_diff_max_lines_truncation():
     """Verify that diff content is truncated when it exceeds max_lines."""
     large_diff = "\n".join([f"line {i}" for i in range(200)])
 
-    with patch("commands.codereview._get_raw_diff", return_value=large_diff), \
-         patch("commands.codereview._parse_file_stats", return_value=[]), \
-         patch("commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s), \
-         patch("commands.codereview._generate_untracked_diff", return_value=""):
+    with patch("commands.codereview._get_raw_diff", return_value=large_diff), patch(
+        "commands.codereview._parse_file_stats", return_value=[]
+    ), patch(
+        "commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s
+    ), patch(
+        "commands.codereview._generate_untracked_diff", return_value=""
+    ):
         result = filtered_diff(Path("/fake"), max_lines=50, base_branch="master")
 
     assert result["success"] is True
@@ -127,11 +175,16 @@ def test_filtered_diff_no_truncation_when_within_limit():
     """Diff within max_lines should not be truncated."""
     small_diff = "\n".join([f"line {i}" for i in range(10)])
 
-    with patch("commands.codereview._get_raw_diff", return_value=small_diff), \
-         patch("commands.codereview._parse_file_stats", return_value=[]), \
-         patch("commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s), \
-         patch("commands.codereview._generate_untracked_diff", return_value=""):
-        result = filtered_diff(Path("/fake"), max_lines=DEFAULT_MAX_LINES, base_branch="master")
+    with patch("commands.codereview._get_raw_diff", return_value=small_diff), patch(
+        "commands.codereview._parse_file_stats", return_value=[]
+    ), patch(
+        "commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s
+    ), patch(
+        "commands.codereview._generate_untracked_diff", return_value=""
+    ):
+        result = filtered_diff(
+            Path("/fake"), max_lines=DEFAULT_MAX_LINES, base_branch="master"
+        )
 
     assert result["success"] is True
     assert result["data"]["stats"]["truncated"] is False
@@ -140,10 +193,13 @@ def test_filtered_diff_no_truncation_when_within_limit():
 
 def test_filtered_diff_empty_diff():
     """Empty diff should return success with zero stats."""
-    with patch("commands.codereview._get_raw_diff", return_value=""), \
-         patch("commands.codereview._parse_file_stats", return_value=[]), \
-         patch("commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s), \
-         patch("commands.codereview._generate_untracked_diff", return_value=""):
+    with patch("commands.codereview._get_raw_diff", return_value=""), patch(
+        "commands.codereview._parse_file_stats", return_value=[]
+    ), patch(
+        "commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s
+    ), patch(
+        "commands.codereview._generate_untracked_diff", return_value=""
+    ):
         result = filtered_diff(Path("/fake"), base_branch="master")
 
     assert result["success"] is True
@@ -160,13 +216,25 @@ def test_filtered_diff_exclude_paths():
         "+track change\n"
     )
 
-    with patch("commands.codereview._get_raw_diff", return_value=diff), \
-         patch("commands.codereview._parse_file_stats", return_value=[
-             {"file": "src/main.py", "language": "Python", "lines_added": 1, "lines_removed": 0, "is_binary": False},
-         ]), \
-         patch("commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s), \
-         patch("commands.codereview._generate_untracked_diff", return_value=""):
-        result = filtered_diff(Path("/fake"), exclude=["conductor/tracks"], base_branch="master")
+    with patch("commands.codereview._get_raw_diff", return_value=diff), patch(
+        "commands.codereview._parse_file_stats",
+        return_value=[
+            {
+                "file": "src/main.py",
+                "language": "Python",
+                "lines_added": 1,
+                "lines_removed": 0,
+                "is_binary": False,
+            },
+        ],
+    ), patch(
+        "commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s
+    ), patch(
+        "commands.codereview._generate_untracked_diff", return_value=""
+    ):
+        result = filtered_diff(
+            Path("/fake"), exclude=["conductor/tracks"], base_branch="master"
+        )
 
     assert result["success"] is True
     assert "conductor/tracks/plan.md" not in result["data"]["diff_content"]
@@ -175,14 +243,36 @@ def test_filtered_diff_exclude_paths():
 
 def test_filtered_diff_language_breakdown():
     """Language breakdown should aggregate file stats correctly."""
-    with patch("commands.codereview._get_raw_diff", return_value="diff output"), \
-         patch("commands.codereview._parse_file_stats", return_value=[
-             {"file": "a.py", "language": "Python", "lines_added": 10, "lines_removed": 2, "is_binary": False},
-             {"file": "b.py", "language": "Python", "lines_added": 5, "lines_removed": 1, "is_binary": False},
-             {"file": "c.go", "language": "Go", "lines_added": 8, "lines_removed": 0, "is_binary": False},
-         ]), \
-         patch("commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s), \
-         patch("commands.codereview._generate_untracked_diff", return_value=""):
+    with patch("commands.codereview._get_raw_diff", return_value="diff output"), patch(
+        "commands.codereview._parse_file_stats",
+        return_value=[
+            {
+                "file": "a.py",
+                "language": "Python",
+                "lines_added": 10,
+                "lines_removed": 2,
+                "is_binary": False,
+            },
+            {
+                "file": "b.py",
+                "language": "Python",
+                "lines_added": 5,
+                "lines_removed": 1,
+                "is_binary": False,
+            },
+            {
+                "file": "c.go",
+                "language": "Go",
+                "lines_added": 8,
+                "lines_removed": 0,
+                "is_binary": False,
+            },
+        ],
+    ), patch(
+        "commands.codereview._add_untracked_file_stats", side_effect=lambda r, e, s: s
+    ), patch(
+        "commands.codereview._generate_untracked_diff", return_value=""
+    ):
         result = filtered_diff(Path("/fake"), base_branch="master")
 
     assert result["success"] is True
@@ -219,7 +309,15 @@ def test_add_untracked_file_stats_reads_lines(tmp_path):
 def test_add_untracked_file_stats_deduplication(tmp_path):
     """Files already in existing_stats should not be duplicated."""
     (tmp_path / "dup.py").write_text("x\n")
-    existing = [{"file": "dup.py", "language": "Python", "lines_added": 1, "lines_removed": 0, "is_binary": False}]
+    existing = [
+        {
+            "file": "dup.py",
+            "language": "Python",
+            "lines_added": 1,
+            "lines_removed": 0,
+            "is_binary": False,
+        }
+    ]
     with patch("commands.codereview._run_git", return_value="dup.py\n"):
         result = _add_untracked_file_stats(tmp_path, [], existing)
     assert len(result) == 1
@@ -227,7 +325,15 @@ def test_add_untracked_file_stats_deduplication(tmp_path):
 
 def test_add_untracked_file_stats_no_untracked():
     """When no untracked files exist, return existing stats unchanged."""
-    existing = [{"file": "a.py", "language": "Python", "lines_added": 5, "lines_removed": 0, "is_binary": False}]
+    existing = [
+        {
+            "file": "a.py",
+            "language": "Python",
+            "lines_added": 5,
+            "lines_removed": 0,
+            "is_binary": False,
+        }
+    ]
     with patch("commands.codereview._run_git", return_value=None):
         result = _add_untracked_file_stats(Path("/fake"), [], existing)
     assert result is existing

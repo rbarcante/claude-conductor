@@ -123,13 +123,24 @@ class TracksParser:
             return []
 
         # Scan active track directories (skip archive/ itself)
-        self._scan_directory(tracks_dir, tracks, path_prefix="./conductor/tracks", default_status="pending", skip_dirs={"archive"})
+        self._scan_directory(
+            tracks_dir,
+            tracks,
+            path_prefix="./conductor/tracks",
+            default_status="pending",
+            skip_dirs={"archive"},
+        )
 
         # Optionally scan archive directory
         if include_archived:
             archive_dir = tracks_dir / "archive"
             if archive_dir.exists():
-                self._scan_directory(archive_dir, tracks, path_prefix="./conductor/tracks/archive", default_status="completed")
+                self._scan_directory(
+                    archive_dir,
+                    tracks,
+                    path_prefix="./conductor/tracks/archive",
+                    default_status="completed",
+                )
 
         return tracks
 

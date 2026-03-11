@@ -35,7 +35,6 @@ from commands.git_snapshot import (
     _valid_branch,
 )
 
-
 # ---------------------------------------------------------------------------
 # filter_paths
 # ---------------------------------------------------------------------------
@@ -257,8 +256,9 @@ def test_detect_base_branch_falls_back_gracefully(git_repo):
 def test_detect_base_branch_created_from():
     """Should detect base branch from 'Created from' reflog entry."""
     reflog = "abc1234 HEAD@{0}: branch: Created from develop\n"
-    with patch("commands.git_snapshot._run_git") as mock_git, \
-         patch("commands.git_snapshot._branch_exists_remote", return_value=True):
+    with patch("commands.git_snapshot._run_git") as mock_git, patch(
+        "commands.git_snapshot._branch_exists_remote", return_value=True
+    ):
         mock_git.side_effect = lambda root, args: {
             ("rev-parse", "--abbrev-ref", "HEAD"): "feature/x\n",
             ("reflog", "show", "HEAD"): reflog,
@@ -270,8 +270,9 @@ def test_detect_base_branch_created_from():
 def test_detect_base_branch_moving_from():
     """Should detect base branch from 'checkout: moving from' reflog entry."""
     reflog = "abc1234 HEAD@{0}: checkout: moving from main to feature/x\n"
-    with patch("commands.git_snapshot._run_git") as mock_git, \
-         patch("commands.git_snapshot._branch_exists_remote", return_value=True):
+    with patch("commands.git_snapshot._run_git") as mock_git, patch(
+        "commands.git_snapshot._branch_exists_remote", return_value=True
+    ):
         mock_git.side_effect = lambda root, args: {
             ("rev-parse", "--abbrev-ref", "HEAD"): "feature/x\n",
             ("reflog", "show", "HEAD"): reflog,

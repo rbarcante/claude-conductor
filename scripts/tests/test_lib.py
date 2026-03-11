@@ -217,14 +217,26 @@ class TestTracksParser:
         active = tracks_dir / "active_20260101"
         active.mkdir()
         (active / "metadata.json").write_text(
-            json.dumps({"track_id": "active_20260101", "description": "Active", "status": "pending"})
+            json.dumps(
+                {
+                    "track_id": "active_20260101",
+                    "description": "Active",
+                    "status": "pending",
+                }
+            )
         )
 
         # Archived track
         archive = tracks_dir / "archive" / "old_20260101"
         archive.mkdir(parents=True)
         (archive / "metadata.json").write_text(
-            json.dumps({"track_id": "old_20260101", "description": "Old", "status": "completed"})
+            json.dumps(
+                {
+                    "track_id": "old_20260101",
+                    "description": "Old",
+                    "status": "completed",
+                }
+            )
         )
 
         tracks = parser.scan_tracks_directory(include_archived=False)
@@ -240,13 +252,25 @@ class TestTracksParser:
         active = tracks_dir / "active_20260101"
         active.mkdir()
         (active / "metadata.json").write_text(
-            json.dumps({"track_id": "active_20260101", "description": "Active", "status": "pending"})
+            json.dumps(
+                {
+                    "track_id": "active_20260101",
+                    "description": "Active",
+                    "status": "pending",
+                }
+            )
         )
 
         archive = tracks_dir / "archive" / "old_20260101"
         archive.mkdir(parents=True)
         (archive / "metadata.json").write_text(
-            json.dumps({"track_id": "old_20260101", "description": "Old", "status": "completed"})
+            json.dumps(
+                {
+                    "track_id": "old_20260101",
+                    "description": "Old",
+                    "status": "completed",
+                }
+            )
         )
 
         tracks = parser.scan_tracks_directory(include_archived=True)
@@ -265,7 +289,13 @@ class TestTracksParser:
         good = tracks_dir / "good_20260101"
         good.mkdir()
         (good / "metadata.json").write_text(
-            json.dumps({"track_id": "good_20260101", "description": "Good", "status": "pending"})
+            json.dumps(
+                {
+                    "track_id": "good_20260101",
+                    "description": "Good",
+                    "status": "pending",
+                }
+            )
         )
 
         # Dir without metadata
@@ -328,7 +358,13 @@ class TestTracksParser:
         good = tracks_dir / "good_20260101"
         good.mkdir()
         (good / "metadata.json").write_text(
-            json.dumps({"track_id": "good_20260101", "description": "Good", "status": "pending"})
+            json.dumps(
+                {
+                    "track_id": "good_20260101",
+                    "description": "Good",
+                    "status": "pending",
+                }
+            )
         )
 
         # Corrupt track (invalid JSON)

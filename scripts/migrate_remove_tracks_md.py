@@ -32,7 +32,9 @@ from pathlib import Path
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Migrate from tracks.md to metadata.json")
+    parser = argparse.ArgumentParser(
+        description="Migrate from tracks.md to metadata.json"
+    )
     parser.add_argument(
         "--project-root",
         default=".",
@@ -101,12 +103,14 @@ def parse_tracks_md(tracks_md_path: Path):
                     i += 1
 
             if track_id:
-                entries.append({
-                    "track_id": track_id,
-                    "description": description,
-                    "status": status,
-                    "path": path,
-                })
+                entries.append(
+                    {
+                        "track_id": track_id,
+                        "description": description,
+                        "status": status,
+                        "path": path,
+                    }
+                )
             i += 1
             continue
 
@@ -140,12 +144,14 @@ def parse_tracks_md(tracks_md_path: Path):
                     else:
                         status = "pending"
 
-                    entries.append({
-                        "track_id": track_id,
-                        "description": description,
-                        "status": status,
-                        "path": f"./conductor/tracks/{track_id}/",
-                    })
+                    entries.append(
+                        {
+                            "track_id": track_id,
+                            "description": description,
+                            "status": status,
+                            "path": f"./conductor/tracks/{track_id}/",
+                        }
+                    )
 
             i += 1
             continue
@@ -208,11 +214,20 @@ def migrate(project_root: Path, dry_run: bool = False):
             try:
                 metadata = json.loads(metadata_path.read_text())
             except Exception as e:
-                warnings.append(f"WARNING: Could not parse metadata.json for '{track_id}': {e}")
+                warnings.append(
+                    f"WARNING: Could not parse metadata.json for '{track_id}': {e}"
+                )
                 continue
 
             # Check if any required fields are missing
-            required_fields = ["track_id", "type", "status", "created_at", "updated_at", "description"]
+            required_fields = [
+                "track_id",
+                "type",
+                "status",
+                "created_at",
+                "updated_at",
+                "description",
+            ]
             missing_fields = [f for f in required_fields if f not in metadata]
 
             if missing_fields:
@@ -227,10 +242,12 @@ def migrate(project_root: Path, dry_run: bool = False):
                 if not dry_run:
                     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
 
-                backfilled.append({
-                    "track_id": track_id,
-                    "backfilled_fields": missing_fields,
-                })
+                backfilled.append(
+                    {
+                        "track_id": track_id,
+                        "backfilled_fields": missing_fields,
+                    }
+                )
                 print(f"  BACKFILLED: {track_id} (fields: {', '.join(missing_fields)})")
             else:
                 verified.append(track_id)
@@ -249,10 +266,12 @@ def migrate(project_root: Path, dry_run: bool = False):
             if not dry_run:
                 metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
 
-            backfilled.append({
-                "track_id": track_id,
-                "backfilled_fields": list(metadata.keys()),
-            })
+            backfilled.append(
+                {
+                    "track_id": track_id,
+                    "backfilled_fields": list(metadata.keys()),
+                }
+            )
             print(f"  CREATED: {track_id} (new metadata.json)")
 
     report = {

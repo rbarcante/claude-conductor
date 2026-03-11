@@ -41,16 +41,53 @@ from lib.formatters import Formatters
 from commands.git_snapshot import git_snapshot as _git_snapshot
 from commands.tracks import parse_plan_content
 
-
 _COVERAGE_THRESHOLD_PERCENT = 80
 _MAX_UNCOVERED_FILES = 10
 
 _STOP_WORDS = {
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-    "of", "with", "by", "from", "as", "is", "are", "was", "be", "this",
-    "that", "it", "its", "add", "create", "write", "update", "implement",
-    "task", "test", "unit", "tests", "all", "new", "into", "return",
-    "via", "per", "each", "into", "using", "support",
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "but",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "as",
+    "is",
+    "are",
+    "was",
+    "be",
+    "this",
+    "that",
+    "it",
+    "its",
+    "add",
+    "create",
+    "write",
+    "update",
+    "implement",
+    "task",
+    "test",
+    "unit",
+    "tests",
+    "all",
+    "new",
+    "into",
+    "return",
+    "via",
+    "per",
+    "each",
+    "into",
+    "using",
+    "support",
 }
 
 STATUS_NORMALIZATION_MAP = {
@@ -98,7 +135,9 @@ def handle(args: argparse.Namespace) -> Dict[str, Any]:
         return _git_snapshot(project_root, exclude, diff_stat_only)
     elif args.subcommand == "batch-match-patterns":
         plan_track_id = getattr(args, "plan", None)
-        return batch_match_patterns(plugin_root or project_root, project_root, plan_track_id)
+        return batch_match_patterns(
+            plugin_root or project_root, project_root, plan_track_id
+        )
     else:
         return {
             "success": False,
@@ -480,7 +519,9 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_hit,
         "lines_total": lines_found,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
@@ -488,6 +529,7 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
     """Parse Cobertura XML format coverage file."""
     try:
         from defusedxml.ElementTree import parse as _safe_parse
+
         tree = _safe_parse(path)
     except ImportError:
         tree = ET.parse(path)
@@ -539,7 +581,9 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
@@ -594,7 +638,9 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:_MAX_UNCOVERED_FILES],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
@@ -611,7 +657,10 @@ def next_adr_number(project_root: Path, adr_path: str) -> Dict[str, Any]:
     """
     adr_dir = (project_root / adr_path).resolve()
     if not str(adr_dir).startswith(str(project_root.resolve())):
-        return {"success": False, "error": f"ADR path '{adr_path}' resolves outside project root"}
+        return {
+            "success": False,
+            "error": f"ADR path '{adr_path}' resolves outside project root",
+        }
 
     if not adr_dir.exists():
         # Directory doesn't exist yet, start with 1

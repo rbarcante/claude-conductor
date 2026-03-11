@@ -31,7 +31,6 @@ from commands.tracks import (
 )
 from commands.implement import batch_match_patterns, _extract_keywords
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

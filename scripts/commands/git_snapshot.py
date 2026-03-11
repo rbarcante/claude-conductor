@@ -118,7 +118,11 @@ def detect_base_branch(project_root: Path) -> str:
                         return branch
 
             # Pattern 1b: checkout to this branch — "checkout: moving from X to <current>"
-            if current_branch and "moving from" in line and f"to {current_branch}" in line:
+            if (
+                current_branch
+                and "moving from" in line
+                and f"to {current_branch}" in line
+            ):
                 m = re.search(r"moving from ([^\s]+) to ", line)
                 if m:
                     branch = m.group(1).strip()
@@ -143,7 +147,10 @@ def detect_base_branch(project_root: Path) -> str:
 
     # Step 3: try common defaults
     for candidate in ("master", "main", "develop"):
-        if _run_git(project_root, ["rev-parse", "--verify", f"origin/{candidate}"]) is not None:
+        if (
+            _run_git(project_root, ["rev-parse", "--verify", f"origin/{candidate}"])
+            is not None
+        ):
             return candidate
 
     return "master"
@@ -217,9 +224,7 @@ def _get_changed_files(
     return []
 
 
-def _get_filtered_diff(
-    project_root: Path, base_branch: str, exclude: List[str]
-) -> str:
+def _get_filtered_diff(project_root: Path, base_branch: str, exclude: List[str]) -> str:
     """
     Get diff content between current branch and base, with path filtering.
 
@@ -252,9 +257,7 @@ def _generate_untracked_diff(project_root: Path, exclude: List[str]) -> str:
     Returns:
         Unified diff string with one new-file entry per untracked file
     """
-    out = _run_git(
-        project_root, ["ls-files", "--others", "--exclude-standard"]
-    )
+    out = _run_git(project_root, ["ls-files", "--others", "--exclude-standard"])
     if not out:
         return ""
 

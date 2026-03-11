@@ -26,7 +26,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from migrate_remove_tracks_md import migrate, parse_tracks_md
 
-
 TRACKS_MD_CONTENT = """# Project Tracks
 
 - [x] **Track: Completed feature**
@@ -128,9 +127,7 @@ class TestMigrate:
 - [ ] **Track: My feature**
   *Link: [my-feature_20260101](./conductor/tracks/my-feature_20260101/)*
 """
-        project = self._setup_project(
-            tmp_path, content, {"my-feature_20260101": None}
-        )
+        project = self._setup_project(tmp_path, content, {"my-feature_20260101": None})
 
         report = migrate(project, dry_run=False)
 
@@ -171,9 +168,7 @@ class TestMigrate:
         assert len(report2["warnings"]) == 0
 
         # The metadata should still match original (not overwritten)
-        meta_path = (
-            project / "conductor" / "tracks" / "done_20260101" / "metadata.json"
-        )
+        meta_path = project / "conductor" / "tracks" / "done_20260101" / "metadata.json"
         metadata = json.loads(meta_path.read_text())
         assert metadata["created_at"] == "2026-01-01T00:00:00Z"
 
@@ -195,9 +190,7 @@ class TestMigrate:
 - [ ] **Track: Dry run feature**
   *Link: [dry-run_20260101](./conductor/tracks/dry-run_20260101/)*
 """
-        project = self._setup_project(
-            tmp_path, content, {"dry-run_20260101": None}
-        )
+        project = self._setup_project(tmp_path, content, {"dry-run_20260101": None})
 
         report = migrate(project, dry_run=True)
 
@@ -216,11 +209,11 @@ class TestMigrate:
 - [ ] **Track: Corrupt meta**
   *Link: [corrupt_20260101](./conductor/tracks/corrupt_20260101/)*
 """
-        project = self._setup_project(
-            tmp_path, content, {"corrupt_20260101": None}
-        )
+        project = self._setup_project(tmp_path, content, {"corrupt_20260101": None})
         # Write corrupt JSON
-        meta_path = project / "conductor" / "tracks" / "corrupt_20260101" / "metadata.json"
+        meta_path = (
+            project / "conductor" / "tracks" / "corrupt_20260101" / "metadata.json"
+        )
         meta_path.write_text("{invalid json")
 
         report = migrate(project, dry_run=False)
