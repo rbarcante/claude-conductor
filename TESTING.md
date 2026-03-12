@@ -144,7 +144,8 @@ cat conductor/tracks.md
 - `plan.md` contains phased task list with TDD structure
 - `metadata.json` created with correct type
 - `conductor/tracks.md` updated with new track
-- Git commit created: `conductor(track): Create track 'Add user login feature'`
+- If user chose "Commit now": Git commit created with standard type (e.g., `chore: Create track 'Add user login feature'`)
+- If user chose "Defer to first task": Track files left uncommitted for bundling with first task commit
 
 **Validation:**
 ```bash
@@ -188,10 +189,9 @@ cat conductor/tracks/<track_id>/plan.md
 **Expected Results:**
 - Track status changes to `[~]` in tracks.md
 - Tasks marked `[~]` then `[x]` in plan.md
-- Code commits created for each task
-- Plan commits created for each task completion
-- Git notes attached to commits
-- Phase checkpoints created if phase completes
+- Code commits created for each task (with plan.md updates bundled in)
+- Git notes attached to commits (optional)
+- Phase completion verified but no separate checkpoint commits created
 
 **Validation:**
 ```bash
@@ -239,10 +239,10 @@ cat conductor/tracks/<track_id>/plan.md
 5. Should offer archive/delete/skip options
 
 **Expected Results:**
-- Track marked `[x]` in tracks.md
-- Sync commit created if docs updated
+- Track marked as completed in metadata.json
+- Documentation updates bundled with last code commit or left for user
 - Track archived/deleted/kept based on choice
-- Git history clean and logical
+- Git history clean — no conductor-specific commits
 
 ---
 

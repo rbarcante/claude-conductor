@@ -111,22 +111,25 @@ Find all commits related to a track, phase, or task.
    # Find by track ID in commit messages
    git log --oneline --grep="track_id" --grep="Track: description"
 
-   # Find by conductor prefixes
-   git log --oneline --grep="conductor(track):" --grep="conductor(plan):" --grep="conductor(checkpoint):"
+   # Find commits that modified track files (plan.md, metadata.json, spec.md)
+   git log --oneline -- conductor/tracks/<track_id>/
 
-   # Find by task SHA references in plan.md
-   git log --oneline -- conductor/tracks/<track_id>/plan.md
+   # Find commits on the track's feature branch
+   git log --oneline <base_branch>..<track_branch>
+
+   # Find by reading plan.md for recorded commit SHAs
+   # Parse [abc1234] and [checkpoint: abc1234] annotations from plan.md
    ```
 
 3. **Classify Commits:**
 
-   | Pattern | Type |
-   |---------|------|
-   | `feat(`, `fix(`, `refactor(` | implementation |
-   | `conductor(plan):` | plan-update |
-   | `conductor(checkpoint):` | checkpoint |
-   | `conductor(track):` | track-creation |
-   | `conductor(setup):` | setup |
+   | Strategy | Type |
+   |----------|------|
+   | `feat(`, `fix(`, `refactor(`, `test(` in message | implementation |
+   | Modified `conductor/tracks/<id>/plan.md` | plan-related |
+   | SHA referenced in plan.md `[checkpoint: <sha>]` | phase-boundary |
+   | `chore: Create track` in message | track-creation |
+   | Modified `conductor/tracks/<id>/metadata.json` | track-management |
 
 4. **Build Commit List:**
    - Sort by date (newest first)
@@ -142,8 +145,7 @@ Build an ordered list of commits to revert for a given target.
 
 2. **Determine Revert Order:**
    - Commits must be reverted in reverse chronological order
-   - Plan update commits come before implementation commits
-   - Checkpoint commits come after phase implementation commits
+   - Since plan.md updates are bundled into code commits, each commit may contain both code and plan changes
 
 3. **Check for Conflicts:**
    - Identify commits that may have been amended or rebased
@@ -181,19 +183,38 @@ Analyze the commit history for patterns and insights.
    - Authors/contributors
    - Activity timeline
 
-## Commit Message Patterns
+## Commit Identification Strategies
 
-Conductor uses these commit message patterns:
+Conductor bundles plan.md updates into code commits (no separate conductor-specific commits). Use these strategies to identify track-related commits:
+
+### Strategy 1: File-Based Detection
+```bash
+# Find all commits that touched track files
+git log --oneline -- conductor/tracks/<track_id>/
+```
+
+### Strategy 2: Plan.md SHA References
+Parse `plan.md` for recorded commit SHAs:
+- Task SHAs: `- [x] Task: Description [abc1234]`
+- Phase checkpoints: `## Phase 1 [checkpoint: def5678]`
+
+### Strategy 3: Branch-Based Detection
+```bash
+# Find all commits on the track's feature branch
+git log --oneline <base_branch>..<track_branch>
+```
+
+### Strategy 4: Standard Commit Patterns
 
 | Pattern | Example | Identifies |
 |---------|---------|------------|
-| `conductor(track):` | `conductor(track): Create track 'Add auth'` | Track creation |
-| `conductor(plan):` | `conductor(plan): Mark task 'Setup DB' as complete` | Plan updates |
-| `conductor(checkpoint):` | `conductor(checkpoint): Checkpoint end of Phase 1` | Phase completion |
-| `conductor(setup):` | `conductor(setup): Add conductor setup files` | Project setup |
 | `feat(scope):` | `feat(auth): Add login endpoint` | Feature implementation |
 | `fix(scope):` | `fix(auth): Fix password validation` | Bug fixes |
 | `test(scope):` | `test(auth): Add login tests` | Test additions |
+| `chore: Create track` | `chore: Create track 'Add auth'` | Track creation |
+| `chore: Archive track` | `chore: Archive track 'Add auth'` | Track archival |
+
+**Note:** Legacy repositories may still have `conductor(track):`, `conductor(checkpoint):`, and `conductor(plan):` prefixes. The agent should recognize these for backwards compatibility.
 
 ## Git Log Formatting
 
@@ -224,29 +245,28 @@ Your entire response MUST be valid JSON. Do not include any text before or after
       {
         "sha": "abc1234567890def",
         "short_sha": "abc1234",
-        "message": "conductor(checkpoint): Checkpoint end of Phase 1",
+        "message": "feat(auth): Add login endpoint",
         "author": "dev@example.com",
         "date": "2026-01-15T15:30:00Z",
-        "type": "checkpoint",
-        "related_to": "Phase 1"
+        "type": "implementation",
+        "related_to": "Task: Implement login (Phase 1 final task)"
       },
       {
         "sha": "def5678901234abc",
         "short_sha": "def5678",
-        "message": "feat(auth): Add login endpoint",
+        "message": "feat(auth): Add user registration",
         "author": "dev@example.com",
         "date": "2026-01-15T14:00:00Z",
         "type": "implementation",
-        "related_to": "Task: Implement login"
+        "related_to": "Task: Add user registration"
       }
     ],
     "revert_order": null,
     "warnings": [],
     "summary": {
       "total_commits": 2,
-      "implementation_commits": 1,
-      "plan_commits": 0,
-      "checkpoint_commits": 1
+      "implementation_commits": 2,
+      "plan_commits": 0
     }
   },
   "success": true,
@@ -264,13 +284,13 @@ Your entire response MUST be valid JSON. Do not include any text before or after
       {
         "sha": "abc1234567890def",
         "short_sha": "abc1234",
-        "message": "conductor(plan): Mark task complete",
-        "type": "plan-update"
+        "message": "feat(auth): Add login endpoint",
+        "type": "implementation"
       },
       {
         "sha": "def5678901234abc",
         "short_sha": "def5678",
-        "message": "feat(auth): Add login endpoint",
+        "message": "feat(auth): Add user registration",
         "type": "implementation"
       }
     ],

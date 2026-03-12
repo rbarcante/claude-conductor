@@ -44,50 +44,77 @@ All tasks follow a strict lifecycle:
    - Add dated note explaining the change
    - Resume implementation
 
-8. **Commit Code Changes:**
-   - Stage all code changes related to the task.
-   - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
-   - Perform the commit.
+8. **Update Plan Status (Pre-Commit):**
+   - Read `plan.md`, find the line for the current task, update its status from `[~]` to `[x]`.
+   - Do NOT append a commit SHA yet — that happens after the commit in Step 12.
+   - Write the updated content back to `plan.md`.
 
-9. **Attach Task Summary with Git Notes (Optional):**
-   - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary using the enhanced format below.
-   - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
-     ```bash
-     git notes add -m "<note content>" <commit_hash>
-     ```
-
-   **Enhanced Git Note Format:**
-   ```markdown
-   ## Task: [Task Name]
-
-   ### Summary
-   [Brief description of what was accomplished]
-
-   ### Why
-   [The rationale behind this implementation - why this approach was chosen]
-
-   ### Changes
-   - [List of changes made]
-   - [Files created/modified]
-
-   ### Decisions Made
-   [Reference any ADRs recorded during this task]
-   - ADR-001: [Decision title] (see decisions.md)
-   - ADR-002: [Decision title] (see decisions.md)
-
-   ### Files Modified
-   - path/to/file1.ext
-   - path/to/file2.ext
+9. **Confirm Commit:**
+   Before committing, ask the user for confirmation using AskUserQuestion:
+   ```json
+   {
+     "questions": [{
+       "question": "The task implementation is complete. Would you like to commit the changes now?",
+       "header": "Commit",
+       "options": [
+         {"label": "Commit now", "description": "Stage and commit all code changes"},
+         {"label": "Skip commit", "description": "Leave changes uncommitted for now"}
+       ],
+       "multiSelect": false
+     }]
+   }
    ```
+   - **If "Commit now":** Proceed to Step 10 (Commit Code Changes)
+   - **If "Skip commit":** Skip to Step 12 (Record Commit SHA), marking the task complete without a commit SHA
 
-   **Note:** Git notes are optional. If your team prefers not to use git notes, skip this step. The commit message and plan.md provide core traceability.
+10. **Commit Code Changes (Conditional):**
+    **Only execute this step if user confirmed "Commit now" in Step 9.**
+    - Stage all code changes related to the task.
+    - **Also stage `plan.md`** to include the task status update and any accumulated updates from prior tasks.
+    - **If this is the last task of the track:** Also stage `metadata.json` (track status must have been updated to `completed` before this step).
+    - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
+    - Perform the commit.
 
-10. **Update Plan Status (On Disk Only - Do NOT Commit):**
-    - **Step 10.1: Get Commit SHA (if applicable):** If Step 9 was executed, obtain the first 7 characters of the commit hash.
-    - **Step 10.2: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the commit SHA (e.g., `- [x] Task: Description [abc1234]`). If no commit was made, use `[uncommitted]`.
-    - **Step 10.3: Write Plan:** Write the updated content back to `plan.md`.
-    - **IMPORTANT:** Do NOT commit `plan.md` separately. The plan update will be included in the next phase checkpoint commit. This keeps `plan.md` up-to-date on disk for status tracking while reducing commit noise.
+11. **Attach Task Summary with Git Notes (Optional):**
+    **Only execute this step if Step 10 was executed and the team uses git notes.**
+    - **Step 11.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
+    - **Step 11.2: Draft Note Content:** Create a detailed summary using the enhanced format below.
+    - **Step 11.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
+      ```bash
+      git notes add -m "<note content>" <commit_hash>
+      ```
+
+    **Enhanced Git Note Format:**
+    ```markdown
+    ## Task: [Task Name]
+
+    ### Summary
+    [Brief description of what was accomplished]
+
+    ### Why
+    [The rationale behind this implementation - why this approach was chosen]
+
+    ### Changes
+    - [List of changes made]
+    - [Files created/modified]
+
+    ### Decisions Made
+    [Reference any ADRs recorded during this task]
+    - ADR-001: [Decision title] (see decisions.md)
+    - ADR-002: [Decision title] (see decisions.md)
+
+    ### Files Modified
+    - path/to/file1.ext
+    - path/to/file2.ext
+    ```
+
+    **Note:** Git notes are optional. If your team prefers not to use git notes, skip this step. The commit message and plan.md provide core traceability.
+
+12. **Record Commit SHA in Plan (On Disk Only - Do NOT Commit):**
+    - **Step 12.1: Get Commit SHA (if applicable):** If Step 10 was executed, obtain the first 7 characters of the commit hash.
+    - **Step 12.2: Update Plan:** Read `plan.md`, find the completed task line, and append the commit SHA (e.g., `- [x] Task: Description [abc1234]`). If no commit was made, append `[uncommitted]`.
+    - **Step 12.3: Write Plan:** Write the updated content back to `plan.md`.
+    - **IMPORTANT:** Do NOT commit `plan.md` separately. The SHA annotation will be included in the next task's code commit. This keeps `plan.md` up-to-date on disk for status tracking.
 
 ### Phase Completion Verification and Checkpointing Protocol
 
@@ -138,22 +165,13 @@ All tasks follow a strict lifecycle:
     -   After presenting the detailed plan, ask the user for confirmation: "**Does this meet your expectations? Please confirm with yes or provide feedback on what needs to be changed.**"
     -   **PAUSE** and await the user's response. Do not proceed without an explicit yes or confirmation.
 
-6.  **Create Checkpoint Commit (Includes Accumulated Plan Updates):**
-    -   Stage all changes, **including the modified `plan.md`** which contains accumulated task status updates from this phase.
-    -   Perform the commit with a clear and concise message (e.g., `conductor(checkpoint): Checkpoint end of Phase X`).
+6.  **Record Phase Reference (On Disk Only - Do NOT Commit):**
+    -   **Step 6.1: Get Last Commit Hash:** Obtain the hash of the last task commit in this phase (`git log -1 --format="%H"`).
+    -   **Step 6.2: Update Plan:** Read `plan.md`, find the heading for the completed phase, and append the first 7 characters of the commit hash in the format `[checkpoint: <sha>]`.
+    -   **Step 6.3: Write Plan:** Write the updated content back to `plan.md`.
+    -   **IMPORTANT:** Do NOT commit this change separately. The checkpoint SHA annotation will be included in the next phase's first task commit.
 
-7.  **Attach Auditable Verification Report using Git Notes (Optional):**
-    -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the manual verification steps, and the user's confirmation.
-    -   **Step 7.2: Attach Note:** Use the `git notes` command and the full commit hash from the previous step to attach the full report to the checkpoint commit.
-    -   **Note:** This step is optional. If your team prefers not to use git notes, skip this step.
-
-8.  **Get and Record Phase Checkpoint SHA (On Disk Only - Do NOT Commit):**
-    -   **Step 8.1: Get Commit Hash:** Obtain the hash of the *just-created checkpoint commit* (`git log -1 --format="%H"`).
-    -   **Step 8.2: Update Plan:** Read `plan.md`, find the heading for the completed phase, and append the first 7 characters of the commit hash in the format `[checkpoint: <sha>]`.
-    -   **Step 8.3: Write Plan:** Write the updated content back to `plan.md`.
-    -   **IMPORTANT:** Do NOT commit this change separately. The checkpoint SHA annotation will be included in the next phase's checkpoint commit, or remain as an uncommitted working state after the final phase.
-
-9.  **Announce Completion:** Inform the user that the phase is complete and the checkpoint has been created.
+7.  **Announce Completion:** Inform the user that the phase is complete and verified.
 
 ### Quality Gates
 
