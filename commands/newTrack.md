@@ -223,7 +223,7 @@ After setup verification passes, proceed to **Section 1.2**.
 
 <instructions>
 
-**Launch the `track-context-researcher` agent** to gather project context efficiently.
+**Launch the `conductor:track-context-researcher` agent** to gather project context efficiently.
 
 1. **Prepare input** for the agent:
     ```json
@@ -240,7 +240,7 @@ After setup verification passes, proceed to **Section 1.2**.
     ```
 
 2. **Launch agent** using the Agent tool with:
-    - `subagent_type`: `"track-context-researcher"`
+    - `subagent_type`: `"conductor:track-context-researcher"`
     - `prompt`: The JSON input above
     - `model`: `"haiku"` (cost-efficient for context gathering)
 
