@@ -50,6 +50,21 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-b
 
 ---
 
+## 1.0.1 WARM START DETECTION
+
+**PROTOCOL: Detect if implement was invoked directly from newTrack (context already loaded).**
+
+1. **Check arguments** for `--warm-start` flag (e.g., `args: "<TRACK_ID> --warm-start"`)
+2. **If `--warm-start` is present:**
+   - Announce: "⚡ Warm start mode — skipping redundant setup (context carried over from newTrack)."
+   - **Skip Section 1.1** (setup already verified during newTrack)
+   - **Skip Section 2.1** (git branch was just created by newTrack)
+   - Proceed directly to **Section 2.0** (track selection), then **Section 2.2** (base branch detection)
+   - Set `WARM_START = true` for use in Section 3.0 Step 2
+3. **If `--warm-start` is NOT present:** Set `WARM_START = false`, proceed normally to Section 1.1.
+
+---
+
 ## 1.1 SETUP CHECK
 
 **PROTOCOL: Follow the Verify Setup Protocol in `protocols/verify-setup.md`.**
@@ -70,7 +85,9 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json implement suggest-b
 
 3. **If no tracks found:** "The tracks file is empty or malformed." — halt.
 
-4. After selection, proceed to **Section 2.1**.
+4. After selection:
+   - **If `WARM_START = true`:** Skip Section 2.1, proceed directly to **Section 2.2**
+   - **Otherwise:** Proceed to **Section 2.1**
 
 ---
 
@@ -143,19 +160,28 @@ Happens in Section 3.0 before each task:
 
 ### Step 2: Load Track Context (CACHE FOR SESSION)
 
-Execute a single CLI call to load spec, plan, and metadata:
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json tracks read-context <track_id>
-```
+**If `WARM_START = true`** (context carried over from newTrack Phase B):
+- Spec is already in conversation context (written to disk during Phase B) — do NOT reload
+- Load plan (for parsed task indices) and metadata (for status tracking):
+  ```bash
+  python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json tracks read-context <track_id> --include plan,metadata
+  ```
+- Still read the **Workflow** file (`conductor/workflow.md`) — it was read during newTrack Phase A but lost when ExitPlanMode cleared context
 
-The response includes:
-- `data.spec` — full specification text
-- `data.plan.parsed` — structured phases and tasks with indices
-- `data.metadata` — track type, status, timestamps
+**If `WARM_START = false`** (standalone invocation):
+- Execute a single CLI call to load spec, plan, and metadata:
+  ```bash
+  python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json tracks read-context <track_id>
+  ```
+  The response includes:
+  - `data.spec` — full specification text
+  - `data.plan.parsed` — structured phases and tasks with indices
+  - `data.metadata` — track type, status, timestamps
+- Also read the **Workflow** file (`conductor/workflow.md`).
 
-Also read the **Workflow** file (`conductor/workflow.md`). Cache both in context — do NOT re-read during task execution.
+Cache loaded context — do NOT re-read during task execution.
 
-**Error Handling:** If either read fails, stop and inform the user.
+**Error Handling:** If any read fails, stop and inform the user.
 
 ### Step 3: Surface Patterns (Batch — Single Upfront Call)
 

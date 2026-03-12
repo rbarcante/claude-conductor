@@ -30,7 +30,7 @@ The spec and plan reload via `read-context` is the **largest single redundancy**
    - Setup verification (Section 1.1) — skip entirely
    - Git isolation (Section 2.1) — skip entirely (branch just created)
    - Full spec reload — use `read-context --include plan,metadata` instead of loading all 3
-   - Workflow re-read — skip (already in context from newTrack)
+   - ~~Workflow re-read~~ — **kept**: workflow.md is read during newTrack Phase A but lost when ExitPlanMode clears context, so it must be re-read
 
 4. **FR-4: Preserve Essential Steps** — Warm start does NOT skip:
    - Base branch detection (Section 2.2) — still needed
@@ -38,6 +38,7 @@ The spec and plan reload via `read-context` is the **largest single redundancy**
    - Pattern matching (Section 3.0 Step 3) — new work (matching logic)
    - Track status update to in-progress
    - Task iteration loop
+   - Workflow re-read — lost after ExitPlanMode context clearing
 
 ## Non-Functional Requirements
 
@@ -52,7 +53,7 @@ The spec and plan reload via `read-context` is the **largest single redundancy**
 - [ ] In warm start mode, setup check (1.1) is skipped
 - [ ] In warm start mode, git isolation (2.1) is skipped
 - [ ] In warm start mode, `read-context` uses `--include plan,metadata` (no spec)
-- [ ] In warm start mode, workflow.md re-read is skipped
+- [ ] In warm start mode, workflow.md is still re-read (lost after ExitPlanMode context clearing)
 - [ ] Standalone invocation (no --warm-start) behaves identically to current behavior
 
 ## Out of Scope
