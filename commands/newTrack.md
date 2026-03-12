@@ -335,7 +335,9 @@ You MUST launch the `conductor:track-context-researcher` agent in this step. Do 
 3. **If `ExitPlanMode` is unavailable or fails**, instruct the user:
     > "Please press `Shift+Tab` to exit Plan Mode. You can review the spec and plan content above before we proceed to create the files."
 
-4. **Wait for user approval** before proceeding to Phase B.
+<note type="critical">
+Once `ExitPlanMode` completes (or the user exits plan mode manually), the content is approved. Do NOT ask for additional confirmation, feedback, or approval. Proceed IMMEDIATELY to Phase B, Step 2.1.
+</note>
 
 </instructions>
 
