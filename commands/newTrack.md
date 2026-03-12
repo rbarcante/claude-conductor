@@ -143,9 +143,9 @@ After exiting plan mode, execute these steps in order. Use the Conductor CLI at 
    - `metadata.json` — `{"track_id":"<ID>","type":"<type>","status":"pending","description":"<desc>","created_at":"<ISO>","updated_at":"<ISO>"}`
 5. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
 6. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
-7. **Start implementation**: Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` — do NOT implement the track yourself
-
-**CRITICAL**: Step 7 is mandatory. You MUST invoke `conductor:implement` via the Skill tool with the track ID as args. Do NOT read the plan and start coding — the implement skill has its own protocol, CLI commands, and workflow.
+7. **Ask about implementation**: Use the AskUserQuestion **tool** (NOT a plain text question) to ask if the user wants to start implementation now:
+   - "Start implementation" → invoke Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"`
+   - "Just create track" → announce the track is ready and mention `/conductor:implement` as the next step when ready
 ```
 
 </protocol>
@@ -348,8 +348,8 @@ You MUST launch the `conductor:track-context-researcher` agent in this step. Do 
 - Do NOT interpret context clearing or the system reminder as a rejection or failure.
 - Do NOT ask what to do next, offer retry options, or request additional feedback.
 - **Read the CC plan file** at the path provided in the system reminder. The plan file contains the "Phase B — Execution Steps" section with all commands to run in order.
-- **Follow those Phase B steps exactly** — they include creating the branch, scaffolding, writing files, registering, committing, and invoking `conductor:implement` via the Skill tool.
-- Do NOT skip steps or implement the track yourself.
+- **Follow those Phase B steps exactly** — they include creating the branch, scaffolding, writing files, registering, committing, and optionally invoking `conductor:implement` via the Skill tool.
+- Do NOT skip steps 1-6 or implement the track yourself.
 </note>
 
 3. **If `ExitPlanMode` tool call itself errors** (tool not found, permission denied), instruct the user:
@@ -459,7 +459,32 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
    git commit -m "<prefix>(conductor): Create track '<description>'"
    ```
 4. **Announce:** Inform user track is created.
-5. **Invoke implementation:** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` to begin implementing the track. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol, CLI commands, and workflow that must be followed.
+
+</instructions>
+
+</phase>
+
+---
+
+<phase name="offer_implementation">
+
+## 2.5 OFFER IMPLEMENTATION
+
+<instructions>
+
+<note type="critical">
+You MUST use the AskUserQuestion tool here — do NOT ask a plain text question. This step is mandatory regardless of whether the commit step was skipped.
+</note>
+
+1. **Call AskUserQuestion** with:
+   - Header: "Next step"
+   - Question: "Would you like to start implementing this track now?"
+   - Options: `["Start implementation", "Just create track"]`
+   - multiSelect: `false`
+
+2. **Handle response:**
+   - **"Start implementation":** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"`. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol.
+   - **"Just create track":** Announce the track is ready and inform the user they can run `/conductor:implement` when they want to start.
 
 </instructions>
 
