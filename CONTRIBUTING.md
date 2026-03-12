@@ -57,9 +57,9 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 - All other types → no version bump (may appear in changelog)
 
 > **Important:** Only the types listed above are recognized by Release Please. Using
-> non-standard types (e.g., `conductor(track):`) will cause commits to be **completely
-> ignored** for both changelog generation and version bumping. When committing feature
-> work, always use `feat(<scope>):` to ensure proper semantic versioning.
+> non-standard types will cause commits to be **completely ignored** for both changelog
+> generation and version bumping. Always use standard Conventional Commits types
+> (e.g., `feat(<scope>):`, `fix(<scope>):`) to ensure proper semantic versioning.
 
 Example:
 ```
