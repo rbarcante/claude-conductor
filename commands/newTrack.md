@@ -13,6 +13,7 @@ allowed-tools:
   - Agent
   - EnterPlanMode
   - ExitPlanMode
+  - Skill
 ---
 
 # Context
@@ -127,14 +128,24 @@ During Phase A, composed content is written to the CC plan file for user review.
 
 ---
 
-## Execution Preview
-When approved, the following actions will be taken:
-1. Create git branch `<prefix>/<shortname>`
-2. Generate track ID via CLI
-3. Scaffold track directory at `conductor/tracks/<track_id>/`
-4. Write spec.md and plan.md with the content above
-5. Register track via CLI
-6. Prompt for commit
+## Phase B — Execution Steps (follow in order after approval)
+
+After exiting plan mode, execute these steps in order. Use the Conductor CLI at `${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py`.
+
+1. **Create git branch**: `git checkout -b <prefix>/<shortname>`
+2. **Generate track ID**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "<description>"`
+3. **Create directory**: `mkdir -p conductor/tracks/<TRACK_ID>`
+4. **Write all track files** using the Write tool (no scaffold — write directly):
+   - `spec.md` — approved Specification content above
+   - `plan.md` — approved Implementation Plan content above
+   - `index.md` — track index linking to spec, plan, decisions, metadata
+   - `decisions.md` — empty ADR template
+   - `metadata.json` — `{"track_id":"<ID>","type":"<type>","status":"pending","description":"<desc>","created_at":"<ISO>","updated_at":"<ISO>"}`
+5. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
+6. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
+7. **Start implementation**: Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` — do NOT implement the track yourself
+
+**CRITICAL**: Step 7 is mandatory. You MUST invoke `conductor:implement` via the Skill tool with the track ID as args. Do NOT read the plan and start coding — the implement skill has its own protocol, CLI commands, and workflow.
 ```
 
 </protocol>
@@ -169,7 +180,13 @@ When approved, the following actions will be taken:
 
 **PROTOCOL: Follow the Verify Setup Protocol in `protocols/verify-setup.md`.**
 
-This step only reads files (product.md, tech-stack.md, workflow.md) — fully compatible with plan mode.
+This step only reads files — fully compatible with plan mode.
+
+**Explicit file resolution steps:**
+1. Read `conductor/index.md` to find the actual paths for Product Definition, Tech Stack, and Workflow
+2. If `conductor/index.md` doesn't exist, use default paths: `conductor/product.md`, `conductor/tech-stack.md`, `conductor/workflow.md`
+3. Verify each file exists. If any are missing, HALT and tell the user to run `/conductor:setup`
+4. Store the resolved paths — they will be passed to the context research agent in Step 1.3
 
 After setup verification passes, proceed to **Section 1.2**.
 
@@ -186,8 +203,8 @@ After setup verification passes, proceed to **Section 1.2**.
 <instructions>
 
 1. **Get Track Description:**
-    * **If `{{args}}` contains a description:** Use its content.
-    * **Else If it is empty:** Use AskUserQuestion to ask:
+    * **If `{{args}}` contains a description:** Use the content of `{{args}}`.
+    * **If `{{args}}` is empty:** Use AskUserQuestion to ask:
         > "Please provide a brief description of the track (feature, bug fix, chore, etc.) you wish to start."
         Await the user's response and use it as the track description.
 
@@ -219,7 +236,9 @@ After setup verification passes, proceed to **Section 1.2**.
 
 <instructions>
 
-**Launch the `track-context-researcher` agent** to gather project context efficiently.
+<note type="critical">
+You MUST launch the `conductor:track-context-researcher` agent in this step. Do NOT skip it or read project files yourself — the agent offloads context gathering to a cheaper model and keeps the parent context clean.
+</note>
 
 1. **Prepare input** for the agent:
     ```json
@@ -236,7 +255,7 @@ After setup verification passes, proceed to **Section 1.2**.
     ```
 
 2. **Launch agent** using the Agent tool with:
-    - `subagent_type`: `"track-context-researcher"`
+    - `subagent_type`: `"conductor:track-context-researcher"`
     - `prompt`: The JSON input above
     - `model`: `"haiku"` (cost-efficient for context gathering)
 
@@ -245,7 +264,7 @@ After setup verification passes, proceed to **Section 1.2**.
     - Relevant file references in the spec
     - Pattern adherence in the plan
 
-4. **If agent fails or is unavailable**, fall back to reading project files directly:
+4. **Fallback (ONLY if the Agent tool call returns an error):** Read project files directly:
     - Read **Product Definition**, **Tech Stack**, **Workflow**, **Product Guidelines** via Universal File Resolution Protocol
     - Reference `conductor/docs/` and `conductor/product-guidelines.md` for established codebase patterns
 
@@ -276,9 +295,7 @@ After setup verification passes, proceed to **Section 1.2**.
 3. **Compose `spec.md` content** (hold in context — do NOT write files yet):
     Include: Overview, Background, Functional Requirements, Non-Functional Requirements, Acceptance Criteria, Out of Scope
 
-4. **User Confirmation:** Present the composed spec and use Approval pattern (Approve/Suggest changes)
-    - **Approve:** Proceed to Section 1.5
-    - **Suggest changes:** Revise and present again
+4. **Present draft inline** for the user to see. Do NOT use a formal Approval prompt here — the spec will be formally reviewed together with the plan via ExitPlanMode in Step 1.6. If the user volunteers feedback at this point, incorporate it before proceeding.
 
 </instructions>
 
@@ -301,7 +318,7 @@ After setup verification passes, proceed to **Section 1.2**.
     - **CRITICAL:** Adhere to **Workflow** methodology (TDD structure)
     - **CRITICAL:** Append verification task to each phase: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`
 
-3. **User Confirmation:** Present the composed plan and use Approval pattern (Approve/Suggest changes)
+3. **Present draft inline** for the user to see. Do NOT use a formal Approval prompt here — the plan will be formally reviewed together with the spec via ExitPlanMode in Step 1.6. If the user volunteers feedback at this point, incorporate it before proceeding.
 
 </instructions>
 
@@ -311,25 +328,33 @@ After setup verification passes, proceed to **Section 1.2**.
 
 <phase name="write_plan_file">
 
-## 1.7 WRITE TO CC PLAN FILE AND EXIT PLAN MODE
+## 1.6 WRITE TO CC PLAN FILE AND EXIT PLAN MODE
 
 <instructions>
 
+**This is the single formal approval gate for all composed content.**
+
 1. **Compose the CC plan file** using the format defined in `<protocol name="cc_plan_file">`, combining:
     - Track configuration (type, branch name)
-    - Approved spec content
-    - Approved plan content
+    - Composed spec content
+    - Composed plan content
     - Execution preview
 
 2. **Call `ExitPlanMode`** with the composed content as the plan.
-    - This presents the plan to the user for final review
-    - The user can press `Ctrl+G` to edit the plan before approving
-    - The user approves by pressing `Enter` or continuing the conversation
 
-3. **If `ExitPlanMode` is unavailable or fails**, instruct the user:
-    > "Please press `Shift+Tab` to exit Plan Mode. You can review the spec and plan content above before we proceed to create the files."
+<note type="critical">
+**How to interpret the ExitPlanMode result:**
+- After calling `ExitPlanMode`, the system will clear prior context and return a system reminder containing "Exited Plan Mode". This is **SUCCESS** — the user approved the plan.
+- Do NOT interpret context clearing or the system reminder as a rejection or failure.
+- Do NOT ask what to do next, offer retry options, or request additional feedback.
+- **Read the CC plan file** at the path provided in the system reminder. The plan file contains the "Phase B — Execution Steps" section with all commands to run in order.
+- **Follow those Phase B steps exactly** — they include creating the branch, scaffolding, writing files, registering, committing, and invoking `conductor:implement` via the Skill tool.
+- Do NOT skip steps or implement the track yourself.
+</note>
 
-4. **Wait for user approval** before proceeding to Phase B.
+3. **If `ExitPlanMode` tool call itself errors** (tool not found, permission denied), instruct the user:
+    > "Please press `Shift+Tab` to exit Plan Mode, then tell me to continue."
+    When the user confirms, proceed immediately to Phase B.
 
 </instructions>
 
@@ -364,7 +389,7 @@ Use the branch name decided in Step 1.2. The branch name and prefix were already
 
 <phase name="generate_and_scaffold">
 
-## 2.2 GENERATE TRACK ID AND SCAFFOLD
+## 2.2 GENERATE TRACK ID AND CREATE FILES
 
 <instructions>
 
@@ -373,29 +398,16 @@ Use the branch name decided in Step 1.2. The branch name and prefix were already
 | Step | Action | Fallback |
 |------|--------|----------|
 | 1. Generate ID | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESC"` | Manual: `shortname_YYYYMMDD` |
-| 2. Scaffold | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold TRACK_ID --type TYPE --description "DESC"` | Create directory and files manually |
+| 2. Create directory | `mkdir -p conductor/tracks/<TRACK_ID>` | — |
 
-The scaffold command creates 5 template files. The next step will overwrite `spec.md` and `plan.md` with approved content.
+Then **Write all 5 track files directly** (no scaffold — avoids overwrite conflicts):
 
-</instructions>
-
-</phase>
-
----
-
-<phase name="write_spec_plan">
-
-## 2.3 WRITE SPEC AND PLAN
-
-<instructions>
-
-**Overwrite the scaffolded template files with the approved content from Phase A:**
-
-1. **Read back the approved content** from conversation context (composed in Steps 1.4 and 1.5)
-2. **Write `spec.md`**: Use the Write tool to overwrite `conductor/tracks/<track_id>/spec.md` with the approved spec content
-3. **Write `plan.md`**: Use the Write tool to overwrite `conductor/tracks/<track_id>/plan.md` with the approved plan content
-
-Only spec.md and plan.md need overwriting — index.md, metadata.json, and decisions.md from scaffold are correct as-is.
+1. **Read back the approved content** from conversation context (or from the CC plan file if context was cleared)
+2. **Write `spec.md`**: approved spec content
+3. **Write `plan.md`**: approved plan content
+4. **Write `index.md`**: track index with links to spec, plan, decisions, metadata
+5. **Write `decisions.md`**: empty ADR template (read from `templates/decisions.md` if it exists, otherwise minimal template)
+6. **Write `metadata.json`**: `{"track_id": "<ID>", "type": "<type>", "status": "pending", "description": "<desc>", "created_at": "<ISO>", "updated_at": "<ISO>"}`
 
 </instructions>
 
@@ -405,7 +417,7 @@ Only spec.md and plan.md need overwriting — index.md, metadata.json, and decis
 
 <phase name="register">
 
-## 2.4 REGISTER TRACK
+## 2.3 REGISTER TRACK
 
 <instructions>
 
@@ -423,7 +435,7 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
 
 <phase name="commit">
 
-## 2.5 COMMIT AND FINALIZE
+## 2.4 COMMIT AND FINALIZE
 
 <instructions>
 
@@ -446,7 +458,8 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
    ```bash
    git commit -m "<prefix>(conductor): Create track '<description>'"
    ```
-4. **Announce:** Inform user track is created. Next step: `/conductor:implement`
+4. **Announce:** Inform user track is created.
+5. **Invoke implementation:** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` to begin implementing the track. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol, CLI commands, and workflow that must be followed.
 
 </instructions>
 
