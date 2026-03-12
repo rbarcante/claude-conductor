@@ -223,7 +223,9 @@ After setup verification passes, proceed to **Section 1.2**.
 
 <instructions>
 
-**Launch the `conductor:track-context-researcher` agent** to gather project context efficiently.
+<note type="critical">
+You MUST launch the `conductor:track-context-researcher` agent in this step. Do NOT skip it or read project files yourself — the agent offloads context gathering to a cheaper model and keeps the parent context clean.
+</note>
 
 1. **Prepare input** for the agent:
     ```json
@@ -249,7 +251,7 @@ After setup verification passes, proceed to **Section 1.2**.
     - Relevant file references in the spec
     - Pattern adherence in the plan
 
-4. **If agent fails or is unavailable**, fall back to reading project files directly:
+4. **Fallback (ONLY if the Agent tool call returns an error):** Read project files directly:
     - Read **Product Definition**, **Tech Stack**, **Workflow**, **Product Guidelines** via Universal File Resolution Protocol
     - Reference `conductor/docs/` and `conductor/product-guidelines.md` for established codebase patterns
 
