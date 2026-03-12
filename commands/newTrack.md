@@ -13,6 +13,7 @@ allowed-tools:
   - Agent
   - EnterPlanMode
   - ExitPlanMode
+  - Skill
 ---
 
 # Context
@@ -131,14 +132,20 @@ During Phase A, composed content is written to the CC plan file for user review.
 
 ---
 
-## Execution Preview
-When approved, the following actions will be taken:
-1. Create git branch `<prefix>/<shortname>`
-2. Generate track ID via CLI
-3. Scaffold track directory at `conductor/tracks/<track_id>/`
-4. Write spec.md and plan.md with the content above
-5. Register track via CLI
-6. Prompt for commit
+## Phase B — Execution Steps (follow in order after approval)
+
+After exiting plan mode, execute these steps in order. Use the Conductor CLI at `${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py`.
+
+1. **Create git branch**: `git checkout -b <prefix>/<shortname>`
+2. **Generate track ID**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "<description>"`
+3. **Scaffold directory**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold <TRACK_ID> --type <type> --description "<description>"`
+4. **Write spec.md**: Overwrite `conductor/tracks/<TRACK_ID>/spec.md` with the Specification content above
+5. **Write plan.md**: Overwrite `conductor/tracks/<TRACK_ID>/plan.md` with the Implementation Plan content above
+6. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
+7. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
+8. **Start implementation**: Call the Skill tool with `skill: "conductor:implement"` — do NOT implement the track yourself
+
+**CRITICAL**: Step 8 is mandatory. You MUST invoke `conductor:implement` via the Skill tool. Do NOT read the plan and start coding — the implement skill has its own protocol, CLI commands, and workflow.
 ```
 
 </protocol>
@@ -173,7 +180,13 @@ When approved, the following actions will be taken:
 
 **PROTOCOL: Follow the Verify Setup Protocol in `protocols/verify-setup.md`.**
 
-This step only reads files (product.md, tech-stack.md, workflow.md) — fully compatible with plan mode.
+This step only reads files — fully compatible with plan mode.
+
+**Explicit file resolution steps:**
+1. Read `conductor/index.md` to find the actual paths for Product Definition, Tech Stack, and Workflow
+2. If `conductor/index.md` doesn't exist, use default paths: `conductor/product.md`, `conductor/tech-stack.md`, `conductor/workflow.md`
+3. Verify each file exists. If any are missing, HALT and tell the user to run `/conductor:setup`
+4. Store the resolved paths — they will be passed to the context research agent in Step 1.3
 
 After setup verification passes, proceed to **Section 1.2**.
 
@@ -334,8 +347,9 @@ You MUST launch the `conductor:track-context-researcher` agent in this step. Do 
 - After calling `ExitPlanMode`, the system will clear prior context and return a system reminder containing "Exited Plan Mode". This is **SUCCESS** — the user approved the plan.
 - Do NOT interpret context clearing or the system reminder as a rejection or failure.
 - Do NOT ask what to do next, offer retry options, or request additional feedback.
-- **Immediately proceed to Phase B, Step 2.1** — the spec and plan content you composed is approved.
-- If you no longer have the composed content in context after the clear, read it back from the CC plan file path provided in the system reminder.
+- **Read the CC plan file** at the path provided in the system reminder. The plan file contains the "Phase B — Execution Steps" section with all commands to run in order.
+- **Follow those Phase B steps exactly** — they include creating the branch, scaffolding, writing files, registering, committing, and invoking `conductor:implement` via the Skill tool.
+- Do NOT skip steps or implement the track yourself.
 </note>
 
 3. **If `ExitPlanMode` tool call itself errors** (tool not found, permission denied), instruct the user:
@@ -457,7 +471,8 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
    ```bash
    git commit -m "<prefix>(conductor): Create track '<description>'"
    ```
-4. **Announce:** Inform user track is created. Next step: `/conductor:implement`
+4. **Announce:** Inform user track is created.
+5. **Invoke implementation:** Call the Skill tool with `skill: "conductor:implement"` to begin implementing the track. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol, CLI commands, and workflow that must be followed.
 
 </instructions>
 
