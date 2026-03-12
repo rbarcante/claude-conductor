@@ -328,16 +328,19 @@ You MUST launch the `conductor:track-context-researcher` agent in this step. Do 
     - Execution preview
 
 2. **Call `ExitPlanMode`** with the composed content as the plan.
-    - This presents the combined spec + plan to the user for review and approval
-    - The user can press `Ctrl+G` to edit the content before approving
-    - The user approves by pressing `Enter` or continuing the conversation
-
-3. **If `ExitPlanMode` is unavailable or fails**, instruct the user:
-    > "Please press `Shift+Tab` to exit Plan Mode. You can review the spec and plan content above before we proceed to create the files."
 
 <note type="critical">
-Once `ExitPlanMode` completes (or the user exits plan mode manually), the content is approved. Do NOT ask for additional confirmation, feedback, or approval. Proceed IMMEDIATELY to Phase B, Step 2.1.
+**How to interpret the ExitPlanMode result:**
+- After calling `ExitPlanMode`, the system will clear prior context and return a system reminder containing "Exited Plan Mode". This is **SUCCESS** — the user approved the plan.
+- Do NOT interpret context clearing or the system reminder as a rejection or failure.
+- Do NOT ask what to do next, offer retry options, or request additional feedback.
+- **Immediately proceed to Phase B, Step 2.1** — the spec and plan content you composed is approved.
+- If you no longer have the composed content in context after the clear, read it back from the CC plan file path provided in the system reminder.
 </note>
+
+3. **If `ExitPlanMode` tool call itself errors** (tool not found, permission denied), instruct the user:
+    > "Please press `Shift+Tab` to exit Plan Mode, then tell me to continue."
+    When the user confirms, proceed immediately to Phase B.
 
 </instructions>
 
