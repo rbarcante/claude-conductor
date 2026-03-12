@@ -280,9 +280,7 @@ After setup verification passes, proceed to **Section 1.2**.
 3. **Compose `spec.md` content** (hold in context — do NOT write files yet):
     Include: Overview, Background, Functional Requirements, Non-Functional Requirements, Acceptance Criteria, Out of Scope
 
-4. **User Confirmation:** Present the composed spec and use Approval pattern (Approve/Suggest changes)
-    - **Approve:** Proceed to Section 1.5
-    - **Suggest changes:** Revise and present again
+4. **Present draft inline** for the user to see. Do NOT use a formal Approval prompt here — the spec will be formally reviewed together with the plan via ExitPlanMode in Step 1.7. If the user volunteers feedback at this point, incorporate it before proceeding.
 
 </instructions>
 
@@ -305,7 +303,7 @@ After setup verification passes, proceed to **Section 1.2**.
     - **CRITICAL:** Adhere to **Workflow** methodology (TDD structure)
     - **CRITICAL:** Append verification task to each phase: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`
 
-3. **User Confirmation:** Present the composed plan and use Approval pattern (Approve/Suggest changes)
+3. **Present draft inline** for the user to see. Do NOT use a formal Approval prompt here — the plan will be formally reviewed together with the spec via ExitPlanMode in Step 1.7. If the user volunteers feedback at this point, incorporate it before proceeding.
 
 </instructions>
 
@@ -319,15 +317,17 @@ After setup verification passes, proceed to **Section 1.2**.
 
 <instructions>
 
+**This is the single formal approval gate for all composed content.**
+
 1. **Compose the CC plan file** using the format defined in `<protocol name="cc_plan_file">`, combining:
     - Track configuration (type, branch name)
-    - Approved spec content
-    - Approved plan content
+    - Composed spec content
+    - Composed plan content
     - Execution preview
 
 2. **Call `ExitPlanMode`** with the composed content as the plan.
-    - This presents the plan to the user for final review
-    - The user can press `Ctrl+G` to edit the plan before approving
+    - This presents the combined spec + plan to the user for review and approval
+    - The user can press `Ctrl+G` to edit the content before approving
     - The user approves by pressing `Enter` or continuing the conversation
 
 3. **If `ExitPlanMode` is unavailable or fails**, instruct the user:
