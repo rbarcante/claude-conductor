@@ -47,9 +47,6 @@ The following CLI commands are used for write operations during track creation:
 # Generate track ID from description
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESCRIPTION"
 
-# Scaffold track directory with template files
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold TRACK_ID --type TYPE --description "DESC"
-
 # Validate and enforce metadata.json for the track
 python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register TRACK_ID --description "DESC"
 ```
@@ -61,8 +58,7 @@ Valid types: `feature` (default), `bugfix`, `refactor`, `docs`, `chore`
 ### Fallback Instructions
 
 1. **For `generate-id` failure:** Generate manually using format `shortname_YYYYMMDD`
-2. **For `scaffold` failure:** Create directory and files manually with Write tool
-3. **For `register` failure:** Edit `conductor/tracks/<track_id>/metadata.json` directly
+2. **For `register` failure:** Edit `conductor/tracks/<track_id>/metadata.json` directly
 
 </cli_reference>
 
@@ -138,14 +134,18 @@ After exiting plan mode, execute these steps in order. Use the Conductor CLI at 
 
 1. **Create git branch**: `git checkout -b <prefix>/<shortname>`
 2. **Generate track ID**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "<description>"`
-3. **Scaffold directory**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold <TRACK_ID> --type <type> --description "<description>"`
-4. **Write spec.md**: Overwrite `conductor/tracks/<TRACK_ID>/spec.md` with the Specification content above
-5. **Write plan.md**: Overwrite `conductor/tracks/<TRACK_ID>/plan.md` with the Implementation Plan content above
-6. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
-7. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
-8. **Start implementation**: Call the Skill tool with `skill: "conductor:implement"` — do NOT implement the track yourself
+3. **Create directory**: `mkdir -p conductor/tracks/<TRACK_ID>`
+4. **Write all track files** using the Write tool (no scaffold — write directly):
+   - `spec.md` — approved Specification content above
+   - `plan.md` — approved Implementation Plan content above
+   - `index.md` — track index linking to spec, plan, decisions, metadata
+   - `decisions.md` — empty ADR template
+   - `metadata.json` — `{"track_id":"<ID>","type":"<type>","status":"pending","description":"<desc>","created_at":"<ISO>","updated_at":"<ISO>"}`
+5. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
+6. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
+7. **Start implementation**: Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` — do NOT implement the track yourself
 
-**CRITICAL**: Step 8 is mandatory. You MUST invoke `conductor:implement` via the Skill tool. Do NOT read the plan and start coding — the implement skill has its own protocol, CLI commands, and workflow.
+**CRITICAL**: Step 7 is mandatory. You MUST invoke `conductor:implement` via the Skill tool with the track ID as args. Do NOT read the plan and start coding — the implement skill has its own protocol, CLI commands, and workflow.
 ```
 
 </protocol>
@@ -389,7 +389,7 @@ Use the branch name decided in Step 1.2. The branch name and prefix were already
 
 <phase name="generate_and_scaffold">
 
-## 2.2 GENERATE TRACK ID AND SCAFFOLD
+## 2.2 GENERATE TRACK ID AND CREATE FILES
 
 <instructions>
 
@@ -398,29 +398,16 @@ Use the branch name decided in Step 1.2. The branch name and prefix were already
 | Step | Action | Fallback |
 |------|--------|----------|
 | 1. Generate ID | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack generate-id "DESC"` | Manual: `shortname_YYYYMMDD` |
-| 2. Scaffold | `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack scaffold TRACK_ID --type TYPE --description "DESC"` | Create directory and files manually |
+| 2. Create directory | `mkdir -p conductor/tracks/<TRACK_ID>` | — |
 
-The scaffold command creates 5 template files. The next step will overwrite `spec.md` and `plan.md` with approved content.
+Then **Write all 5 track files directly** (no scaffold — avoids overwrite conflicts):
 
-</instructions>
-
-</phase>
-
----
-
-<phase name="write_spec_plan">
-
-## 2.3 WRITE SPEC AND PLAN
-
-<instructions>
-
-**Overwrite the scaffolded template files with the approved content from Phase A:**
-
-1. **Read back the approved content** from conversation context (composed in Steps 1.4 and 1.5)
-2. **Write `spec.md`**: Use the Write tool to overwrite `conductor/tracks/<track_id>/spec.md` with the approved spec content
-3. **Write `plan.md`**: Use the Write tool to overwrite `conductor/tracks/<track_id>/plan.md` with the approved plan content
-
-Only spec.md and plan.md need overwriting — index.md, metadata.json, and decisions.md from scaffold are correct as-is.
+1. **Read back the approved content** from conversation context (or from the CC plan file if context was cleared)
+2. **Write `spec.md`**: approved spec content
+3. **Write `plan.md`**: approved plan content
+4. **Write `index.md`**: track index with links to spec, plan, decisions, metadata
+5. **Write `decisions.md`**: empty ADR template (read from `templates/decisions.md` if it exists, otherwise minimal template)
+6. **Write `metadata.json`**: `{"track_id": "<ID>", "type": "<type>", "status": "pending", "description": "<desc>", "created_at": "<ISO>", "updated_at": "<ISO>"}`
 
 </instructions>
 
@@ -472,7 +459,7 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
    git commit -m "<prefix>(conductor): Create track '<description>'"
    ```
 4. **Announce:** Inform user track is created.
-5. **Invoke implementation:** Call the Skill tool with `skill: "conductor:implement"` to begin implementing the track. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol, CLI commands, and workflow that must be followed.
+5. **Invoke implementation:** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"` to begin implementing the track. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol, CLI commands, and workflow that must be followed.
 
 </instructions>
 
