@@ -144,7 +144,7 @@ After exiting plan mode, execute these steps in order. Use the Conductor CLI at 
 5. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
 6. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
 7. **Ask about implementation**: Use the AskUserQuestion **tool** (NOT a plain text question) to ask if the user wants to start implementation now:
-   - "Start implementation" → invoke Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"`
+   - "Start implementation" → invoke Skill tool with `skill: "conductor:implement", args: "<TRACK_ID> --warm-start"`
    - "Just create track" → announce the track is ready and mention `/conductor:implement` as the next step when ready
 ```
 
@@ -483,7 +483,7 @@ You MUST use the AskUserQuestion tool here — do NOT ask a plain text question.
    - multiSelect: `false`
 
 2. **Handle response:**
-   - **"Start implementation":** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID>"`. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol.
+   - **"Start implementation":** Call the Skill tool with `skill: "conductor:implement", args: "<TRACK_ID> --warm-start"`. Do NOT attempt to implement the track yourself — the `conductor:implement` skill has its own protocol.
    - **"Just create track":** Announce the track is ready and inform the user they can run `/conductor:implement` when they want to start.
 
 </instructions>
