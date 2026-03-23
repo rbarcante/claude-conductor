@@ -24,6 +24,14 @@
 
 ---
 
+## Mandatory Usage
+
+<note type="critical">
+All interactive questions in any Conductor command MUST use the AskUserQuestion tool. Do NOT ask plain text questions — every user-facing prompt must go through AskUserQuestion, without exception. This applies to all commands (newTrack, implement, setup, codeReview, etc.) and all question types (clarifications, approvals, confirmations, option selections).
+</note>
+
+---
+
 ## Key Rules
 
 1. **Header Constraint:** Maximum 12 characters (e.g., "Interaction", "Data", "Scope")
