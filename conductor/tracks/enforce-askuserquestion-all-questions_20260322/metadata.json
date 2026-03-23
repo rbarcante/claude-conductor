@@ -1,0 +1,8 @@
+{
+  "track_id": "enforce-askuserquestion-all-questions_20260322",
+  "type": "refactor",
+  "status": "pending",
+  "description": "Enforce AskUserQuestion for all questions in newTrack.md",
+  "created_at": "2026-03-22T00:00:00Z",
+  "updated_at": "2026-03-22T00:00:00Z"
+}
