@@ -472,10 +472,6 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register T
 
 <instructions>
 
-<note type="critical">
-You MUST use the AskUserQuestion tool here — do NOT ask a plain text question. This step is mandatory regardless of whether the commit step was skipped.
-</note>
-
 1. **Call AskUserQuestion** with:
    - Header: "Next step"
    - Question: "Would you like to start implementing this track now?"
