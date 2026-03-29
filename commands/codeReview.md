@@ -79,15 +79,9 @@ Store `data.stats` for the report summary.
 
 ---
 
-## 3.0 EXECUTION STRATEGY
+## 3.0 PARALLEL EXECUTION
 
-### 3.1 Prompt User
-
-Ask via AskUserQuestion: "How would you like to run the analysis?"
-- "Parallel (Recommended)" — specialist agents simultaneously
-- "Sequential" — inline analysis
-
-### 3.2 Parallel Execution (Preferred)
+### 3.1 Run Analysis
 
 **Prepare agent input** from CLI response:
 
@@ -115,9 +109,9 @@ If `conductor/product-guidelines.md` exists, read and include documentation/nami
 
 Each returns structured JSON: `{ "findings": [...], "summary": { "high": N, "medium": N, "low": N } }`
 
-### 3.3 Sequential Execution (Fallback)
+### 3.2 Inline Fallback (Agent Failure Only)
 
-If user selects Sequential, or as fallback for failed agents, run analysis inline using the checklists below.
+When one or more agents fail, fall back to inline analysis for the failed dimension using the checklists below.
 
 **Code Quality Checklist:**
 - Code smells: functions >50 lines, nesting >3 levels, duplicate code, magic numbers, dead code
@@ -141,8 +135,8 @@ Record each finding with: severity, file, line, issue, recommendation.
 ## 4.0 ERROR HANDLING
 
 ### Agent Failures
-- **1 agent fails:** Note failure in report, fall back to inline analysis (Section 3.3) for that dimension
-- **2+ agents fail:** Switch to full sequential mode, announce: "Switching to sequential analysis."
+- **1 agent fails:** Note failure in report, fall back to inline analysis (Section 3.2) for that dimension
+- **2+ agents fail:** Fall back to inline analysis for all dimensions, announce: "Multiple agents failed. Running inline fallback analysis."
 - **Invalid output:** Treat as failure, fall back to inline
 
 | Failed Agent | Inline Fallback |
@@ -162,8 +156,7 @@ Record each finding with: severity, file, line, issue, recommendation.
 
 ### 5.1 Aggregate Findings
 
-**Parallel:** Parse JSON from each agent, merge `findings` arrays, sum severity counts.
-**Sequential:** Gather findings from inline analysis.
+Parse JSON from each agent, merge `findings` arrays, sum severity counts. For any dimension that used inline fallback, include those findings in the same structure.
 
 ### 5.2 Generate Report
 
