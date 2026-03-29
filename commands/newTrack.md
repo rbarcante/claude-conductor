@@ -143,7 +143,7 @@ After exiting plan mode, execute these steps in order. Use the Conductor CLI at 
    - `metadata.json` — `{"track_id":"<ID>","type":"<type>","status":"pending","description":"<desc>","created_at":"<ISO>","updated_at":"<ISO>"}`
 5. **Register track**: `python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json newtrack register <TRACK_ID> --description "<description>"`
 6. **Commit**: Stage with `git add conductor/tracks/<TRACK_ID>/metadata.json && git add conductor/tracks/<TRACK_ID>/*`, then commit with type-appropriate prefix
-7. **Ask about implementation**: Use the AskUserQuestion **tool** (NOT a plain text question) to ask if the user wants to start implementation now:
+7. **Ask about implementation**: Use the AskUserQuestion tool to ask if the user wants to start implementation now:
    - "Start implementation" → invoke Skill tool with `skill: "conductor:implement", args: "<TRACK_ID> --warm-start"`
    - "Just create track" → announce the track is ready and mention `/conductor:implement` as the next step when ready
 ```
