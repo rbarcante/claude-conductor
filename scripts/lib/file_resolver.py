@@ -19,8 +19,24 @@ Resolves file paths according to the Conductor file resolution protocol
 defined in CLAUDE.md.
 """
 
+import re
 from pathlib import Path
 from typing import Optional, Dict, Any
+
+# Only allow safe branch-name-like characters in track IDs
+TRACK_ID_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$")
+
+
+def validate_track_id(track_id: str) -> None:
+    """Validate that a track_id is safe for filesystem path construction.
+
+    Raises:
+        ValueError: If track_id contains path traversal or unsafe characters
+    """
+    if not track_id or ".." in track_id or "/" in track_id or "\\" in track_id:
+        raise ValueError(f"Invalid track_id: {track_id!r}")
+    if not TRACK_ID_PATTERN.match(track_id):
+        raise ValueError(f"Invalid track_id: {track_id!r}")
 
 
 class FileResolver:
@@ -32,7 +48,6 @@ class FileResolver:
         "tech_stack": "conductor/tech-stack.md",
         "workflow": "conductor/workflow.md",
         "product_guidelines": "conductor/product-guidelines.md",
-        "tracks_registry": "conductor/tracks.md",
         "tracks_directory": "conductor/tracks",
         "project_index": "conductor/index.md",
         "settings": "conductor/settings.json",
@@ -87,7 +102,7 @@ class FileResolver:
         Resolve a project-level file.
 
         Args:
-            file_key: Key identifying the file (e.g., 'tracks_registry')
+            file_key: Key identifying the file (e.g., 'workflow', 'tech_stack')
 
         Returns:
             Resolved Path or None if not found
@@ -159,7 +174,12 @@ class FileResolver:
 
         Returns:
             Path to track directory or None if not found
+
+        Raises:
+            ValueError: If track_id contains unsafe characters
         """
+        validate_track_id(track_id)
+
         tracks_dir = self.resolve_project_file("tracks_directory")
         if not tracks_dir:
             tracks_dir = self.project_root / self.PROJECT_DEFAULTS["tracks_directory"]

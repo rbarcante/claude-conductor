@@ -37,7 +37,9 @@ Commands:
     newtrack    Create track structure (scaffold, metadata)
     setup       Project setup operations (detect, scaffold)
     revert      Git revert operations
-    implement   Implementation helpers (parse, update-status)
+    implement   Implementation helpers (parse, update-status, git-snapshot, batch-match-patterns)
+    codereview  Code review operations (filtered-diff)
+    tracks      Track operations (parse-plan, update-task, read-context)
 """
 
 import argparse
@@ -62,6 +64,8 @@ from commands import (
     setup,
     revert,
     implement,
+    codereview,
+    tracks,
 )
 
 
@@ -284,6 +288,80 @@ def create_parser() -> argparse.ArgumentParser:
     )
     impl_suggest_branch.add_argument("track_id", help="Track ID")
 
+    impl_git_snapshot = implement_subparsers.add_parser(
+        "git-snapshot",
+        help="Consolidate branch, status, diff stats, and diff content into single JSON",
+    )
+    impl_git_snapshot.add_argument(
+        "--exclude", nargs="+", help="Path patterns to exclude from diff"
+    )
+    impl_git_snapshot.add_argument(
+        "--diff-stat-only",
+        action="store_true",
+        help="Return only diff stats (skip full diff content)",
+    )
+
+    impl_batch = implement_subparsers.add_parser(
+        "batch-match-patterns",
+        help="Match patterns for all tasks in a plan in bulk",
+    )
+    impl_batch.add_argument(
+        "--plan", required=True, metavar="TRACK_ID", help="Track ID to load plan from"
+    )
+
+    # Codereview command
+    codereview_parser = subparsers.add_parser(
+        "codereview", help="Code review operations"
+    )
+    codereview_subparsers = codereview_parser.add_subparsers(dest="subcommand")
+
+    cr_filtered_diff = codereview_subparsers.add_parser(
+        "filtered-diff",
+        help="Generate filtered, size-capped diff with language statistics",
+    )
+    cr_filtered_diff.add_argument(
+        "--exclude", nargs="+", help="Path patterns to exclude from diff"
+    )
+    cr_filtered_diff.add_argument(
+        "--max-lines", type=int, help="Maximum diff lines to include (default: 5000)"
+    )
+    cr_filtered_diff.add_argument(
+        "--base", help="Base branch to diff against (auto-detected if not provided)"
+    )
+
+    # Tracks command
+    tracks_parser = subparsers.add_parser("tracks", help="Track operations")
+    tracks_subparsers = tracks_parser.add_subparsers(dest="subcommand")
+
+    tr_parse_plan = tracks_subparsers.add_parser(
+        "parse-plan", help="Parse plan.md into structured JSON with phases and tasks"
+    )
+    tr_parse_plan.add_argument("track_id", help="Track ID")
+
+    tr_update_task = tracks_subparsers.add_parser(
+        "update-task", help="Update task status in plan.md by phase/task index"
+    )
+    tr_update_task.add_argument("track_id", help="Track ID")
+    tr_update_task.add_argument("phase_index", type=int, help="Phase index (0-based)")
+    tr_update_task.add_argument(
+        "task_index", type=int, help="Task index within phase (0-based)"
+    )
+    tr_update_task.add_argument(
+        "status",
+        choices=["pending", "in_progress", "in-progress", "completed"],
+        help="New task status",
+    )
+
+    tr_read_context = tracks_subparsers.add_parser(
+        "read-context",
+        help="Consolidate spec, plan, and metadata into single JSON response",
+    )
+    tr_read_context.add_argument("track_id", help="Track ID")
+    tr_read_context.add_argument(
+        "--include",
+        help="Comma-separated sections to include: spec,plan,metadata (default: all)",
+    )
+
     return parser
 
 
@@ -314,6 +392,10 @@ def main():
             result = revert.handle(args)
         elif args.command == "implement":
             result = implement.handle(args)
+        elif args.command == "codereview":
+            result = codereview.handle(args)
+        elif args.command == "tracks":
+            result = tracks.handle(args)
         else:
             parser.print_help()
             sys.exit(1)

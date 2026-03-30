@@ -1,0 +1,8 @@
+{
+  "type": "refactor",
+  "status": "pending",
+  "created_at": "2026-02-25T04:09:57.002398Z",
+  "updated_at": "2026-02-25T04:09:57.002398Z",
+  "description": "Rewrite command protocols for token optimization",
+  "track_id": "rewrite-command-protocols-token_20260225"
+}

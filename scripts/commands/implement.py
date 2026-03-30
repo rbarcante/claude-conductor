@@ -20,14 +20,16 @@ coverage parsing, pattern matching, and file tracking.
 LLM needed for implementation decisions, TDD workflow, and verification.
 """
 
+import argparse
+import json
 import os
 import re
 import shutil
+import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-import json
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from lib.git_ops import GitOps
@@ -36,9 +38,72 @@ from lib.file_resolver import FileResolver
 from lib.json_manager import JsonManager
 from lib.markdown_parser import MarkdownParser
 from lib.formatters import Formatters
+from commands.git_snapshot import git_snapshot as _git_snapshot
+from commands.tracks import parse_plan_content
+
+_COVERAGE_THRESHOLD_PERCENT = 80
+_MAX_UNCOVERED_FILES = 10
+
+_STOP_WORDS = {
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "but",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "as",
+    "is",
+    "are",
+    "was",
+    "be",
+    "this",
+    "that",
+    "it",
+    "its",
+    "add",
+    "create",
+    "write",
+    "update",
+    "implement",
+    "task",
+    "test",
+    "unit",
+    "tests",
+    "all",
+    "new",
+    "into",
+    "return",
+    "via",
+    "per",
+    "each",
+    "into",
+    "using",
+    "support",
+}
+
+STATUS_NORMALIZATION_MAP = {
+    "in-progress": "in_progress",
+    "active": "in_progress",
+    "done": "completed",
+    "new": "pending",
+}
 
 
-def handle(args) -> Dict[str, Any]:
+def normalize_status(status: str) -> str:
+    """Normalize status strings to canonical underscore form."""
+    return STATUS_NORMALIZATION_MAP.get(status, status)
+
+
+def handle(args: argparse.Namespace) -> Dict[str, Any]:
     """Handle implement subcommands."""
     project_root = args.project_root
     plugin_root = getattr(args, "plugin_root", None)
@@ -64,10 +129,23 @@ def handle(args) -> Dict[str, Any]:
         return match_patterns(plugin_root or project_root, args.keywords)
     elif args.subcommand == "suggest-branch":
         return suggest_branch(project_root, args.track_id)
+    elif args.subcommand == "git-snapshot":
+        exclude = getattr(args, "exclude", None) or []
+        diff_stat_only = getattr(args, "diff_stat_only", False)
+        return _git_snapshot(project_root, exclude, diff_stat_only)
+    elif args.subcommand == "batch-match-patterns":
+        plan_track_id = getattr(args, "plan", None)
+        return batch_match_patterns(
+            plugin_root or project_root, project_root, plan_track_id
+        )
     else:
         return {
             "success": False,
-            "error": "No subcommand specified. Use: parse-tracks, update-status, archive, modified-files, parse-coverage, next-adr-number, match-patterns, suggest-branch",
+            "error": (
+                "No subcommand specified. Use: parse-tracks, update-status, archive, "
+                "modified-files, parse-coverage, next-adr-number, match-patterns, "
+                "suggest-branch, git-snapshot, batch-match-patterns"
+            ),
         }
 
 
@@ -77,7 +155,7 @@ def parse_tracks(
     status_filter: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Parse tracks registry and return structured JSON with status.
+    Parse tracks via directory scan and return structured JSON with status.
 
     Args:
         project_root: Project root path
@@ -91,15 +169,15 @@ def parse_tracks(
     resolver = FileResolver(project_root)
     json_mgr = JsonManager(project_root)
 
-    # Read tracks registry
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
+    # Verify tracks directory exists
+    tracks_dir = project_root / "conductor" / "tracks"
+    if not tracks_dir.exists():
         return {
             "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
+            "error": "Tracks directory (conductor/tracks/) not found",
         }
 
-    tracks = parser.parse_tracks_registry()
+    tracks = parser.scan_tracks_directory(include_archived=True)
 
     # Map status filter to enum value for comparison
     status_map = {
@@ -186,7 +264,7 @@ def parse_tracks(
 
 def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, Any]:
     """
-    Update track status in tracks.md.
+    Update track status in metadata.json.
 
     Args:
         project_root: Project root path
@@ -197,99 +275,38 @@ def update_status(project_root: Path, track_id: str, status: str) -> Dict[str, A
         JSON with update result
     """
     resolver = FileResolver(project_root)
-    parser = TracksParser(project_root)
     json_mgr = JsonManager(project_root)
 
     # Verify track exists
     if not resolver.track_exists(track_id):
         return {"success": False, "error": f"Track '{track_id}' not found"}
 
-    # Read tracks.md
-    tracks_file = resolver.resolve_project_file("tracks_registry")
-    if not tracks_file:
-        return {
-            "success": False,
-            "error": "Tracks registry (conductor/tracks.md) not found",
-        }
-
-    content = tracks_file.read_text()
-
-    # Map status string to enum
-    status_map = {
-        "pending": TaskStatus.PENDING,
-        "in-progress": TaskStatus.IN_PROGRESS,
-        "completed": TaskStatus.COMPLETED,
-    }
-
-    if status not in status_map:
+    # Validate status
+    valid_statuses = {"pending", "in-progress", "completed"}
+    if status not in valid_statuses:
         return {
             "success": False,
             "error": f"Invalid status '{status}'. Use: pending, in-progress, completed",
         }
 
-    new_status = status_map[status]
+    # Normalize status for storage
+    normalized_status = normalize_status(status)
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    # Find and update the track line
-    # Look for the track by ID in the path
-    lines = content.split("\n")
-    updated = False
-    new_lines = []
-
-    for line in lines:
-        if f"conductor/tracks/{track_id}" in line or f"tracks/{track_id}" in line:
-            # This is the link line, track status is on previous line
-            new_lines.append(line)
-        elif track_id in line and "**Track:" in line:
-            # Update status marker
-            status_char = " "
-            if new_status == TaskStatus.COMPLETED:
-                status_char = "x"
-            elif new_status == TaskStatus.IN_PROGRESS:
-                status_char = "~"
-
-            updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
-            new_lines.append(updated_line)
-            updated = True
-        else:
-            # Check if line contains track info by checking if next line would have track_id
-            # This handles cases where track_id isn't in the track line itself
-            new_lines.append(line)
-
-    # If not found by ID in track line, try finding by looking at the path pattern
-    if not updated:
-        new_lines = []
-        for i, line in enumerate(lines):
-            if i + 1 < len(lines) and f"conductor/tracks/{track_id}" in lines[i + 1]:
-                # Current line should be the track line
-                status_char = " "
-                if new_status == TaskStatus.COMPLETED:
-                    status_char = "x"
-                elif new_status == TaskStatus.IN_PROGRESS:
-                    status_char = "~"
-
-                updated_line = re.sub(r"\[([ x~])\]", f"[{status_char}]", line, count=1)
-                new_lines.append(updated_line)
-                updated = True
-            else:
-                new_lines.append(line)
-
-    if not updated:
-        return {
-            "success": False,
-            "error": f"Could not find track '{track_id}' in tracks.md",
-        }
-
-    # Write updated content
-    tracks_file.write_text("\n".join(new_lines))
-
-    # Update metadata
+    # Read current metadata
     metadata = json_mgr.read_track_metadata(track_id)
-    if metadata:
-        from datetime import datetime
+    if not metadata:
+        # Create minimal metadata if missing
+        metadata = {
+            "track_id": track_id,
+            "status": normalized_status,
+            "updated_at": now,
+        }
+    else:
+        metadata["status"] = normalized_status
+        metadata["updated_at"] = now
 
-        metadata["status"] = status
-        metadata["updated_at"] = datetime.utcnow().isoformat() + "Z"
-        json_mgr.write_track_metadata(track_id, metadata)
+    json_mgr.write_track_metadata(track_id, metadata)
 
     return {
         "success": True,
@@ -490,7 +507,7 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
         elif line == "end_of_record":
             if current_file and file_lf > 0 and file_lh < file_lf:
                 coverage = (file_lh / file_lf) * 100
-                if coverage < 80:  # Files with less than 80% coverage
+                if coverage < _COVERAGE_THRESHOLD_PERCENT:
                     uncovered_files.append(
                         {"file": current_file, "coverage": round(coverage, 1)}
                     )
@@ -502,13 +519,20 @@ def parse_lcov(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_hit,
         "lines_total": lines_found,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
 def parse_cobertura(path: Path) -> Dict[str, Any]:
     """Parse Cobertura XML format coverage file."""
-    tree = ET.parse(path)
+    try:
+        from defusedxml.ElementTree import parse as _safe_parse
+
+        tree = _safe_parse(path)
+    except ImportError:
+        tree = ET.parse(path)
     root = tree.getroot()
 
     # Get line-rate from root or coverage element
@@ -541,7 +565,7 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         cls_line_rate = cls.get("line-rate")
         if cls_line_rate:
             file_coverage = float(cls_line_rate) * 100
-            if file_coverage < 80:
+            if file_coverage < _COVERAGE_THRESHOLD_PERCENT:
                 uncovered_files.append(
                     {"file": filename, "coverage": round(file_coverage, 1)}
                 )
@@ -557,7 +581,9 @@ def parse_cobertura(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
@@ -601,7 +627,7 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
 
             if file_total > 0:
                 file_pct = (file_covered / file_total) * 100
-                if file_pct < 80:
+                if file_pct < _COVERAGE_THRESHOLD_PERCENT:
                     uncovered_files.append(
                         {"file": filename, "coverage": round(file_pct, 1)}
                     )
@@ -612,7 +638,9 @@ def parse_json_coverage(path: Path) -> Dict[str, Any]:
         "lines_covered": lines_covered,
         "lines_total": lines_total,
         "coverage_percent": round(coverage_percent, 2),
-        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[:10],
+        "uncovered_files": sorted(uncovered_files, key=lambda x: x["coverage"])[
+            :_MAX_UNCOVERED_FILES
+        ],
     }
 
 
@@ -627,7 +655,12 @@ def next_adr_number(project_root: Path, adr_path: str) -> Dict[str, Any]:
     Returns:
         JSON with next ADR number
     """
-    adr_dir = project_root / adr_path
+    adr_dir = (project_root / adr_path).resolve()
+    if not str(adr_dir).startswith(str(project_root.resolve())):
+        return {
+            "success": False,
+            "error": f"ADR path '{adr_path}' resolves outside project root",
+        }
 
     if not adr_dir.exists():
         # Directory doesn't exist yet, start with 1
@@ -852,6 +885,95 @@ def suggest_branch(project_root: Path, track_id: str) -> Dict[str, Any]:
         },
         "message": format_suggest_branch(branch_name, worktree_path, current_branch),
     }
+
+
+def batch_match_patterns(
+    plugin_root: Path, project_root: Path, track_id: Optional[str]
+) -> Dict[str, Any]:
+    """
+    Extract keywords from all tasks in a plan and match patterns in bulk.
+
+    Replaces N individual match-patterns calls (one per task) with a single
+    call that returns per-task pattern matches for the entire plan.
+
+    Args:
+        plugin_root: Plugin root directory (patterns/ lives here)
+        project_root: Project root directory (conductor/ lives here)
+        track_id: Track ID whose plan.md will be parsed
+
+    Returns:
+        JSON with per-task pattern matches and summary statistics
+    """
+    if not track_id:
+        return {"success": False, "error": "--plan TRACK_ID is required"}
+
+    resolver = FileResolver(project_root)
+    plan_file = resolver.resolve_track_file(track_id, "implementation_plan")
+    if not plan_file:
+        return {"success": False, "error": f"Plan file not found for track: {track_id}"}
+
+    content = plan_file.read_text()
+    phases = parse_plan_content(content)
+
+    task_results = []
+    for phase in phases:
+        for task in phase["tasks"]:
+            task_keywords = _extract_keywords(task["content"])
+            match_result = match_patterns(plugin_root, task_keywords)
+            matches = match_result.get("data", {}).get("matches", [])
+
+            task_results.append(
+                {
+                    "phase": phase["name"],
+                    "phase_index": phase["index"],
+                    "task_index": task["index"],
+                    "task_content": task["content"],
+                    "task_status": task["status"],
+                    "keywords": task_keywords,
+                    "pattern_matches": matches,
+                }
+            )
+
+    total_matches = sum(len(t["pattern_matches"]) for t in task_results)
+    tasks_with_matches = sum(1 for t in task_results if t["pattern_matches"])
+
+    return {
+        "success": True,
+        "data": {
+            "track_id": track_id,
+            "tasks": task_results,
+            "summary": {
+                "total_tasks": len(task_results),
+                "tasks_with_matches": tasks_with_matches,
+                "total_pattern_matches": total_matches,
+            },
+        },
+        "message": (
+            f"Batch pattern match: {len(task_results)} tasks, "
+            f"{tasks_with_matches} with matches, "
+            f"{total_matches} total matches"
+        ),
+    }
+
+
+def _extract_keywords(text: str) -> List[str]:
+    """
+    Extract meaningful keywords from task description text.
+
+    Tokenizes, lowercases, removes common stop words and single-char tokens.
+
+    Args:
+        text: Task description text
+
+    Returns:
+        List of normalized keyword strings
+    """
+    # Strip backtick code spans and special characters
+    text = re.sub(r"`[^`]+`", " ", text)
+    text = re.sub(r"[^a-zA-Z0-9\s\-]", " ", text)
+
+    tokens = text.lower().split()
+    return [t for t in tokens if t not in _STOP_WORDS and len(t) > 2]
 
 
 def extract_shortname(track_id: str) -> str:

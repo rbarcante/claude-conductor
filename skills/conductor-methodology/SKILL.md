@@ -99,10 +99,11 @@ Standard workflow from `workflow.md`:
 5. **Refactor**: Improve code while keeping tests passing
 6. **Verify Coverage**: Ensure >80% coverage (or configured percentage)
 7. **Document Deviations**: Update tech-stack.md if needed
-8. **Commit Code**: Stage and commit with descriptive message
-9. **Attach Task Summary**: Use git notes for detailed summary
-10. **Record SHA**: Update plan with commit hash
-11. **Commit Plan**: Commit plan.md changes
+8. **Update Plan Status**: Mark task as `[x]` in plan.md (pre-commit)
+9. **Confirm Commit**: Ask user to commit or skip
+10. **Commit Code + Plan**: Stage code changes and plan.md together, commit with descriptive message
+11. **Attach Task Summary**: Use git notes for detailed summary (optional)
+12. **Record SHA in Plan**: Append commit SHA to task line on disk (included in next commit)
 
 ### Phase Completion Protocol
 
@@ -112,21 +113,19 @@ When a phase completes:
 2. **Execute Automated Tests**: Run full test suite with `CI=true`
 3. **Propose Manual Verification Plan**: Provide step-by-step verification steps
 4. **Await User Feedback**: Get explicit confirmation
-5. **Create Checkpoint Commit**: Commit with message `conductor(checkpoint): Checkpoint end of Phase X`
-6. **Attach Verification Report**: Use git notes with test results and user confirmation
-7. **Record Checkpoint SHA**: Append to phase header in plan
-8. **Commit Plan Update**: Commit plan changes
+5. **Record Phase Reference**: Get last task commit SHA, append `[checkpoint: <sha>]` to phase header in plan (on disk only)
+6. **Announce Completion**: Inform user the phase is complete and verified
 
 ### Commit Message Patterns
 
 - **Implementation**: `feat(module): Add feature description`
 - **Bug Fix**: `fix(module): Fix issue description`
 - **Tests**: `test(module): Add tests for feature`
-- **Plan Updates**: `conductor(plan): Mark task 'description' as complete`
-- **Checkpoints**: `conductor(checkpoint): Checkpoint end of Phase X`
-- **Track Management**: `conductor(track): Create track 'description'`
-- **Setup**: `conductor(setup): Add conductor setup files`
-- **Documentation**: `docs(conductor): Synchronize docs for track 'description'`
+- **Refactoring**: `refactor(module): Refactor description`
+- **Documentation**: `docs(module): Update documentation`
+- **Chores**: `chore: Maintenance task description`
+
+**Note:** Plan.md updates are bundled into code commits — no separate conductor-specific commits are created. Track creation uses standard commit types (e.g., `chore: Create track 'description'`).
 
 ## Git Notes Usage
 
@@ -144,9 +143,9 @@ Files Changed:
 Why: <Rationale for changes>
 ```
 
-### Checkpoint Notes
+### Phase Verification Notes
 
-Attached to checkpoint commits with format:
+Optionally attached to the last task commit of a phase:
 ```
 Phase: <Phase Name>
 Automated Tests: <Command run and result>
