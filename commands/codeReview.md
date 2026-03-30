@@ -4,6 +4,7 @@ description: Performs comprehensive code review of changes in the current branch
 argument-hint: "<base_branch> (e.g., master, develop, main)"
 allowed-tools:
   - Read
+  - Write
   - Bash
   - Glob
   - Grep
@@ -230,3 +231,45 @@ Parse JSON from each agent, merge `findings` arrays, sum severity counts. For an
 1. Display complete report to user
 2. If high severity issues: "Please address high severity items before merging."
 3. If no issues: "Code review passed. No blocking issues found."
+
+---
+
+## 6.0 SAVE REVIEW
+
+### 6.1 Detect Track Context
+
+1. Get current branch: `git branch --show-current`
+2. Scan `conductor/tracks/*/metadata.json` files for a track whose branch matches the current git branch (match track shortname against branch name)
+3. If a match is found, store `track_id` and `track_path`. Set `TRACK_DETECTED = true`.
+4. If no match found, set `TRACK_DETECTED = false`.
+
+### 6.2 Prompt User
+
+Ask via AskUserQuestion:
+
+**If `TRACK_DETECTED = true`:**
+- Header: "Save review"
+- Question: "Would you like to save this review?"
+- Options: "Save to track (Recommended)" / "Save to file" / "Skip"
+
+**If `TRACK_DETECTED = false`:**
+- Header: "Save review"
+- Question: "Would you like to save this review?"
+- Options: "Save to file" / "Skip"
+
+### 6.3 Execute Save
+
+**"Save to track":**
+1. Write the generated report to `conductor/tracks/<track_id>/review.md`
+2. Read the track's `index.md` and add a link to the review file: `- [Review](./review.md) — Code review report`
+3. Write the updated `index.md`
+4. Announce: "Review saved to `conductor/tracks/<track_id>/review.md`."
+
+**"Save to file":**
+1. Ensure `conductor/reviews/` directory exists (`mkdir -p conductor/reviews/`)
+2. Derive filename: `<branch_name>_<YYYY-MM-DD>.md` (replace `/` in branch name with `-`)
+3. Write the generated report to `conductor/reviews/<filename>`
+4. Announce: "Review saved to `conductor/reviews/<filename>`."
+
+**"Skip":**
+1. Announce: "Review not saved."
