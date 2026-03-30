@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0](https://github.com/rbarcante/claude-conductor/compare/v1.5.0...v1.6.0) (2026-03-30)
+
+
+### Features
+
+* **cli:** Add 6 batch CLI commands for token optimization ([ce50954](https://github.com/rbarcante/claude-conductor/commit/ce50954225dfc195de3f682998acab2b509ca41a))
+* **codeReview:** Add save review prompt to codeReview and deduplicate with implement ([#63](https://github.com/rbarcante/claude-conductor/issues/63)) ([b6c1a07](https://github.com/rbarcante/claude-conductor/commit/b6c1a0713152905cc62fba011b54ec9b1d235369))
+* **commands:** Integrate Plan Mode into newTrack workflow ([#59](https://github.com/rbarcante/claude-conductor/issues/59)) ([2a88d21](https://github.com/rbarcante/claude-conductor/commit/2a88d211f5dab56738f12fecdd57a09c1df7945d))
+* **commands:** Rewrite implement, codeReview, setup protocols for token optimization ([8c7d7d2](https://github.com/rbarcante/claude-conductor/commit/8c7d7d2a31ce503b50564e92eb02b4dfcf9a449b))
+* Remove conductor-specific git commits ([56911a3](https://github.com/rbarcante/claude-conductor/commit/56911a356fe7748941c56fdbf8fb95e4e89778c6))
+* Remove conductor-specific git commits from workflow protocols ([22d2b59](https://github.com/rbarcante/claude-conductor/commit/22d2b59aaaa2c9c22257594c20e35fb11807830d))
+* **skills:** Add glab-cli skill for GitLab CLI reference ([#64](https://github.com/rbarcante/claude-conductor/issues/64)) ([591955a](https://github.com/rbarcante/claude-conductor/commit/591955a59dcbbe5cd8e2c8a01d08ba248fbde99e))
+* Token optimization CLI batch commands and protocol rewrites ([e473b67](https://github.com/rbarcante/claude-conductor/commit/e473b67df190c18e4f53a71eb52519cf60512aa0))
+
+
+### Bug Fixes
+
+* Address code review findings across CLI codebase ([368f73e](https://github.com/rbarcante/claude-conductor/commit/368f73e7b22e57ec800833a370ab82ee16c142c1))
+* **ci:** Apply black formatting to pass lint check ([ab994b9](https://github.com/rbarcante/claude-conductor/commit/ab994b951c5202983e58fe72b3b5d4ee841e018d))
+* **commands:** Address code review findings — security, quality, and test coverage ([da4f291](https://github.com/rbarcante/claude-conductor/commit/da4f29104e3253609623c35e9b2ae2c9080f9ab6))
+
+
+### Reverts
+
+* **version:** Restore 1.5.0 — version bump handled by CI ([e75b984](https://github.com/rbarcante/claude-conductor/commit/e75b9840c57c7ab33ab64f3f30898748556ea637))
+
+
+### Code Refactoring
+
+* **conductor:** Add warm start mode to implement.md for newTrack flow ([b599bc1](https://github.com/rbarcante/claude-conductor/commit/b599bc175b7384b5a832ecb6bb32ae9ae23e4316))
+* **conductor:** Create track 'Enforce AskUserQuestion for all questions in newTrack.md' ([0f3a1eb](https://github.com/rbarcante/claude-conductor/commit/0f3a1ebf06abe4439a90d862bebf7c6e3eeaf18e))
+* **conductor:** Create track 'Optimize implement.md context loading after newTrack flow' ([17ccb1f](https://github.com/rbarcante/claude-conductor/commit/17ccb1f8afc4093e2c07cda455cefa97565f12fa))
+* **conductor:** Enforce AskUserQuestion globally via patterns template ([16d4f91](https://github.com/rbarcante/claude-conductor/commit/16d4f916f0751f227923a055a3004c1da608fa1d))
+* **conductor:** Remove residual inline AskUserQuestion enforcement from newTrack.md ([17bd9c2](https://github.com/rbarcante/claude-conductor/commit/17bd9c25eb35ee0a338b80009ee600189f4c3887))
+* **conductor:** Remove tracks.md registry, replace with directory scan (v2.0.0) ([d053532](https://github.com/rbarcante/claude-conductor/commit/d053532c995cddc90c7505ea52d49768e47d4bb4))
+* Enforce parallel execution in codeReview command ([#62](https://github.com/rbarcante/claude-conductor/issues/62)) ([5ebb5c5](https://github.com/rbarcante/claude-conductor/commit/5ebb5c55fcd364abb2deb7d73139445304501bb2))
+
 ## [1.5.0](https://github.com/rbarcante/claude-conductor/compare/v1.4.0...v1.5.0) (2026-02-20)
 
 
