@@ -2,8 +2,8 @@
 
 ## Phase 1: Create SKILL.md
 
-- [ ] Task 1.1: Create `skills/glab-cli/` directory
-- [ ] Task 1.2: Write `skills/glab-cli/SKILL.md` with full command reference:
+- [x] Task 1.1: Create `skills/glab-cli/` directory
+- [x] Task 1.2: Write `skills/glab-cli/SKILL.md` with full command reference:
   - YAML frontmatter (name: glab-cli, description, version: 1.0.0)
   - Core Principles (authenticate first, use `--output json` for scripting, prefer flags over interactive, use `-R` for cross-repo)
   - **Authentication**: `glab auth login`, `auth status`, `auth logout`
@@ -18,7 +18,7 @@
   - **Milestones**: Create, List
   - **Common Flag Patterns** table (`--output`, `--repo`, `--web`, `--page`/`--per-page`)
   - **Common Workflows** (create MR from branch, review & merge, triage issues, check pipeline status, create release)
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Register Skill
 
