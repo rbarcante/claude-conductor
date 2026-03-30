@@ -274,57 +274,18 @@ Ask via AskUserQuestion: "All tasks complete. Run automated code review before f
 - Options: "Run code review (Recommended)" / "Skip"
 - If Skip: return to finalization.
 
-### 3.7.2 Generate Diff via CLI
+### 3.7.2 Invoke codeReview
 
-Execute a single call to generate the filtered diff:
-```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/conductor_cli.py --json codereview filtered-diff --base <BASE_BRANCH> --exclude "conductor/tracks/*"
+If the user selects review, invoke the codeReview command via the Skill tool:
+```
+skill: "conductor:codeReview", args: "<BASE_BRANCH>"
 ```
 
-The response includes:
-- `data.stats` — files_changed, lines_added, lines_removed, truncated flag
-- `data.language_breakdown` — per-language file counts and line counts
-- `data.file_stats` — per-file breakdown with language detection
-- `data.diff_content` — the full diff (filtered, size-capped)
+The codeReview command handles all diff generation, parallel analysis, report generation, display, and save prompting (Section 6.0). No additional logic is needed here.
 
-**Uncommitted changes check:** If `git status --porcelain` shows changes, ask user:
-- "All changes" → use `--base <BASE_BRANCH>` (includes working tree)
-- "Committed only" → default three-dot diff
-- "Skip review" → return to finalization
+### 3.7.3 Return to Finalization
 
-**Empty diff handling:** If no reviewable product files changed, announce and proceed to finalization.
-
-### 3.7.3 Run Analysis (Parallel)
-
-Prepare agent input from the CLI response:
-```json
-{
-  "diff_content": "<data.diff_content>",
-  "file_list": ["<from data.file_stats[].file>"],
-  "project_context": {
-    "tech_stack": "<from conductor/tech-stack.md>",
-    "language_breakdown": "<from data.language_breakdown>",
-    "styleguide_path": "conductor/code_styleguides/<language>.md",
-    "product_guidelines_path": "conductor/product-guidelines.md"
-  }
-}
-```
-
-**Launch all three agents simultaneously** in a single message:
-- `subagent_type: "code-quality-analyzer"`
-- `subagent_type: "security-scanner"`
-- `subagent_type: "test-coverage-analyzer"`
-
-**Failures:** 1 agent fails → note in report, proceed with others. 2+ fail → skip review.
-
-### 3.7.4 Generate and Save Report
-
-1. Aggregate findings from all agents (merge `findings` arrays, sum severity counts)
-2. Generate report using the template from `codeReview.md` Section 7.2 (Summary table, Code Quality, Security, Test Coverage, Recommendations sections). Add `**Track:** <description>` to header.
-3. Save to `conductor/tracks/<track_id>/review.md`
-4. Update track `index.md` with link to review
-5. Display report: High severity → "⚠️ Review before merging." / No high → "✅ No blocking issues."
-6. Return to finalization (review is non-blocking)
+After codeReview completes, return to finalization. The review is non-blocking.
 
 ---
 
