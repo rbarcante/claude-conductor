@@ -14,9 +14,9 @@
 
 ## Phase 2: Replace implement.md Section 3.7
 
-- [x] Task 2.1: Replace Sections 3.7.1–3.7.4 in `commands/implement.md` with:
+- [x] Task 2.1: Replace Sections 3.7.1–3.7.4 in `commands/implement.md` with: [c8ca3a4]
   - [x] Sub-task 2.1.1: Keep the prompt asking "All tasks complete. Run automated code review before finalizing?" with options "Run code review (Recommended)" / "Skip"
   - [x] Sub-task 2.1.2: If user selects review: invoke `/conductor:codeReview` via the Skill tool (passing the base branch)
   - [x] Sub-task 2.1.3: After codeReview completes (which now includes save prompt): return to finalization
   - [x] Sub-task 2.1.4: Remove all inline diff generation (3.7.2), parallel agent launch (3.7.3), and report save (3.7.4) logic
-- [ ] Task 2.2: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task 2.2: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
