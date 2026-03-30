@@ -1,6 +1,6 @@
 # Implementation Plan: Add GLAB Skill for consistent GitLab CLI usage
 
-## Phase 1: Create SKILL.md
+## Phase 1: Create SKILL.md [checkpoint: e6b6c1a]
 
 - [x] Task 1.1: Create `skills/glab-cli/` directory
 - [x] Task 1.2: Write `skills/glab-cli/SKILL.md` with full command reference:
@@ -22,8 +22,8 @@
 
 ## Phase 2: Register Skill
 
-- [ ] Task 2.1: Add `glab-cli` entry to `skills/skill-registry.json` with:
+- [x] Task 2.1: Add `glab-cli` entry to `skills/skill-registry.json` with:
   - Keywords: `glab`, `gitlab`, `gitlab-cli`, `gitlab cli`, `merge request`, `mr`, `gitlab issue`, `gitlab pipeline`, `gitlab ci`, `glab mr`, `glab issue`, `glab ci`, `gitlab release`
   - tech_stack.tools: `["glab", "GitLab CLI"]`
   - provides.guidance: `["gitlab-issues", "gitlab-merge-requests", "gitlab-ci", "gitlab-releases", "gitlab-labels", "gitlab-variables", "gitlab-auth"]`
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
