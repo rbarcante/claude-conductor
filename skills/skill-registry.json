@@ -97,6 +97,21 @@
       "provides": {
         "guidance": ["jira-work-items", "jira-projects", "jira-boards", "jira-sprints", "jira-filters", "jira-auth", "jql-patterns"]
       }
+    },
+    {
+      "name": "glab-cli",
+      "version": "1.0.0",
+      "path": "./glab-cli",
+      "description": "GitLab CLI (glab) command reference for issues, merge requests, CI/CD pipelines, releases, labels, variables, snippets, and milestones",
+      "activation": {
+        "keywords": ["glab", "gitlab", "gitlab-cli", "gitlab cli", "merge request", "mr", "gitlab issue", "gitlab pipeline", "gitlab ci", "glab mr", "glab issue", "glab ci", "gitlab release", "gitlab snippet", "glab snippet", "gitlab milestone", "glab milestone"],
+        "tech_stack": {
+          "tools": ["glab", "GitLab CLI"]
+        }
+      },
+      "provides": {
+        "guidance": ["gitlab-issues", "gitlab-merge-requests", "gitlab-ci", "gitlab-releases", "gitlab-labels", "gitlab-variables", "gitlab-auth", "gitlab-snippets", "gitlab-milestones"]
+      }
     }
   ]
 }
